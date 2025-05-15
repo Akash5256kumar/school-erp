@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet , Dimensions} from 'react-native';
+import { StyleSheet , Dimensions, Platform} from 'react-native';
 const baseColor = '#0747a6'
 import * as constant from '../../../Utils/Constant'
 
@@ -170,7 +170,9 @@ export default styles = StyleSheet.create({
 
     PdfHeaderBackground: {
         backgroundColor: baseColor,
-        height: 65,
+        // height: 75,
+        paddingTop:Platform.OS === 'ios' ? constant.resW(10) :constant.resW(0) ,
+        paddingBottom:constant.resW(5)
         // borderBottomRightRadius: 120
     },
 

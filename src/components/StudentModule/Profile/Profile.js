@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler,ScrollView, Platform } from 'react-native';
+// import { ScrollView } from 'react-native-gesture-handler';
 import styles from './style';
 const baseColor = '#0747a6'
 import * as myConst from '../../Baseurl';
 import Snackbar from 'react-native-snackbar';
 import AsyncStorage from "@react-native-community/async-storage";
+import { resW } from '../../../Utils/Constant';
 
 
 class Profile extends Component {
@@ -119,6 +120,7 @@ class Profile extends Component {
                 <View>
                     <ImageBackground style={styles.ContainerImage}
                         source={require('../../../assests/images/profile_shape.jpg')}>
+                        <View style={{height:Platform.OS==='ios' ? resW(8): resW(0)}} />
                         <TouchableOpacity onPress={() => this.props.navigation.navigate('Dashboard')}>
                             <Image style={styles.HeaderArrowImage}
                                 source={require('../../../assests/images/leftarrow.png')} />

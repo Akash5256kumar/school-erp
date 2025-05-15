@@ -204,6 +204,7 @@ class StaffAddAttendance extends Component {
                 />
 
                 <TouchableOpacity
+                 style={styles.submitButton2}
                     onPress={() => this.getSubmitAttendanceApi()}
                 >
                     <Text style={styles.submitButton}>Submit</Text>

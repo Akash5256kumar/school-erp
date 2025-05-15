@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { resW } from '../../../Utils/Constant';
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -14,7 +15,9 @@ export default styles = StyleSheet.create({
 
     HeaderBackground: {
         backgroundColor: baseColor,
-        height: 65,
+        // height: 65,
+        paddingTop:Platform.OS === 'ios' ? resW(8) : 0,
+        paddingBottom:resW(4)
     },
 
     HeaderImage: {
@@ -137,7 +140,8 @@ export default styles = StyleSheet.create({
         fontSize: 20,
         color: '#c1c0e0',
         width: deviceWidth * 0.7,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        zIndex:10000
     },
 
     TextInputStyleClass: {
@@ -209,5 +213,15 @@ export default styles = StyleSheet.create({
         paddingTop: 5,
         paddingBottom: 5
     },
+    dropList:{
+        height:'100%',
+        width:'100%',
+        backgroundColor:'transparent',
+      },
+      dropListText:{
+        fontSize: resW(4.5),
+        color: 'black',
+        marginLeft:resW(0.5)
+      },
 
 })

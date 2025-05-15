@@ -29,6 +29,7 @@ class Searchbar extends Component {
                     // value={query}
                     placeholder="Search here..."
                     style={styles.textInput}
+                    placeholderTextColor={'#888888'}
                     onChangeText={(text) => {
                         console.log('text ->', text);
                         this.props.onChangeSearch(text.toLowerCase())
@@ -55,6 +56,7 @@ const styles = StyleSheet.create({
     textInput: {
         // backgroundColor: 'green',
         flex: 1,
+        color:'#000000'
     },
 
     vwSearch: {
@@ -90,10 +92,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    textInput: {
-        // backgroundColor: 'green',
-        flex: 1,
-    },
+    // textInput: {
+    //     // backgroundColor: 'green',
+    //     flex: 1,
+    // },
 
     vwSearch: {
         flex: 0.2,

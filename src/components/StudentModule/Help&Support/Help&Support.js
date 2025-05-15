@@ -11,6 +11,7 @@ import CommonHeader from '../../CommonHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import * as constant from '../../../Utils/Constant'
 import CommonButton from '../../Button/CommonButton';
+import SelectDropList from '../../SelectDropList';
 class HelpSupport extends Component {
 
     constructor(props) {
@@ -110,12 +111,14 @@ class HelpSupport extends Component {
                         uri: response.assets[0].uri,
                         fileType: response.assets[0].type
                     })
+                    this.setState({ isVisiblPickerDialog: false })
                     console.log('fileeee---->>>>>>>>>', this.state.uri)
                 } catch (error) {
                     console.log(error)
+                    this.setState({ isVisiblPickerDialog: false })
                 }
             })
-            this.setState({ isVisiblPickerDialog: false })
+          
 
         } else if (type === 'Camera') {
             launchCamera(options, (response) => {
@@ -129,12 +132,14 @@ class HelpSupport extends Component {
                         uri: response.assets[0].uri,
                         fileType: response.assets[0].type
                     })
+                    this.setState({ isVisiblPickerDialog: false })
                     console.log('fnameeee---->>>>>>>>>', this.state.uri)
                 } catch (error) {
+                    this.setState({ isVisiblPickerDialog: false })
                     console.log(error)
                 }
             })
-            this.setState({ isVisiblPickerDialog: false })
+            // this.setState({ isVisiblPickerDialog: false })
 
 
         }
@@ -160,6 +165,7 @@ class HelpSupport extends Component {
                 },
                 body: formData
             }
+            console.log("dataa",JSON.stringify(data))
             fetch(myConst.BASEURL + 'support', data)
                 .then((response) => response.json())
                 .then((responseJson) => {
@@ -171,7 +177,7 @@ class HelpSupport extends Component {
                         this.showMessage(responseJson.message)
                     }
                 })
-                .catch((error) => console.log(error))
+                .catch((error) => console.log(JSON.stringify(error)))
                 .finally(() => {
                     this.setState({ isLoading: false });
                 })
@@ -214,7 +220,7 @@ class HelpSupport extends Component {
     render() {
         const { isVisiblPickerDialog } = this.state;
         return (
-            <SafeAreaView style={{flex:1}}>
+            <View style={{flex:1}}>
             <LinearGradient colors={['#DFE6FF','#ffffff']} style={{flex:1}} >
             <CommonHeader 
             title={'Help & Support'}
@@ -246,7 +252,17 @@ class HelpSupport extends Component {
                     <Text style={styles.TextView}>Select Issue</Text> */}
 
                     <View style={styles.DropDownBackground}>
-                        <Picker
+                    {this.state.options.length > 0 && <SelectDropList 
+                        list={this.state.options}
+                        title={this.state.selectedValue === '' ? 'Select Issue' : this.state.selectedValue}
+                        buttonExt={styles.dropList}
+                        textExt={styles.dropListText}
+                        type={1}
+                        on_Select={(d)=>this.setState({
+                            selectedValue: d
+                        })}
+                        />}
+                        {/* <Picker
                             mode='dropdown'
                             selectedValue={this.state.selectedValue}
                             onValueChange={(itemValue) => {
@@ -258,7 +274,7 @@ class HelpSupport extends Component {
                             {this.state.options.map((item, index) => {
                                 return (<Picker.Item label={item} value={item} key={index} />)
                             })}
-                        </Picker>
+                        </Picker> */}
                     </View>
                     <View style={styles.midView}>
                     <TextInput style={styles.IssueStyle}
@@ -325,7 +341,7 @@ class HelpSupport extends Component {
             </View>
             </ScrollView>
             </LinearGradient>
-            </SafeAreaView>
+            </View>
         )
     }
 

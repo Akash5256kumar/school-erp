@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { resW } from '../../../Utils/Constant';
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -98,7 +99,9 @@ export default styles = StyleSheet.create({
     NewRowStyle: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        // backgroundColor:'red',
+        marginTop:Platform.OS === 'ios' ? resW(10) : 0
     },
 
 

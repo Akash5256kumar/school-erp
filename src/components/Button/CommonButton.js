@@ -31,23 +31,26 @@ const styles = StyleSheet.create({
   mainView:{
   height:constant.resW(13),
   flexDirection:'row',
-  alignItems:'center',
+  // alignItems:'center',
   marginHorizontal:'5%',
   borderRadius:constant.resW(12),
-  marginBottom:'5%',marginTop:'3%'
+  marginBottom:'5%',
+  marginTop:'3%',
+  // justifyContent:'center'
   },
   
 button:{
 flex:1,
 borderRadius:constant.resW(12),
 alignItems:'center',
-justifyContent:'center'
+justifyContent:'center',
+// backgroundColor:'red'
 },
   buttonTitle:{
     fontSize: constant.font18,
     color: constant.whiteColor,
     fontFamily:constant.typeSemiBold,
-    flex:1,
+    // flex:1,
    textAlignVertical:'center'
   },
 

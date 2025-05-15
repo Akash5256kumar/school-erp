@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { resW } from '../../../Utils/Constant';
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -14,7 +15,9 @@ export default styles = StyleSheet.create({
 
     HeaderBackground: {
         backgroundColor: baseColor,
-        height: 65,
+        // height: 65,
+        paddingTop:Platform.OS === 'ios' ? resW(8) : 0,
+        paddingBottom:resW(4)
     },
 
     HeaderText: {
@@ -91,15 +94,20 @@ export default styles = StyleSheet.create({
         height: 40,
         width: 40
     },
+    submitButton2: {
+        backgroundColor: baseColor,
+       alignItems:'center',
+       justifyContent:'center',
+       paddingVertical:resW(3),
+       marginHorizontal:resW(4),
+       marginBottom:resW(4),
+       borderRadius:5
+    },
 
     submitButton: {
         fontSize: 20,
         fontWeight: 'bold',
         color: 'white',
-        backgroundColor: baseColor,
-        padding: 10,
-        textAlign: 'center',
-        width: deviceWidth
     },
 
     HorizontalLine: {

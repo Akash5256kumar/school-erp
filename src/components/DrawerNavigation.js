@@ -17,6 +17,9 @@ class DrawerNavigation extends Component {
 
     return (
       <Drawer.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
         // drawerType='slide'
         drawerContent={(props) => <SideBar {...props} />}>
         <Drawer.Screen name="Home" component={Home} />

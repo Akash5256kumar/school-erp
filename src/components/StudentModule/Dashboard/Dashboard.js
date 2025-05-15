@@ -30,6 +30,9 @@ class Dashboard extends Component {
         return (
             <Tab.Navigator
             initialRouteName= 'Home'
+            screenOptions={{
+                headerShown: false, // ✅ This hides the top header for all bottom tab screens
+              }}
                 tabBarOptions={{
                     showLabel: false,
                     keyboardHidesTabBar: true,

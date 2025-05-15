@@ -70,12 +70,13 @@ export default styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
         // padding: 10,
-        fontSize: 16,
+        // fontSize: 16,
         borderRadius: 5,
         borderWidth: 0.8,
         borderColor: constant.baseTextColor,
         color: 'black',
-        justifyContent:'center'
+        justifyContent:'center',
+        zIndex:10000
         // backgroundColor:"green"
     },
 
@@ -239,5 +240,15 @@ export default styles = StyleSheet.create({
         width: constant.resW(50),
         alignSelf:'center'
     },
+    dropList:{
+        height:'100%',
+        width:'100%',
+        backgroundColor:'transparent',
+      },
+      dropListText:{
+        fontSize: constant.resW(4.5),
+        color: 'black',
+        marginLeft:constant.resW(0.5)
+      },
 
 })

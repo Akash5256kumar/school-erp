@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler } from 'react-native';
-import { ScrollView, TextInput } from 'react-native-gesture-handler';
+import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler,ScrollView,TextInput } from 'react-native';
+// import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import styles from './style';
 const baseColor = '#0747a6'
 // import * as myConst from '../Baseurl';
@@ -66,9 +66,7 @@ class StaffProfile extends Component {
     render() {
         return (
             <View style={styles.MainContainer}>
-                <ScrollView>
-
-                    <View style={styles.NewRowStyle}>
+                 <View style={styles.NewRowStyle}>
                         <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffHome')}>
                             <Image style={styles.HeaderArrowImage}
                                 source={require('../../../assests/images/arrow_back.png')} />
@@ -76,6 +74,9 @@ class StaffProfile extends Component {
                         <Text style={styles.ProfileText}>Profile</Text>
                         <Text></Text>
                     </View>
+                <ScrollView>
+
+                   
                     <View style={styles.ProfileImageBackground}>
                         <Image style={styles.ProfileImage}
                             source={require('../../../assests/images/businessman.png')} />

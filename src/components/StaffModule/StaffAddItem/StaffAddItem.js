@@ -6,6 +6,7 @@ import * as myConst from '../../Baseurl';
 import Snackbar from 'react-native-snackbar';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
+import SelectDropList from '../../SelectDropList';
 
 const items = {
     item_name: '',
@@ -521,7 +522,7 @@ class StaffAddItem extends Component {
                         <Text style={styles.HeadingText}>Department who require's the items(s)</Text>
                         <View style={styles.rowIconStyle}>
                             <View style={styles.DropDownBackground}>
-                                <Picker
+                                {/* <Picker
                                     mode='dropdown'
                                     selectedValue={this.state.selectedValue}
 
@@ -532,7 +533,18 @@ class StaffAddItem extends Component {
                                     {this.state.options.map((item, index) => {
                                         return (<Picker.Item label={item} value={item} key={index} />)
                                     })}
-                                </Picker>
+                                </Picker> */}
+
+                   {this.state.options.length > 0 && <SelectDropList 
+                        list={this.state.options}
+                        title={this.state.selectedValue === '' ? 'Select Department' : this.state.selectedValue}
+                        buttonExt={styles.dropList}
+                        textExt={styles.dropListText}
+                        type={1}
+                        on_Select={(d)=>this.setState({
+                            selectedValue: d
+                        })}
+                        />}
                             </View>
 
                             <Image style={styles.ImageStyle}
@@ -558,7 +570,7 @@ class StaffAddItem extends Component {
 
                                         <View style={styles.rowIconStyle}>
                                             <View style={styles.DropDownBackground}>
-                                                <Picker
+                                                {/* <Picker
                                                     mode='dropdown'
                                                     selectedValue={val.item_name}
                                                     onValueChange={(itemValue, itemIndex) => {
@@ -568,7 +580,19 @@ class StaffAddItem extends Component {
                                                     {this.state.itemOptions.map((item, index) => {
                                                         return (<Picker.Item label={item} value={item} key={index} />)
                                                     })}
-                                                </Picker>
+                                                </Picker> */}
+                                                {this.state.itemOptions.length > 0 && <SelectDropList
+                                                    list={this.state.itemOptions}
+                                                    title={val?.item_name === '' ? 'Select Item Name' : val?.item_name}
+                                                    buttonExt={styles.dropList}
+                                                    textExt={styles.dropListText}
+                                                    type={1}
+                                                    on_Select={(d,i) =>
+                                                        this.changeStock({ itemSelectedValue: d, itemNameItemIndex: i, index })
+
+                                                    }
+                                                />}
+                                                
                                             </View>
                                         </View>
 
@@ -611,6 +635,7 @@ class StaffAddItem extends Component {
                                         <View style={styles.ChooseFileBoxStyle}>
                                             <Text style={styles.SelectFileText}>{val.image}</Text>
                                             <TouchableOpacity
+                                               style={styles.chooseFileButton2}
                                                 onPress={() => this.onOpenImageDialog(index)}
                                             >
                                                 <Text style={styles.chooseFileButton}>Choose File</Text>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { resW } from '../../../Utils/Constant';
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -14,7 +15,9 @@ export default styles = StyleSheet.create({
 
     HeaderBackground: {
         backgroundColor: baseColor,
-        height: 65,
+        // height: 65,
+        paddingTop:Platform.OS === 'ios' ? resW(8) : 0,
+        paddingBottom:resW(4)
     },
 
     HeaderImage: {
@@ -26,8 +29,10 @@ export default styles = StyleSheet.create({
     },
 
     HeaderContainer: {
-        display: 'flex', flexDirection: 'row',
-        justifyContent: 'space-between'
+        display: 'flex',
+         flexDirection: 'row',
+        justifyContent: 'space-between',
+        
     },
 
     HeaderText: {

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, Image, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { resW } from '../../Utils/Constant';
 const baseColor = '#0747a6'
 
 class Header extends Component {
@@ -35,8 +36,11 @@ class Header extends Component {
 const styles = StyleSheet.create({
     HeaderBackground: {
         backgroundColor: baseColor,
-        height: 65,
-        borderBottomRightRadius: 120
+        // height: resW(25),
+        borderBottomRightRadius: 50,
+        justifyContent:'flex-end',
+        paddingTop:Platform.OS ==='ios' ? resW(8) : resW(0),
+        paddingBottom:resW(5),
     },
 
     HeaderText: {

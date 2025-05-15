@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { resW } from '../../../Utils/Constant';
 const deviceHeight=Dimensions.get('window').height;
 const deviceWidth=Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -8,7 +9,9 @@ export default styles = StyleSheet.create({
 
     HeaderBackground: {
         backgroundColor: baseColor,
-        height: 65,
+        // height: 65,
+        paddingTop:Platform.OS === 'ios' ? resW(8) : 0,
+        paddingBottom:resW(4)
     },
 
     HeaderText: {
@@ -194,17 +197,26 @@ export default styles = StyleSheet.create({
         width: deviceWidth*0.85,
         height: 45
     },
+    chooseFileButton2: {
+        height: 30,
+        width: deviceWidth* 0.35,
+        marginTop: 5,
+        backgroundColor: baseColor,
+        alignItems:'center',
+        justifyContent:'center',
+        borderRadius: 5,
 
+    },
     chooseFileButton: {
         fontSize: 16,
         color: 'white',
-        backgroundColor: baseColor,
-        height: 30,
-        paddingLeft: 20,
-        paddingRight: 20,
-        width: deviceWidth* 0.35,
-        textAlign: 'center',
-        marginTop: 5
+        // backgroundColor: baseColor,
+        // height: 30,
+        // paddingLeft: 20,
+        // paddingRight: 20,
+        // width: deviceWidth* 0.35,
+        // textAlign: 'center',
+        // marginTop: 5
     },
 
     SelectFileText:{
@@ -264,5 +276,15 @@ export default styles = StyleSheet.create({
         marginTop: 10,
         paddingTop: 5,
         paddingBottom: 5
-    }
+    },
+    dropList:{
+        height:'100%',
+        width:'100%',
+        backgroundColor:'transparent',
+      },
+      dropListText:{
+        fontSize: resW(4.5),
+        color: 'black',
+        marginLeft:resW(0.5)
+      },
 })

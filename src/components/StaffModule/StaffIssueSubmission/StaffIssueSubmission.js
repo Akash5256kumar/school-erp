@@ -417,6 +417,7 @@ class StaffIssueSubmission extends Component {
                         <View style={styles.ChooseFileBoxStyle}>
                             <Text style={styles.SelectFileText}>{this.state.fileName}</Text>
                             <TouchableOpacity
+                             style={styles.chooseFileButton2}
                                 onPress={() => this.setState({ isVisiblPickerDialog: true })}
                             >
                                 <Text style={styles.chooseFileButton}>Choose File</Text>

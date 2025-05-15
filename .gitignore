@@ -1,64 +1,74 @@
-# OSX
-#
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-error.log
+package-lock.json
+.pnpm-debug.log*
+
+# Expo-specific files (if using Expo)
+.expo/
+.expo-shared/
+
+# Logs
+*.log
+*.log.*
+*.tlog
+
+# React Native build output
+android/app/build/
+ios/Pods/
+ios/build/
+ios/*.xcodeproj/project.xcworkspace/
+
+# React Native cache
+android/.gradle/
+android/.idea/
+android/local.properties
+android/.settings/
+android/app/proguard-rules.pro
+android/captures/
+android/output.json
+*.iml
 .DS_Store
 
-# Xcode
-#
-build/
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-xcuserdata
-*.xccheckout
-*.moved-aside
-DerivedData
-*.hmap
-*.ipa
-*.xcuserstate
+# IDE/Editor-specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Android/IntelliJ
-#
-build/
-.idea
-.gradle
-local.properties
-*.iml
-*.hprof
- /Android/app/release/
+# OS-specific files
+Thumbs.db
+.DS_Store
+Desktop.ini
 
+# Debug files
+debug/
+*.stackdump
 
+# Metro bundler
+.expo/
+.expo-shared/
+.haul/
+dist/
+coverage/
+.env*
+*.js.map
+*.lock
 
+# Test coverage and other generated files
+jest-test-results.json
+coverage/
+.cache/
 
-# node.js
-#
-node_modules/
-npm-debug.log
-yarn-error.log
+.env
+.env.local
+.env.*.local
 
-# BUCK
-buck-out/
-\.buckd/
-*.keystore
-!debug.keystore
-
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
-# screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/
-
-*/fastlane/report.xml
-*/fastlane/Preview.html
-*/fastlane/screenshots
-
-# Bundle artifact
-*.jsbundle
-
-# CocoaPods
-/ios/Pods/
+# Release builds
+android/app/release/
+android/app/build/
+ios/build/

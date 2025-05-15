@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -230,7 +230,7 @@ export default styles = StyleSheet.create({
         height:constant.resW(15),
         flexDirection:'row',
         alignItems:'center',
-      //   marginTop:StatusBar.currentHeight,
+        marginTop:Platform.OS==='ios' ? constant.resW(10):0,
         },
         leftMainView:{
         flex:0.15,

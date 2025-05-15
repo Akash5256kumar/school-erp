@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, View } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
+import { resW } from '../Utils/Constant';
 const baseColor = '#0747a6'
 
 class Splash extends Component {
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     },
 
     logoImage: {
-        marginTop: 15
+        marginTop: Platform.OS === 'ios' ? resW(10) : 0
     },
 
     gifContainer: {

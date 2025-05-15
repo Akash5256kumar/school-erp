@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, Pressable, Text, TextInput, View,StyleSheet,StatusBar} from 'react-native';
+import {Image, Pressable, Text, TextInput, View,StyleSheet,StatusBar, Platform} from 'react-native';
 import * as constant from '../Utils/Constant'
 
 const CommonHeader = (props) => {
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   height:constant.resW(15),
   flexDirection:'row',
   alignItems:'center',
-//   marginTop:StatusBar.currentHeight,
+  marginTop:Platform.OS === 'ios' ? constant.resW(10) : constant.resW(0),
   },
   leftMainView:{
   flex:0.15,

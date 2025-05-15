@@ -74,7 +74,7 @@ class StaffHome extends Component {
 
                         <View style={styles.HeaderView}>
                             <View></View>
-                            <Text style={styles.HeaderText}>Dashboard</Text>
+                            <Text style={styles.HeaderText}></Text>
                             <TouchableOpacity onPress={() =>
                             Alert.alert(
                                 'Log out',
