@@ -124,6 +124,7 @@ class Login extends Component {
       console.log('data', data);
       let self = this;
       this.setState({isLoading: true});
+      console.log("base",myConst.BASEURL + 'login')
       fetch(myConst.BASEURL + 'login', data)
         .then(response => response.json())
         .then(async responseJson => {

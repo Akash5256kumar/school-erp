@@ -172,6 +172,7 @@ import StaffSupportUnSolvedDetails from './src/components/StaffModule/StaffSuppo
 // import crashlytics from '@react-native-firebase/crashlytics';
 import VersionCheck from 'react-native-version-check';
 import {Alert, BackHandler, Linking} from 'react-native';
+import SubjectScreen from './src/components/StudentModule/SubjectScreen/SubjectScreen';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -240,6 +241,7 @@ const App = () => {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Assignment" component={Assignment} />
+        <Stack.Screen name="SubjectScreen" component={SubjectScreen} />
         <Stack.Screen name="Attendance" component={Attendance} />
         <Stack.Screen name="Library" component={Library} />
         <Stack.Screen name="Event" component={Event} />

@@ -41,7 +41,7 @@ export default styles = StyleSheet.create({
         // paddingLeft: 5,
         marginTop: '2%',
         marginBottom: '3%',
-        // marginHorizontal:'5%'
+        
     },
 
     TextStyle: {
@@ -88,7 +88,8 @@ export default styles = StyleSheet.create({
         paddingVertical:'4%',
         alignItems:'center',
         justifyContent:'center',
-        paddingHorizontal:'5%'
+        paddingHorizontal:'5%',
+        
         // marginVertical:'5%'
     },
 
@@ -172,7 +173,8 @@ export default styles = StyleSheet.create({
         backgroundColor: baseColor,
         // height: 75,
         paddingTop:Platform.OS === 'ios' ? constant.resW(10) :constant.resW(0) ,
-        paddingBottom:constant.resW(5)
+        height:constant.resW(16)
+        // paddingBottom:constant.resW(5)
         // borderBottomRightRadius: 120
     },
 
@@ -180,15 +182,16 @@ export default styles = StyleSheet.create({
         color: 'white',
         fontSize: 20,
         fontWeight: 'bold',
-        marginTop: 15,
-        marginStart: 10
+        // marginTop: 15,
+        // marginStart: 10
         // marginEnd: 10
     },
 
     PdfHeaderStyle: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        height:constant.resW(16)
     },
 
     // PdfHeaderImage: {
@@ -196,8 +199,9 @@ export default styles = StyleSheet.create({
     // },
 
     PdfHeaderArrowImage: {
-        height: 32, width: 35, marginTop: 15, 
-        marginEnd: 10,
+        height: constant.resW(8),
+         width: constant.resW(8),
+        marginEnd: constant.resW(3),
         tintColor:constant.whiteColor
         // marginStart: 5
     },

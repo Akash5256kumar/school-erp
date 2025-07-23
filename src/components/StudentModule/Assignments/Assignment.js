@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Text,
   View,
@@ -7,313 +7,166 @@ import {
   FlatList,
   TouchableOpacity,
   BackHandler,
-  PermissionsAndroid,
-  Alert,
   Platform,
   Pressable,
 } from 'react-native';
 import styles from './style';
-const baseColor = '#0747a6';
 import * as myConst from '../../Baseurl';
 import AsyncStorage from '@react-native-community/async-storage';
-import Searchbar from '../../SearchBar';
-import Header from '../../Header/Header';
-// import RNFetchBlob from 'rn-fetch-blob';
-import Pdf from 'react-native-pdf';
-import moment from 'moment';
 import CommonHeader from '../../CommonHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import * as constant from '../../../Utils/Constant';
 import CommonSearch from '../../Search/CommonSearch';
+import Pdf from 'react-native-pdf';
 import BlobUtil from 'react-native-blob-util';
 
-class Assignment extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: false,
-      isVisible: false,
-      classes: '',
-      dataSource: [],
-      title: '',
-      search: '',
-      originalDataSource: [],
-      ext: '',
-      pdf: null,
-      pdfName: null,
-      isModalVisible: false,
-      showDownload: false,
-    };
-  }
+const Assignment = ({ navigation, route }) => {
+  const [loading, setLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [classes, setClasses] = useState('');
+  const [dataSource, setDataSource] = useState([]);
+  const [originalDataSource, setOriginalDataSource] = useState([]);
+  const [title, setTitle] = useState('');
+  const [ext, setExt] = useState('');
+  const [pdf, setPdf] = useState(null);
+  const [pdfName, setPdfName] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showDownload, setShowDownload] = useState(false);
 
-  componentWillMount() {
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-  }
-
-  componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-  }
-
-  handleBackPress = () => {
-    this.props.navigation.navigate('Dashboard');
+  const handleBackPress = useCallback(() => {
+    navigation.navigate('Dashboard');
     return true;
-  };
+  }, [navigation]);
 
-  async componentDidMount() {
-    const { otherParam } = this.props.route.params;
-    console.log('param-->', otherParam);
-    this.setState({ title: otherParam });
-    const value = await AsyncStorage.getItem('@class');
-    console.log('value-->>', value);
-    this.setState({
-      classes: value,
-    });
-    if (otherParam === 'Assignment') {
-      this.assignApi();
-    }
-  }
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+  }, [handleBackPress]);
 
-  assignApi() {
-    console.log(this.state.classes);
+  useEffect(() => {
+    const init = async () => {
+      const { otherParam } = route.params;
+      setTitle(otherParam);
+      const value = await AsyncStorage.getItem('@class');
+      setClasses(value);
+      if (otherParam === 'Assignment') {
+        assignApi(value);
+      }
+    };
+    init();
+  }, [route.params]);
+
+  const assignApi = (std_class) => {
     let formData = new FormData();
-    formData.append('std_class', this.state.classes);
-    console.log('formData' + JSON.stringify(formData));
-    let data = {
+    formData.append('std_class', std_class);
+    fetch(myConst.BASEURL + 'viewassign', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
       },
       body: formData,
-    };
-    fetch(myConst.BASEURL + 'viewassign', data)
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log('assign--->>>', responseJson);
-        this.setState({
-          dataSource: responseJson.data,
-          originalDataSource: responseJson.data,
-        });
+    })
+      .then(res => res.json())
+      .then(json => {
+        setDataSource(json.data);
+        setOriginalDataSource(json.data);
       })
-      .catch(error => console.log(error))
-      .finally(() => {
-        this.setState({ isLoading: false });
-      });
-  }
-
-  openFile = item => {
-    console.log('item-->', item);
-    let ext = item.as_file.split('.').pop();
-    console.log('ext', ext);
-    // Toast.show('You can share this file after download.');
-    this.setState({
-      ext: ext,
-      pdf: item.as_file,
-      pdfName: item.topic,
-      isModalVisible: true,
-    });
+      .catch(console.log)
+      .finally(() => setLoading(false));
   };
 
-  historyDownload(file) {
-    console.log('filer====<', file);
-    this.downloadHistory(file);
-    //   if(Platform.OS === 'android'){
-    //   try {
-    //       PermissionsAndroid.request(
-    //           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-    //           {
-    //               title: 'storage title',
-    //               message: 'storage_permission',
-    //           },
-    //       ).then(granted => {
-    //           if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-    //               //Once user grant the permission start downloading
-    //               console.log('Storage Permission Granted.');
-    //               this.downloadHistory(file);
-    //           } else {
-    //               //If permission denied then show alert 'Storage Permission Not Granted'
-    //               Alert.alert('storage_permission');
-    //           }
-    //       });
-    //   } catch (err) {
-    //       //To handle permission related issue
-    //       console.log('error', err);
-    //   }
-    // }else{
-    //   this.downloadHistory(file);
-    // }
-  }
+  const openFile = (item) => {
+    const fileExt = item.as_file.split('.').pop();
+    setExt(fileExt);
+    setPdf(item.as_file);
+    setPdfName(item.topic);
+    setIsModalVisible(true);
+  };
 
-  async downloadHistory(id) {
-    console.log('file-->', id);
-    // const {config, fs} = RNFetchBlob;
-    // let PictureDir = fs.dirs.PictureDir;
-    // console.log('PictureDir-->', PictureDir);
-    // let date = new Date();
-    // let options = {
-    //   fileCache: true,
-    //   addAndroidDownloads: {
-    //     useDownloadManager: true,
-    //     notification: true,
-    //     path: PictureDir + '/' + file,
-    //     // '/Download' +
-    //     // Math.floor(date.getTime() + date.getSeconds() / 2),
-    //     description: 'Report Download',
-    //   },
-    // };
-    // config(options)
-    //   .fetch('GET', 'http://139.59.90.236/images/' + file)
-    //   .then(res => {
-    //     constant.showAlert('Download Successfully');
-    //     //Showing alert after successful downloading
-    //     console.log('res -> ', JSON.stringify(res));
-    //     // this.openFile(file)
-    //     // alert('Downloaded Successfully.');
-    //   });
-
-    console.log('file-->', id);
-
+  const downloadHistory = (file) => {
     const { fs } = BlobUtil;
-    let downloadPath;
-    console.log("res", fs.dirs)
-
-    if (Platform.OS === 'ios') {
-      downloadPath = fs.dirs.DownloadDir + '/' + id;
-    } else {
-      downloadPath = fs.dirs.PictureDir + '/' + id;
-    }
+    const downloadPath =
+      Platform.OS === 'ios'
+        ? fs.dirs.DownloadDir + '/' + file
+        : fs.dirs.PictureDir + '/' + file;
 
     let options = {
       fileCache: true,
-      path: downloadPath, // Save to file directly
+      path: downloadPath,
+      ...(Platform.OS === 'android' && {
+        addAndroidDownloads: {
+          useDownloadManager: true,
+          notification: true,
+          path: downloadPath,
+          description: 'Report Download',
+          mime: 'application/pdf',
+          mediaScannable: true,
+        },
+      }),
     };
 
-    if (Platform.OS === 'android') {
-      options.addAndroidDownloads = {
-        useDownloadManager: true,
-        notification: true,
-        path: downloadPath,
-        description: 'Report Download',
-        mime: 'application/pdf', // or adjust based on file type
-        mediaScannable: true,
-      };
-    }
-
     BlobUtil.config(options)
-      .fetch('GET', `https://myskool.sdvonline.in/images/${id}`)
+      .fetch('GET', `https://myskool.sdvonline.in/images/${file}`)
       .then(res => {
         constant.showAlert('Download Successfully');
         console.log('Downloaded to -> ', res.path());
-
-        // Optional: Share or preview the file on iOS
-        if (Platform.OS === 'ios') {
-          // You could use react-native-share or similar here
-          // Example:
-          // Share.open({ url: 'file://' + res.path(), type: 'application/pdf' })
-        }
       })
-      .catch(err => {
-        console.log('Download error: ' + JSON.stringify(err));
-      });
-  }
+      .catch(err => console.log('Download error: ', err));
+  };
 
-  onSearch(text) {
-    console.log('on search =>', text);
-    // let originalArr = this.
-    let filteredArr = this.state.originalDataSource.filter(object => {
-      return object.topic.toLowerCase().includes(text);
-    });
-    console.log('filter--->', filteredArr);
-    this.setState({
-      dataSource: text ? filteredArr : this.state.originalDataSource,
-    });
-  }
+  const onSearch = (text) => {
+    const filtered = originalDataSource.filter(item =>
+      item.topic.toLowerCase().includes(text.toLowerCase())
+    );
+    setDataSource(text ? filtered : originalDataSource);
+  };
 
-  toggleFunction() {
-    this.setState(state => ({
-      isVisible: !state.isVisible,
-    }));
-  }
+  const renderItem = ({ item }) => (
+    <View style={styles.FlatListView}>
+      <Pressable style={styles.CardView} onPress={() => openFile(item)}>
+        <View style={styles.CardViewStyle}>
+          <View style={styles.DocImageAndTextStyle}>
+            <Image style={styles.AssignmentImage} source={constant.Icons.assignment} />
+            <View style={styles.TextViewStyle}>
+              <Text style={styles.DashboardTextStyle}>{item.topic}</Text>
+            </View>
+          </View>
+          {/* <TouchableOpacity onPress={() => openFile(item)}>
+            <Image
+              style={styles.AssignmentDownloadImage}
+              source={constant.Icons.downloadIcon}
+            />
+          </TouchableOpacity> */}
+        </View>
+      </Pressable>
+    </View>
+  );
 
-  render() {
-    const resourceType = 'url';
-    return (
-      <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
-        <View style={styles.MainContainer}>
-          {/* <Header title={'Assignment'}
-                    goBack={() => {
-                        this.props.navigation.goBack()
-                    }}
-                /> */}
-          <CommonHeader
-            title={'Assignment'}
-            onLeftClick={() => {
-              this.props.navigation.goBack();
-            }}
-          />
+  return (
+    <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
+      <View style={styles.MainContainer}>
+        <CommonHeader title="Home Work" onLeftClick={() => navigation.goBack()} />
+        <CommonSearch searchText={(text) => onSearch(text)} />
 
-          <CommonSearch searchText={d => this.onSearch(d.toLowerCase())} />
-          {/* {this.state.isVisible ? (
-                    <Searchbar
-                        onChangeSearch={(text) => this.onSearch(text)}
-                    />
-                ) : null} */}
+        <FlatList
+          data={dataSource}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
 
-          {/* <Text style={styles.TextStyle}>Files</Text> */}
-          <FlatList
-            data={this.state.dataSource}
-            renderItem={({ item }) => (
-              <View style={styles.FlatListView}>
-                <View style={styles.CardView}>
-                  <View style={styles.CardViewStyle}>
-                    <View style={styles.DocImageAndTextStyle}>
-                      <Image
-                        style={styles.AssignmentImage}
-                        source={constant.Icons.assignment}
-                      />
-                      <View style={styles.TextViewStyle}>
-                        <Text style={styles.DashboardTextStyle}>
-                          {item?.topic}
-                        </Text>
-                        {/* <Text style={styles.DateText}>{moment(item?.as_date).format('DD-MM-YYYY')}</Text> */}
-                      </View>
-                    </View>
-
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.openFile(item);
-                      }}>
-                      <View>
-                        <Image
-                          style={styles.AssignmentDownloadImage}
-                          source={constant.Icons.downloadIcon}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            )}
-            keyExtractor={(item, index) => index}
-          />
-
-          {/* <View style={styles.FloatTabStyle}>
-                    <TouchableOpacity onPress={() => this.toggleFunction()}>
-                        <Image style={styles.FloatIconStyle}
-                            source={require("../../../assests/images/loupe_icon.png")} />
-                    </TouchableOpacity>
-                </View> */}
-
-          <Modal
-            transparent={false}
-            animationType={'slide'}
-            onRequestClose={() =>
-              this.setState({ isModalVisible: false, showDownload: false })
-            }
-            visible={this.state.isModalVisible}>
-            <View style={styles.PdfHeaderBackground}>
+        <Modal
+          transparent={false}
+          animationType={'slide'}
+          visible={isModalVisible}
+          onRequestClose={() => {
+            setIsModalVisible(false);
+            setShowDownload(false);
+          }}>
+          
+          <View style={styles.PdfHeaderBackground}>
               <View style={styles.PdfHeaderStyle}>
-                <View>
+                <View style={{flex:0.3,}}>
                   <Pressable
                     style={{
                       flex: 1,
@@ -321,7 +174,12 @@ class Assignment extends Component {
                       height: '100%',
                       justifyContent: 'center',
                       marginTop:'5%'
-                    }} onPress={() =>this.setState({ isModalVisible: false, showDownload: false }) }>
+                    }}
+                    onPress={() => {
+                      setIsModalVisible(false);
+                      setShowDownload(false);
+                    }} 
+                    >
                     <Image source={constant.Icons.backArrowIcon} tintColor={'#fff'} resizeMode='contain' style={{
                        height:constant.resW(8),
                        width:constant.resW(8),
@@ -329,90 +187,48 @@ class Assignment extends Component {
                     }} />
                   </Pressable>
                 </View>
-                <Text style={styles.PdfHeaderText}>{this.state.pdfName}</Text>
+                <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+                <Text style={styles.PdfHeaderText}>{pdfName}</Text>
+                </View>
                 <TouchableOpacity
-                  onPress={() =>
-                    this.state.showDownload
-                      ? this.historyDownload(this.state.pdf)
-                      : null
-                  }>
-                  {this.state.showDownload && (
+                style={{flex:0.3,alignItems:'flex-end',justifyContent:'center'}}
+                onPress={() => showDownload && downloadHistory(pdf)}
+                >
+                  {showDownload && (
                     <Image
                       style={styles.PdfHeaderArrowImage}
                       source={constant.Icons.downloadIcon}
                     />
-                  )}
+                   )} 
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={styles.container}>
-              {this.state.ext == 'pdf' ? (
-                <>
-                  <Pdf
-                    source={{
-                      uri: 'https://myskool.sdvonline.in/images/' + this.state.pdf,
-                      cache: true,
-                    }}
-                    trustAllCerts={false}
-                    onLoadComplete={(numberOfPages, filePath) => {
-                      this.setState({ showDownload: true });
-                      console.log(`number of pages: ${numberOfPages}`);
-                    }}
-                    onPageChanged={(page, numberOfPages) => {
-                      console.log(`current page: ${page}`);
-                    }}
-                    onError={error => {
-                      console.log(error);
-                    }}
-                    onPressLink={uri => {
-                      this.setState({ showDownload: true });
-                      console.log(`Link presse: ${uri}`);
-                    }}
-                    style={styles.pdf}
-                  />
-                </>
-              ) : // <Pdf
-                //   source={{
-                //     uri: 'http://139.59.90.236/images/' + this.state.pdf,
-                //   }}
-                //   onLoadComplete={(numberOfPages, filePath) => {
-                //     this.setState({showDownload: true});
-                //     console.log(`number of pages: ${numberOfPages}`);
-                //   }}
-                //   onPageChanged={(page, numberOfPages) => {
-                //     console.log(`current page: ${page}`);
-                //   }}
-                //   onError={error => {
-                //     console.log(error);
-                //   }}
-                //   onPressLink={uri => {
-                //     this.setState({showDownload: true});
-                //     console.log(`Link presse: ${uri}`);
-                //   }}
-                //   style={styles.pdf}
-                // />
-                this.state.ext == 'jpeg' ||
-                  this.state.ext == 'jpg' ||
-                  this.state.ext == 'png' ? (
-                  <Image
-                    source={{
-                      uri: 'http://139.59.90.236/images/' + this.state.pdf,
-                    }}
-                    style={{ height: '100%', width: '100%' }}
-                    resizeMode="contain"
-                  />
-                ) : (
-                  <Text style={styles.oopsText}>
-                    Unable to view this file. You can download and share this
-                    file.
-                  </Text>
-                )}
-            </View>
-          </Modal>
-        </View>
-      </LinearGradient>
-    );
-  }
-}
+          <View style={styles.container}>
+            {ext === 'pdf' ? (
+              <Pdf
+                source={{ uri: `https://myskool.sdvonline.in/images/${pdf}`, cache: true }}
+                trustAllCerts={false}
+                onLoadComplete={() => setShowDownload(true)}
+                onError={error => console.log(error)}
+                onPressLink={() => setShowDownload(true)}
+                style={styles.pdf}
+              />
+            ) : ['jpeg', 'jpg', 'png'].includes(ext) ? (
+              <Image
+                source={{ uri: `http://139.59.90.236/images/${pdf}` }}
+                style={{ height: '100%', width: '100%' }}
+                resizeMode="contain"
+              />
+            ) : (
+              <Text style={styles.oopsText}>
+                Unable to view this file. You can download and share this file.
+              </Text>
+            )}
+          </View>
+        </Modal>
+      </View>
+    </LinearGradient>
+  );
+};
 
 export default Assignment;

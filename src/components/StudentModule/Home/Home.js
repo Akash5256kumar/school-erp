@@ -136,10 +136,13 @@ class Home extends Component {
                 <ScrollView>
                     <View style={{ marginStart: 10, marginEnd: 10,marginBottom:'20%' }}>
                         <View style={styles.HomeScreenView}>
-                            <TouchableOpacity onPress={() => this.props.navigation.navigate('Assignment', {
-                                otherParam: 'Assignment',
-                            })
-                            }>
+                            <TouchableOpacity 
+                            onPress={() => this.props.navigation.navigate('SubjectScreen')}
+                            // onPress={() => this.props.navigation.navigate('Assignment', {
+                            //     otherParam: 'Assignment',
+                            // })
+                            // }
+                            >
                                 <View style={styles.CircleShapeView}>
                                     <View style={styles.imageView}>
                                     <Image style={styles.GridImage}
