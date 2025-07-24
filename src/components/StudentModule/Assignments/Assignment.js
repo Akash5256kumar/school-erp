@@ -19,8 +19,10 @@ import * as constant from '../../../Utils/Constant';
 import CommonSearch from '../../Search/CommonSearch';
 import Pdf from 'react-native-pdf';
 import BlobUtil from 'react-native-blob-util';
+import moment from 'moment';
 
 const Assignment = ({ navigation, route }) => {
+  const subjectData = route.params.subjectData
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [classes, setClasses] = useState('');
@@ -34,7 +36,7 @@ const Assignment = ({ navigation, route }) => {
   const [showDownload, setShowDownload] = useState(false);
 
   const handleBackPress = useCallback(() => {
-    navigation.navigate('Dashboard');
+    navigation.navigate('SubjectScreen');
     return true;
   }, [navigation]);
 
@@ -44,16 +46,19 @@ const Assignment = ({ navigation, route }) => {
   }, [handleBackPress]);
 
   useEffect(() => {
-    const init = async () => {
-      const { otherParam } = route.params;
-      setTitle(otherParam);
-      const value = await AsyncStorage.getItem('@class');
-      setClasses(value);
-      if (otherParam === 'Assignment') {
-        assignApi(value);
-      }
-    };
-    init();
+    setDataSource(subjectData?.assignments)
+    setOriginalDataSource(subjectData?.assignments)
+    setTitle(subjectData?.subject)
+    // const init = async () => {
+    //   const { otherParam } = route.params;
+    //   setTitle(otherParam);
+    //   const value = await AsyncStorage.getItem('@class');
+    //   setClasses(value);
+    //   if (otherParam === 'Assignment') {
+    //     assignApi(value);
+    //   }
+    // };
+    // init();
   }, [route.params]);
 
   const assignApi = (std_class) => {
@@ -124,29 +129,28 @@ const Assignment = ({ navigation, route }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.FlatListView}>
-      <Pressable style={styles.CardView} onPress={() => openFile(item)}>
-        <View style={styles.CardViewStyle}>
-          <View style={styles.DocImageAndTextStyle}>
+      {/* <Pressable style={styles.CardView} onPress={() => openFile(item)}> */}
+        <Pressable style={styles.CardViewStyle} onPress={() => openFile(item)} >
+          {/* <View style={styles.DocImageAndTextStyle}> */}
             <Image style={styles.AssignmentImage} source={constant.Icons.assignment} />
             <View style={styles.TextViewStyle}>
-              <Text style={styles.DashboardTextStyle}>{item.topic}</Text>
+              <Text numberOfLines={1} style={styles.DashboardTextStyle}>{item.topic}</Text>
+              <Text numberOfLines={1}  style={styles.DashboardTextStyle2}>{item.book}</Text>
+              <Text numberOfLines={1}  style={styles.DashboardTextStyle2}>{item.teachername}</Text>
+
             </View>
-          </View>
-          {/* <TouchableOpacity onPress={() => openFile(item)}>
-            <Image
-              style={styles.AssignmentDownloadImage}
-              source={constant.Icons.downloadIcon}
-            />
-          </TouchableOpacity> */}
-        </View>
-      </Pressable>
+          {/* </View> */}
+          <Text numberOfLines={1}  style={styles.DashboardTextStyle3}>{moment(item.as_date).format("DD-MM-YYYY")}</Text>
+
+        </Pressable>
+      {/* </Pressable> */}
     </View>
   );
 
   return (
     <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
       <View style={styles.MainContainer}>
-        <CommonHeader title="Home Work" onLeftClick={() => navigation.goBack()} />
+        <CommonHeader title={title} onLeftClick={() => navigation.goBack()} />
         <CommonSearch searchText={(text) => onSearch(text)} />
 
         <FlatList

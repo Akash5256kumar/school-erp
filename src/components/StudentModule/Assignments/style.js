@@ -54,9 +54,22 @@ export default styles = StyleSheet.create({
     },
 
     DashboardTextStyle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'black'
+        color: 'black',
+        fontSize: constant.font18,
+        fontFamily:constant.typeSemiBold,
+    },
+    DashboardTextStyle2: {
+        color: '#9CA4AB',
+        fontSize: constant.font12,
+        fontFamily:constant.typeMedium,
+    },
+    DashboardTextStyle3: {
+        color: '#000',
+        fontSize: constant.font12,
+        fontFamily:constant.typeSemiBold,
+        position:'absolute',
+        top:constant.resW(1),
+        right:constant.resW(3)
     },
 
     CircleShapeView: {
@@ -70,11 +83,24 @@ export default styles = StyleSheet.create({
 
     CardViewStyle: {
         flex: 1, 
-         flexDirection: 'row', justifyContent: 'space-around',alignItems:'center',
+         flexDirection: 'row',
+         justifyContent: 'space-around',
+         alignItems:'center',
+         backgroundColor:'#fff',
+        paddingHorizontal:'3%',
+        marginHorizontal:'5%',
+        paddingVertical:'2%',
+        shadowColor: '#000',
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity: 0.4,
+        shadowRadius: 5,
+        elevation: 5,
+        borderRadius: 8,
+
     },
 
     CardView: {
-        backgroundColor: '#fff',
+        backgroundColor: 'red',
         // height: 90,
         shadowColor: '#000',
         shadowOffset: { width: 1, height: 1 },
@@ -88,7 +114,7 @@ export default styles = StyleSheet.create({
         paddingVertical:'4%',
         alignItems:'center',
         justifyContent:'center',
-        paddingHorizontal:'5%',
+        paddingHorizontal:'4%',
         
         // marginVertical:'5%'
     },
@@ -98,13 +124,14 @@ export default styles = StyleSheet.create({
         flex: 1,
         // flexDirection: 'column',
         // marginTop: 10,
-        marginStart: '1%',
-        justifyContent:'center'
+        marginHorizontal: '2%',
+        // justifyContent:'center',
+        // backgroundColor:'green'
     },
 
     AssignmentImage: {
-        height: constant.resW(12),
-        width: constant.resW(12),
+        height: constant.resW(18),
+        width: constant.resW(18),
         // display: 'flex',
         // height: 40,
         // width: 40,

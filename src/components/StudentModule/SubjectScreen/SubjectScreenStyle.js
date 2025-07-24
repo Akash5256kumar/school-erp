@@ -26,8 +26,9 @@ export default styles = StyleSheet.create({
         borderRadius: 8,
         alignItems:'center',
         justifyContent:'center',
-        height:constant.resW(28),
-        width:constant.resW(27.8)
+        // height:constant.resW(30),
+        width:constant.resW(27.8),
+        paddingVertical:constant.resW(3)
     
     },
     AssignmentImage: {
@@ -38,6 +39,30 @@ export default styles = StyleSheet.create({
         fontSize: constant.font16,
         color: 'black',
         fontFamily:constant.typeSemiBold,
-        marginTop:constant.resW(1),
+        marginTop:constant.resW(1.5),
     },
+    activeDot:{
+        // height: constant.resW(2),
+        // width: constant.resW(2),
+        // position:'absolute',
+        // top:constant.resW(2),
+        // right:constant.resW(2),
+        // backgroundColor:'green',
+        // borderRadius:constant.resW(20),
+        fontSize: constant.font12,
+        color: 'white',
+        fontFamily:constant.typeSemiBold,
+    },
+    dotStyle:{
+       height: constant.resW(5),
+        width: constant.resW(5),
+        position:'absolute',
+        top:constant.resW(1),
+        right:constant.resW(1),
+        backgroundColor:'green',
+        borderRadius:constant.resW(20),
+        alignItems:'center',
+        justifyContent:'center'
+     
+    }
 })

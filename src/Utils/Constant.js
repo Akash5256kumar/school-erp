@@ -101,6 +101,25 @@ export const Icons = {
   solved: require(baseIconPath + 'Solved.png'),
   upArrow: require(baseIconPath + 'upArrow.png'),
   downArrow: require(baseIconPath + 'downArrow.png'),
+  evs : require(baseIconPath + 'evs.png'),
+  chemistry : require(baseIconPath + 'chemistry.png'),
+  physies : require(baseIconPath + 'physies.png'),
+  bio : require(baseIconPath + 'bio.png'),
+  sanskrit : require(baseIconPath + 'sanskrit.png'),
+  hindi : require(baseIconPath + 'hindi.png'),
+  math : require(baseIconPath + 'math.png'),
+  english : require(baseIconPath + 'english.png'),
+  history : require(baseIconPath + 'history.png'),
+  bussinessStudy : require(baseIconPath + 'bussinessStudy.png'),
+  socialscience : require(baseIconPath + 'socialscience.png'),
+  computer : require(baseIconPath + 'computer.png'),
+  psycology : require(baseIconPath + 'psycology.png'),
+  politicalscience : require(baseIconPath + 'politicalscience.png'),
+  economic : require(baseIconPath + 'economic.png'),
+  music : require(baseIconPath + 'music.png'),
+  Accounts : require(baseIconPath + 'Accounts.png'),
+  physicaleduction : require(baseIconPath + 'physicaleduction.png'),
+
 };
 
 export const showAlert = message => {

@@ -57,9 +57,9 @@ const styles = StyleSheet.create({
   },
 
   input:{
-    fontSize: constant.font13,
+    fontSize: constant.font15,
     color: constant.blackColor,
-    fontFamily:constant.typeRegular,
+    fontFamily:constant.typeMedium,
     flex:0.92,
     paddingHorizontal:'5%'
   },
