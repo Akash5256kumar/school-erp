@@ -146,9 +146,12 @@ class FeeDueDetail extends Component {
 
                 if ((responseJson.status === true) && (responseJson.message === 'success')) {
                     console.log('responseJson-->', responseJson)
+                    
                     let response = responseJson.feedata
+                    let planType = 2;
+                    console.log("plan",planType)
 
-                    let displayValues = radio_props.filter(obj => obj.value == response[0].plan_type)[0].displayValues;
+                    let displayValues = radio_props.filter(obj => obj.value == planType)[0].displayValues;
                     displayValues = displayValues.slice(responseJson.totalfees);
 
                     console.log('whbvhwbvwqbv--->',displayValues)
@@ -156,13 +159,13 @@ class FeeDueDetail extends Component {
                     var result = displayValues.map(function (el, index) {
                         var o = Object.assign({}, el, index);
                         if (displayValues[index].name === 'April' || displayValues[index].value === 1) {
-                            o["amount"]= Number(response[0].tution_fees.replace(/,/g,'')) + Number(response[0].other_fees.replace(/,/g,'')) + Number(response[0].late_fees.replace(/,/g,''))
+                            // o["amount"]= Number(response[0].tution_fees.replace(/,/g,'')) + Number(response[0].other_fees.replace(/,/g,'')) + Number(response[0].late_fees.replace(/,/g,''))
 
                         } else {
                             console.log("fee"+response[0].tution_fees)
                             // o["amount"]=   Number(response[0].tution_fees.replace(/,/g,''))
 
-                            o["amount"]= Number(response[0].tution_fees.replace(/,/g,'')) + (Number(response[0].other_fees.replace(/,/g,'')))
+                            // o["amount"]= Number(response[0].tution_fees.replace(/,/g,'')) + (Number(response[0].other_fees.replace(/,/g,'')))
                         }
 
                         return o;
@@ -219,7 +222,7 @@ class FeeDueDetail extends Component {
             .then((response) => response.json())
             .then(responseJson => {
                 if ((responseJson.status === true) && (responseJson.message === 'success')) {
-                    // console.log('responseJson-->', responseJson)
+                    console.log('responseJson-->', responseJson)
                     let response = responseJson.feedata
                     let filteredObj = response.filter(object => {
                         return object.plan_type == this.state.value
@@ -276,8 +279,9 @@ class FeeDueDetail extends Component {
         formData.append('class', this.state.classes)
         formData.append('section', this.state.section)
         formData.append('amount', this.state.amount)
-        formData.append('plan_type', this.state.value)
+        formData.append('plan_type', 2)
         formData.append('month', month)
+        console.log("formDatta",JSON.stringify(formData))
         let data = {
             method: 'POST',
             headers: {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
+import { blackColor, font17, resW, typeMedium } from '../../../Utils/Constant';
 const baseColor = '#0747a6'
 
 export default styles = StyleSheet.create({
@@ -9,6 +10,46 @@ export default styles = StyleSheet.create({
         height: '100%',
         backgroundColor: '#FFFFFF'
     },
+
+    buttonMainView:{
+        justifyContent:'space-between',
+        alignItems:'center',
+        flexDirection:'row',
+        marginHorizontal:resW(4),
+        marginTop:resW(3),
+        marginBottom:resW(4)
+        },
+        buttonStyle:{
+        backgroundColor:baseColor,
+        flex:0.48,
+        paddingVertical:resW(3),
+        alignItems:'center',
+        justifyContent:'center',
+        borderRadius:5,
+        borderWidth:1,
+        borderColor:baseColor
+        },
+        buttonStyle2:{
+            // backgroundColor:baseColor,
+            flex:0.48,
+            paddingVertical:resW(3),
+            alignItems:'center',
+            justifyContent:'center',
+            borderRadius:5,
+            borderWidth:1,
+            borderColor:blackColor
+            },
+        buttonTextStyle:{
+            color: 'white',
+            fontSize:font17,
+            fontFamily:typeMedium
+        },
+        buttonTextStyle2:{
+            color:blackColor,
+            fontSize:font17,
+            fontFamily:typeMedium
+        },
+    
 
     FlatListView: {
         overflow: 'hidden',
@@ -48,7 +89,7 @@ export default styles = StyleSheet.create({
 
     CardView: {
         backgroundColor: '#fff',
-        height: 75,
+        // height: 75,
         shadowColor: '#000',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.4,

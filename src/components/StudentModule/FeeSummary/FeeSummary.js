@@ -70,7 +70,7 @@ class FeeSummary extends Component {
   }
 
   FeeSummaryApi() {
-    // console.log('called', 'hitt')
+    console.log('called', 'hitt')
     let formData = new FormData();
     formData.append('std_roll', this.state.std_roll);
     formData.append('class', this.state.classes);
@@ -85,6 +85,7 @@ class FeeSummary extends Component {
     fetch(myConst.BASEURL + 'feesummary', data)
       .then(response => response.json())
       .then(responseJson => {
+        console.log("ress",JSON.stringify(responseJson))
         if (responseJson.status === true) {
           let response = responseJson.feedata;
           let paidResponse = responseJson.paidarray;
@@ -163,7 +164,8 @@ class FeeSummary extends Component {
       })
       .catch(error => console.log(error))
       .finally(() => {
-        this.setState({isLoading: false});
+          console.log("final")
+        // this.setState({isLoading: false});
       });
   }
 

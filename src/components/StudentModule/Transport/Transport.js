@@ -70,19 +70,19 @@ class Transport extends Component {
             .then(responseJson => {
                 console.log('responseJson-->', responseJson)
                 if (responseJson.status === true) {
-                    const response = responseJson.data[0]
+                    const response = responseJson.data
                     this.setState({
-                        busNo: response.bus_no,
-                        incharge: response.incharge,
-                        contactNo: response.contact_no,
-                        routeName: response.route_name,
-                        routeNo: response.route_no,
-                        stopName: response.stop_name,
-                        stopNo: response.stop_no,
-                        pickUpTime: response.pickup_time,
-                        dropTime: response.drop_time,
-                        driverName: response.driver_name,
-                        driverNo: response.driver_mobile_no
+                        busNo: response?.bus_no,
+                        incharge: response?.incharge,
+                        contactNo: response?.contact_no,
+                        routeName: response?.route_name,
+                        routeNo: response?.route_no,
+                        stopName: response?.stop_name,
+                        stopNo: response?.stop_no,
+                        pickUpTime: response?.pickup_time,
+                        dropTime: response?.drop_time,
+                        driverName: response?.driver_name,
+                        driverNo: response?.driver_mobile_no
                     })
                 } else if (responseJson.staus === false) {
 

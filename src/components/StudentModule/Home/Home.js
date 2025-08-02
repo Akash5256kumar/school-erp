@@ -6,6 +6,8 @@ import styles from './style';
 import { StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
+import * as myConst from '../../Baseurl';
+
 const baseColor = '#0747a6'
 
 
@@ -53,12 +55,14 @@ class Home extends Component {
     async componentDidMount() {
         // this.checkPermission();
         const { navigation } = this.props;
-        navigation.addListener('focus', async () => {
+        // navigation.addListener('focus', async () => {
             // call your refresh method here
             console.log('home screen')
             const studentClass = await AsyncStorage.getItem('@class')
             const studentSection = await AsyncStorage.getItem('@section')
             const studentName = await AsyncStorage.getItem('@name')
+            const value1 = await AsyncStorage.getItem('@std_roll')
+
             console.log('studentClass-->>', studentClass)
             console.log('studentSection-->>', studentSection)
             console.log('studentName-->>', studentName)
@@ -67,10 +71,34 @@ class Home extends Component {
                 section: studentSection,
                 name: studentName
             })
-        });
+            this.dashboardApi(value1,studentClass)
+        // });
 
 
     }
+
+    dashboardApi(stdRoll,studentClass) {
+       let formData = {
+        'std_roll': stdRoll,
+        'class' : studentClass
+    }
+    console.log("dsaads",formData)
+        fetch(myConst.BASEURL + 'dashboard', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: formData,
+        })
+          .then(res => res.json())
+          .then(json => {
+console.log("data",JSON.stringify(json))
+           
+          })
+          .catch(console.log)
+          .finally(() => null);
+      };
 
     render() {
         return (
@@ -147,9 +175,11 @@ class Home extends Component {
                                     <View style={styles.imageView}>
                                     <Image style={styles.GridImage}
                                         source={constant.Icons.homeWork} />
+                                        {/* <View style={styles.homeWorkDot} /> */}
                                         </View>
                                     <Text style={styles.GridText}>Home Work</Text>
                                 </View>
+                                
                             </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => this.props.navigation.navigate('Syllabus', {
@@ -197,7 +227,7 @@ class Home extends Component {
                                     <Image style={styles.GridImage}
                                         source={constant.Icons.bookIcon} />
                                         </View>
-                                    <Text style={styles.GridText}>Books</Text>
+                                    <Text style={styles.GridText}>Library</Text>
                                 </View>
                             </TouchableOpacity>
 

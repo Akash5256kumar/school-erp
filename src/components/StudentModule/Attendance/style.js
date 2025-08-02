@@ -1,11 +1,50 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
+import { blackColor, font10, font15, font17, font18, font19, font20, font22, resW, typeBold, typeMedium, typeSemiBold } from '../../../Utils/Constant';
 const baseColor = '#0747a6'
 
 export default styles = StyleSheet.create({
 
     MainContainer: {
         backgroundColor: 'white', height: '100%', width: '100%' 
+    },
+    buttonMainView:{
+    justifyContent:'space-between',
+    alignItems:'center',
+    flexDirection:'row',
+    marginHorizontal:resW(4),
+    marginTop:resW(3),
+    marginBottom:resW(4)
+    },
+    buttonStyle:{
+    backgroundColor:baseColor,
+    flex:0.48,
+    paddingVertical:resW(3),
+    alignItems:'center',
+    justifyContent:'center',
+    borderRadius:5,
+    borderWidth:1,
+    borderColor:baseColor
+    },
+    buttonStyle2:{
+        // backgroundColor:baseColor,
+        flex:0.48,
+        paddingVertical:resW(3),
+        alignItems:'center',
+        justifyContent:'center',
+        borderRadius:5,
+        borderWidth:1,
+        borderColor:blackColor
+        },
+    buttonTextStyle:{
+        color: 'white',
+        fontSize:font17,
+        fontFamily:typeMedium
+    },
+    buttonTextStyle2:{
+        color:blackColor,
+        fontSize:font17,
+        fontFamily:typeMedium
     },
 
     HeaderBackground: {
@@ -60,8 +99,8 @@ export default styles = StyleSheet.create({
         elevation: 5,
         marginStart: 12,
         marginEnd: 12,
-        marginTop: 20,
-        borderRadius: 8
+        // marginTop: 20,
+        borderRadius: 8,
     },
 
     WorkingDaysBlueBackground: {
@@ -127,6 +166,34 @@ export default styles = StyleSheet.create({
 
     rowStyle: { display: 'flex', flexDirection: 'row', marginTop: 12, marginStart: 20 },
 
-    daysText: { color: 'black', fontSize: 16, fontWeight: 'bold', marginStart: 20 }
+    daysText: { color: 'black', fontSize: 16, fontWeight: 'bold', marginStart: 20 },
+
+    eventCardView:{
+    marginHorizontal:resW(5),
+    marginTop:resW(4),
+    paddingHorizontal:resW(3),
+    borderRadius:5,
+    paddingVertical:resW(2),
+    elevation:1
+
+    },
+    eventCartText:{
+        color: '#fff',
+        fontSize: font20,
+        fontFamily: typeBold,
+      
+    },
+    eventCartDes:{
+        color: '#f4f4f4',
+        fontSize: font17,
+        fontFamily: typeMedium,
+       
+    },
+    noEventText:{
+        color: '#000',
+        fontSize: font15,
+        fontFamily: typeSemiBold,
+        alignSelf:'center'
+    }
 
 })

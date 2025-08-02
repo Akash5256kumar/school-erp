@@ -104,6 +104,16 @@ export default styles = StyleSheet.create({
         // justifyContent: 'center',
         marginTop: '7%'
     },
+    homeWorkDot:{
+        height: constant.resW(4),
+        width: constant.resW(4),
+        backgroundColor:'green',
+        position:'absolute',
+        top:constant.resW(1.5),
+        right:constant.resW(0),
+        borderRadius:constant.resW(80)
+    },
+
     imageMainView:{
     //  backgroundColor:'red',
      marginTop:'12%',
