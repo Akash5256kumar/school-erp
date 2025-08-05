@@ -173,6 +173,7 @@ import StaffSupportUnSolvedDetails from './src/components/StaffModule/StaffSuppo
 import VersionCheck from 'react-native-version-check';
 import {Alert, BackHandler, Linking} from 'react-native';
 import SubjectScreen from './src/components/StudentModule/SubjectScreen/SubjectScreen';
+import EditProfile from './src/components/StudentModule/Profile/EditProfile';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -316,6 +317,10 @@ const App = () => {
         <Stack.Screen
           name="StaffSupportUnSolvedDetails"
           component={StaffSupportUnSolvedDetails}
+        />
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
         />
       </Stack.Navigator>
     </NavigationContainer>

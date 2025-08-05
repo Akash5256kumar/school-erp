@@ -158,7 +158,7 @@ class Transport extends Component {
                                 <Text style={styles.ContainerText}>Route Details</Text>
                             </View>
 
-                            <View style={styles.RowStyle}>
+                            {/* <View style={styles.RowStyle}>
                                 <View style={styles.InnerRowStyle}>
                                     <Text style={styles.LeftSideText}>Route Name</Text>
                                     <Image style={styles.ArrowImage}
@@ -167,7 +167,7 @@ class Transport extends Component {
                                 <View>
                                     <Text style={styles.RightSideText}>{this.state.routeName}</Text>
                                 </View>
-                            </View>
+                            </View> */}
 
                             <View style={styles.RowStyle}>
                                 <View style={styles.InnerRowStyle}>
@@ -179,7 +179,7 @@ class Transport extends Component {
                                     <Text style={styles.RightSideText}>{this.state.routeNo}</Text>
                                 </View>
                             </View>
-
+{/* 
                             <View style={styles.RowStyle}>
                                 <View style={styles.InnerRowStyle}>
                                     <Text style={styles.LeftSideText}>Stop Name</Text>
@@ -189,9 +189,9 @@ class Transport extends Component {
                                 <View>
                                     <Text style={styles.RightSideText}>{this.state.stopName}</Text>
                                 </View>
-                            </View>
+                            </View> */}
 
-                            <View style={styles.RowStyle}>
+                            {/* <View style={styles.RowStyle}>
                                 <View style={styles.InnerRowStyle}>
                                     <Text style={styles.LeftSideText}>Stop no.</Text>
                                     <Image style={styles.ArrowImage}
@@ -200,9 +200,31 @@ class Transport extends Component {
                                 <View>
                                     <Text style={styles.RightSideText}>{this.state.stopNo}</Text>
                                 </View>
+                            </View> */}
+
+                          <View style={styles.RowStyle}>
+                                <View style={styles.InnerRowStyle}>
+                                    <Text style={styles.LeftSideText}>Pick Up</Text>
+                                    <Image style={styles.ArrowImage}
+                                        source={require('../../../assests/images/right_arrow.png')} />
+                                </View>
+                                <View>
+                                    <Text style={styles.RightSideText}>{this.state.pickUpTime}</Text>
+                                </View>
                             </View>
 
                             <View style={styles.RowStyle}>
+                                <View style={styles.InnerRowStyle}>
+                                    <Text style={styles.LeftSideText}>Drop</Text>
+                                    <Image style={styles.ArrowImage}
+                                        source={require('../../../assests/images/right_arrow.png')} />
+                                </View>
+                                <View>
+                                    <Text style={styles.RightSideText}>{this.state.dropTime}</Text>
+                                </View>
+                            </View>
+
+                            {/* <View style={styles.RowStyle}>
                                 <View style={styles.InnerRowStyle}>
                                     <Text style={styles.LeftSideText}>Pickup Time</Text>
                                     <Image style={styles.ArrowImage}
@@ -213,12 +235,12 @@ class Transport extends Component {
                                     <Image style={styles.ArrowImage}
                                         source={require('../../../assests/images/right_arrow.png')} />
                                 </View>
-                            </View>
+                            </View> */}
 
-                            <View style={styles.RowStyle}>
+                            {/* <View style={styles.RowStyle}>
                                 <Text style={styles.TextTime}>{this.state.pickUpTime}</Text>
                                 <Text style={styles.TextTime}>{this.state.dropTime}</Text>
-                            </View>
+                            </View> */}
 
                             <View style={styles.DetailsContainer}>
                                 <Image style={styles.ContainerImage}

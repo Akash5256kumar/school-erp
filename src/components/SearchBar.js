@@ -10,6 +10,7 @@ import {
     TouchableOpacity,
     TextInput, Image
 } from 'react-native';
+import { resW } from '../Utils/Constant';
 const baseColor = '#0747a6'
 
 
@@ -81,7 +82,8 @@ const styles = StyleSheet.create({
         height: 80,
         alignItems: 'center',
         // height: '100%', width: '100%' 
-    },txtError: {
+    },
+    txtError: {
         marginTop: '2%',
         width: '89%',
         color: 'white',
@@ -109,13 +111,14 @@ const styles = StyleSheet.create({
     },
     searchContainer:{
         backgroundColor: 'white',
-        width: '90%',
+        // width: '92%',
         height: 50,
         flexDirection: 'row',
         borderWidth: 1,
         borderRadius: 4,
         marginTop: 8,
-        borderColor: baseColor
+        borderColor: baseColor,
+        marginHorizontal:resW(4)
     },
     container: {
         height: 60,

@@ -119,6 +119,7 @@ export const Icons = {
   music : require(baseIconPath + 'music.png'),
   Accounts : require(baseIconPath + 'Accounts.png'),
   physicaleduction : require(baseIconPath + 'physicaleduction.png'),
+  edit : require(baseIconPath + 'edit.png'),
 
 };
 

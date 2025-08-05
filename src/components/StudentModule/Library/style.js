@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { blackColor, font17, resW, typeMedium } from '../../../Utils/Constant';
+import { blackColor, font15, font16, font17, font18, resW, typeMedium, typeRegular } from '../../../Utils/Constant';
 const baseColor = '#0747a6'
 
 export default styles = StyleSheet.create({
@@ -79,12 +79,17 @@ export default styles = StyleSheet.create({
         height: 55,
         borderRadius: 80 / 2,
         backgroundColor: '#d5dcf2',
-        marginTop: 10,
+        // marginTop: 10,
         marginStart: 10
     },
 
     CardViewStyle: {
-        flex: 3, display: 'flex', flexDirection: 'row', justifyContent: 'space-around'
+        flex: 3,
+        //  display: 'flex',
+          flexDirection: 'row',
+           justifyContent: 'space-around',
+           alignItems:'center',
+           paddingVertical:resW(3)
     },
 
     CardView: {
@@ -95,17 +100,20 @@ export default styles = StyleSheet.create({
         shadowOpacity: 0.4,
         shadowRadius: 5,
         elevation: 5,
-        marginStart: 5,
-        marginEnd: 15,
-        borderRadius: 8
+        // marginStart: 5,
+        // marginEnd: 15,
+        borderRadius: 8,
+        marginHorizontal:resW(4),
+        alignItems:'center',
+        borderWidth:1,
+        borderColor:'#f4f4f4'
     },
 
     TextViewStyle: {
         display: 'flex',
         flex: 1,
         flexDirection: 'column',
-        marginTop: 10,
-        marginStart: 20
+        paddingHorizontal:resW(3)
     },
 
     AssignmentImage: {
@@ -124,7 +132,9 @@ export default styles = StyleSheet.create({
     },
 
     DateText: {
-        fontSize: 16, color: 'grey'
+        fontSize: font15, 
+        color: 'grey',
+        fontFamily:typeRegular
     },
 
     DocImageAndTextStyle: {

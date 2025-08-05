@@ -15,6 +15,7 @@ import * as myConst from '../../Baseurl';
 import Searchbar from '../../SearchBar';
 import Header from '../../Header/Header';
 import moment from 'moment';
+import { resW, typeMedium } from '../../../Utils/Constant';
 
 class Library extends Component {
   constructor(props) {
@@ -170,16 +171,59 @@ class Library extends Component {
                         <Text style={this.state.active ? styles.buttonTextStyle2 : styles.buttonTextStyle}>Library Book</Text>
                     </Pressable>
                 </View>
-        {this.state.active ? <View >   
+        {this.state.active ?
+         
+         <View >   
+             <FlatList
+               data={this.state.issueBookSource}
+               renderItem={({item}) => (
+                //  <View style={styles.FlatListView}>
+                   <View style={styles.CardView}>
+                     <View style={styles.CardViewStyle}>
+                       {/* <View style={styles.DocImageAndTextStyle}> */}
+                         <View style={styles.CircleShapeView}>
+                           <Image
+                             style={styles.AssignmentImage}
+                             source={require('../../../assests/images/assignment.png')}
+                           />
+                         </View>
+                         <View style={styles.TextViewStyle}>
+                           <Text style={styles.DashboardTextStyle}>
+                             {item?.book?.title}
+                           </Text>
+                           <View style = {{flexDirection:'row',alignItems:'center',marginTop:resW(1)}}>
+                           <Text style={styles.DateText}>{moment(item?.issue?.issue_date).format('DD-MM-YYYY')}   </Text>
+                           <View style={{width:resW(4),backgroundColor:'grey',height:resW(0.4),marginTop:resW(1)}} />
+                           <Text style={styles.DateText}>   {moment(item?.issue?.return_date).format('DD-MM-YYYY')}</Text>
+                           </View>
+                           {item?.issue?.fine > 0 && <Text style={[styles.DateText,{color:'red',marginTop:resW(1),fontFamily:typeMedium}]}>Fine: {item?.issue?.fine}</Text>}
 
+                         </View>
+                       </View>
+                     {/* </View> */}
+                   </View>
+                //  </View>
+               )}
+               keyExtractor={(item, index) => index}
+               ItemSeparatorComponent={()=><View style={{height:resW(4)}} />}
+               ListFooterComponent={()=><View style={{height:resW(4)}} />}
+               ListHeaderComponent={()=><View style={{height:resW(1)}} />}
+
+             />
+          </View> 
+          :
+        <View >   
+ 
         {this.state.isVisible ? (
+          <View style={{marginBottom:resW(3)}}>
           <Searchbar onChangeSearch={text => this.onSearch(text)} />
+            </View>
         ) : null}
 
         <FlatList
           data={this.state.dataSource}
           renderItem={({item}) => (
-            <View style={styles.FlatListView}>
+            // <View style={styles.FlatListView}>
               <View style={styles.CardView}>
                 <View style={styles.CardViewStyle}>
                   <View style={styles.DocImageAndTextStyle}>
@@ -194,61 +238,31 @@ class Library extends Component {
                         {item?.title}
                       </Text>
                       <Text style={styles.DateText}>
-                        {moment(item?.issue_date).format('DD-MM-YYYY')}
+                       Written by {item?.author_name}
                       </Text>
                     </View>
                   </View>
                 </View>
               </View>
-            </View>
+            // </View>
           )}
           keyExtractor={(item, index) => index}
+          ItemSeparatorComponent={()=><View style={{height:resW(4)}} />}
+          ListFooterComponent={()=><View style={{height:resW(4)}} />}
         />
      </View>
-    :
-    <View >   
-
-        <FlatList
-          data={this.state.issueBookSource}
-          renderItem={({item}) => (
-            <View style={styles.FlatListView}>
-              <View style={styles.CardView}>
-                <View style={styles.CardViewStyle}>
-                  <View style={styles.DocImageAndTextStyle}>
-                    <View style={styles.CircleShapeView}>
-                      <Image
-                        style={styles.AssignmentImage}
-                        source={require('../../../assests/images/assignment.png')}
-                      />
-                    </View>
-                    <View style={styles.TextViewStyle}>
-                      <Text style={styles.DashboardTextStyle}>
-                        {item?.book?.title}
-                      </Text>
-                      <Text style={styles.DateText}>{item?.issue?.issue_date}
-                        {/* {moment(item?.issue_date).format('DD-MM-YYYY')} */}
-                      </Text>
-                      <Text style={styles.DateText}>{item?.issue?.return_date}</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
-          )}
-          keyExtractor={(item, index) => index}
-        />
-     </View> 
+   
     } 
 
 
-        <View style={styles.FloatTabStyle}>
+       {!this.state.active && <View style={styles.FloatTabStyle}>
           <TouchableOpacity onPress={() => this.toggleFunction()}>
             <Image
               style={styles.FloatIconStyle}
               source={require('../../../assests/images/loupe_icon.png')}
             />
           </TouchableOpacity>
-        </View>
+        </View>}
       </View>
     );
   }
