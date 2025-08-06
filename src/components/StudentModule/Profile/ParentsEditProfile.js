@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import styles from './EditProfileStyle';
+import styles from './ParentsEditProfileStyle';
 import LinearGradient from 'react-native-linear-gradient';
 import * as constant from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
@@ -23,6 +23,7 @@ import SelectDropList from '../../SelectDropList';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import CommonButton from '../../Button/CommonButton';
+import Snackbar from 'react-native-snackbar';
 
 const bloodGroupList=[
     { "code": "A+", "description": "A+" },
@@ -42,7 +43,7 @@ const bloodGroupList=[
   ];
 
 
-const EditProfile = (props) => {
+const ParentsEditProfile = (props) => {
     const {navigation,route } = props
     const profileData = route.params.profileData
     const [isVisiblPickerDialog,setIsVisiblPickerDialog] = useState(false)
@@ -76,49 +77,52 @@ const EditProfile = (props) => {
     const [certifData,setCertifData] = useState([])
     const [certifModal,setCertifModal] = useState(false)
 
+    const [relation,setRelation] = useState('')
+    const [mobile,setMobile] = useState('')
+    const [whatsAppNo,setWhatsAppNo] = useState('')
 
-    const matchBloodGroup = (value) => {
-        return bloodGroupList.find(group => group.code === value);
-      };
+    const [org,setOrg] = useState('')
+    const [occup,setOccup] = useState('')
+    const [desig,setDesig] = useState('')
+    const [officeNo,setOfficeNo] = useState('')
+    const [officeAdd,setOfficeAdd] = useState('')
+    const [M_org,setM_Org] = useState('')
+    const [M_occup,setM_Occup] = useState('')
+    const [M_desig,setM_Desig] = useState('')
+    const [M_officeNo,setM_OfficeNo] = useState('')
+    const [M_officeAdd,setM_OfficeAdd] = useState('')
+    const [M_name,setM_Name] = useState('')
+    const [M_email, setM_Email] = useState('')
+    const [M_mobile,setM_Mobile] = useState('')
+    const [M_whatsAppNo,setM_WhatsAppNo] = useState('')
 
-      const findGender = (value) => {
-        return genderList.find(gender => gender.code === value);
-      };
- 
+
 
     useEffect(()=>{
-    setName(profileData?.name)
-    setEmail(profileData?.email)
-    setDob(profileData?.dob)
-    // setGender(profileData?.gender)
-    setCategory(profileData?.category)
-    setReligious(profileData?.religious)
-    setMedicalCond(profileData?.medical_condition)
-    setAllergy(profileData?.allergy)
-    setAddress(profileData?.address)
-    setCity(profileData?.city)
-    setState(profileData?.state)
-    setCountry(profileData?.country)
-    setPincode(profileData?.pincode)
-    setPer_Address(profileData?.perm_address)
-    setper_City(profileData?.perm_city)
-    setPer_State(profileData?.perm_state)
-    setPer_Country(profileData?.perm_country)
-    setper_Pincode(profileData?.perm_pincode)
-    setSchoolName(profileData?.previous_scl_name)
-    setCertif_Copy(profileData?.prev_certificate)
+    setName(profileData?.F_name)
+    setMobile(profileData?.F_mobile)
+    // setWhatsAppNo(profileData?.L_whatsup_no)
+     setOccup(profileData?.F_occupation)
+    setOrg(profileData?.F_organization)
+    setEmail(profileData?.F_email)
+    setDesig(profileData?.F_designation)
+    setOfficeAdd(profileData?.Fofficeaddress)
+    setOfficeNo(profileData?.Foficemobile)
+   
+    profileData?.fatherimage && profileData?.fatherimage != null && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.fatherimage)
+   
+    setM_Name(profileData?.M_name)
+    setM_Mobile(profileData?.M_mobile)
+    // setM_WhatsAppNo(profileData?.L_whatsup_no)
+     setM_Occup(profileData?.M_occupation)
+    setM_Org(profileData?.M_organization)
+    setM_Email(profileData?.M_email)
+    setM_Desig(profileData?.M_designation)
+    setM_OfficeAdd(profileData?.Mofficeaddress)
+    setM_OfficeNo(profileData?.Mofficemobile)
+    profileData?.motherimage && profileData?.motherimage != null && setCertif_Copy("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.motherimage)
 
-    
-    // profileData?.studentimage && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.studentimage)
-    if(profileData?.bloodgroup != null){
-    const result = matchBloodGroup(profileData?.bloodgroup);
-    result != undefined && Object.keys(result).length > 0 && setBloodGroup(result.code)
-    }
 
-    if(profileData?.gender != null){
-        const result = findGender(profileData?.gender);
-        result != undefined && Object.keys(result).length > 0 && setGender(result.description)
-        }
 
     },[])
 
@@ -245,7 +249,60 @@ const EditProfile = (props) => {
     }
     }
 
+   const showMessage=(message)=> {
+        Snackbar.show({
+          text: message,
+          duration: Snackbar.LENGTH_SHORT,
+          backgroundColor: '#f15270',
+        });
+      }
+
+    const   validateMobileNumber = (number) => {
+        const mobileRegex = /^[6-9]\d{9}$/; // Indian mobile number pattern
+        return mobileRegex.test(number);
+      };
+
+    const  validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      };
+
     const fn_UpdateProfile=()=>{
+
+        if(name === ''){
+            showMessage('Please enter Father name')
+            return true
+        }
+        if(email === ''){
+            showMessage('Please enter Father email')
+            return true
+        }
+        if(!validateEmail(email)){
+            showMessage('Please enter Father valid email')
+            return true
+        }
+        if(mobile === ''){
+            showMessage('Please enter Father mobile no')
+            return true
+        }
+        // if(!validateMobileNumber(Number(mobile))){
+        //     console.log("asadfa"+validateMobileNumber(Number(mobile)))
+        //     showMessage('Please enter Father valid mobile no')
+        //     return true
+        // }
+        if(M_name === ''){
+            showMessage('Please enter Mother name')
+            return true
+        }
+        if(M_email === ''){
+            showMessage('Please enter Mother email')
+            return true
+        }
+        if(M_mobile === ''){
+            showMessage('Please enter Mother mobile no')
+            return true
+        }
+     
         let imageParam
         let certifImageParam
         if(isEdit){
@@ -266,29 +323,25 @@ const EditProfile = (props) => {
 
       setEmptyLoader(true)
         const paramData = {
-            id : profileData?.id,
-            bloodgroup: bloodGroup,
-            phoneno:profileData?.phoneno,
-            address: address,
-            // studentimage:imageParam,
-            religious: religious,
-            category: category,
-            gender: gender,
-            // prev_certificate: "",
-            allergy: allergy,
-            medical_condition: medicalCond,
-            city: city,
-            state: state,
-            pincode: pincode,
-            country: country,
-            perm_address: per_Address,
-            perm_pincode: per_pincode,
-            perm_city: per_city,
-            perm_state: per_state,
-            perm_country: per_country,
-            previous_scl_name : schoolName,
-            ...(isEdit && { studentimage: imageParam }),
-            ...(certifEdit && { prev_certificate: certifImageParam })
+            "id": profileData?.id,
+            "F_designation": desig,
+            "F_email": email,
+            "F_mobile":mobile,
+            "F_name": name,
+            "F_occupation": occup,
+            "F_organization": org,
+            "Fofficeaddress": officeAdd,
+            "Foficemobile": officeNo,
+            "M_designation": M_desig,
+            "M_email": M_email,
+            "M_mobile": M_mobile,
+            "M_name": M_name,
+            "M_occupation": M_occup,
+            "M_organization": M_org,
+            "Mofficeaddress": M_officeAdd,
+            "Mofficemobile": M_officeNo,
+            ...(isEdit && { "fatherimage": imageParam }),
+            ...(certifEdit && { "motherimage": certifImageParam })
 
           };
           const formData = new FormData();
@@ -318,7 +371,10 @@ const EditProfile = (props) => {
             if (responseJson.status === true) {
                 navigation.goBack()
             } else if (responseJson.status === false) {
-                // showMessage(responseJson.message)
+                setTimeout(()=>{
+                    showMessage(responseJson.message)
+                },500)
+               
             }
         })
         .catch((error) => console.log(JSON.stringify(error)))
@@ -333,34 +389,32 @@ const EditProfile = (props) => {
     <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
       <View style={styles.MainContainer}>
         <CommonHeader
-          title={'Profile'}
+          title={'Parents Profile'}
           onLeftClick={() => {
             navigation.goBack();
           }}
         />
         <ScrollView>
+        <View style={styles.cardView}>
+                <Text style={styles.cardTitle2}>Father Details</Text>
+            </View>
+            
             <Pressable style={styles.profileButton} onPress={()=>setIsVisiblPickerDialog(true)}>
             <Image style={styles.ProfileImage} resizeMode='cover' source={ profilePic==='' ? require('../../../assests/images/businessman.png') : {uri:profilePic}} />
             <View style={styles.editIconView} >
                 <Image source={constant.Icons.edit} tintColor={constant.baseColor} style={styles.editIcon} />
             </View>
             </Pressable>
-            <Text style={[styles.profileTitle]}>{name}</Text>
-            <Text style={[styles.profileTitle]}>{profileData?.std_roll}</Text>
 
             <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>DOB</Text>
-                {/* <Pressable style={styles.cardInput} onPress={()=>setOpenPicker(true)} >
-                  <Text style={styles.cardInput}>{dob}</Text>
-                </Pressable> */}
+                <Text style={styles.cardTitle}>Name</Text>
                 <TextInput
                  style={styles.cardInput}
-                 editable={false}
-                 onChangeText={(t)=>setDob(t)}
-                >{dob}</TextInput>
+                 onChangeText={(t)=>setName(t)}
+                >{name}</TextInput>
             </View>
 
-            <View style={styles.cardView}>
+          <View style={styles.cardView}>
                 <Text style={styles.cardTitle}>Email ID</Text>
                 <TextInput
                  style={styles.cardInput}
@@ -369,181 +423,163 @@ const EditProfile = (props) => {
             </View>
 
             <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Gender</Text>
-                <View style={{height:constant.resW(13)}}>
-                <SelectDropList 
-                        list={genderList}
-                        title={gender === '' ? 'Select Gender' : gender}
-                        buttonExt={styles.dropList}
-                        textExt={styles.dropListText}
-                        on_Select={(d)=>setGender(d.code)}
-                        />
-                        </View>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Religious</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 editable={false}
-                 onChangeText={(t)=>setReligious(t)}
-                >{religious}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Category</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 editable={false}
-                 onChangeText={(t)=>setCategory(t)}
-                >{category}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Blood Group</Text>
-                <View style={{height:constant.resW(13)}}>
-                <SelectDropList 
-                        list={bloodGroupList}
-                        title={bloodGroup === '' ? 'Select Blood group' : bloodGroup}
-                        buttonExt={styles.dropList}
-                        textExt={styles.dropListText}
-                        on_Select={(d)=>setBloodGroup(d.description)}
-                        />
-                        </View>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Any Medical condition</Text>
-                <TextInput
-                multiline
-                 style={[styles.cardInput,{height:constant.resW(25), textAlignVertical:'top'}]}
-                 onChangeText={(t)=>setMedicalCond(t)}
-                >{medicalCond}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Allergies</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setAllergy(t)}
-                >{allergy}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle2}>Correspondence Address</Text>
-            </View>
-  
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Address</Text>
-                <TextInput
-                multiline
-                 style={[styles.cardInput,{height:constant.resW(25), textAlignVertical:'top'}]}
-                 onChangeText={(t)=>setAddress(t)}
-                >{address}</TextInput>
-            </View>
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>City</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setCity(t)}
-                >{city}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>State</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setState(t)}
-                >{state}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Country</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setCountry(t)}
-                >{country}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>PinCode</Text>
-                <TextInput
-                 keyboardType='numeric'
-                 maxLength={6}
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setPincode(t)}
-                >{pincode}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle2}>Permanent Address</Text>
-            </View>
-  
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Address</Text>
-                <TextInput
-                multiline
-                 style={[styles.cardInput,{height:constant.resW(25), textAlignVertical:'top'}]}
-                 onChangeText={(t)=>setPer_Address(t)}
-                >{per_Address}</TextInput>
-            </View>
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>City</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setper_City(t)}
-                >{per_city}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>State</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setPer_State(t)}
-                >{per_state}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Country</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setPer_Country(t)}
-                >{per_country}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>PinCode</Text>
+                <Text style={styles.cardTitle}>Mobile No.</Text>
                 <TextInput
                  style={styles.cardInput}
                  keyboardType='numeric'
-                 maxLength={6}
-                 onChangeText={(t)=>setper_Pincode(t)}
-                >{per_pincode}</TextInput>
+                 maxLength={10}
+                 onChangeText={(t)=>setMobile(t)}
+                >{mobile}</TextInput>
+            </View>
+
+            {/* <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>WhatsappNo</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 keyboardType='numeric'
+                 maxLength={10}
+                 onChangeText={(t)=>setWhatsAppNo(t)}
+                >{whatsAppNo}</TextInput>
+            </View> */}
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Organization</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setOrg(t)}
+                >{org}</TextInput>
+            </View>
+
+            
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Occupation</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setOccup(t)}
+                >{occup}</TextInput>
+            </View>
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Designation</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setDesig(t)}
+                >{desig}</TextInput>
+            </View>
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Office No.</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 keyboardType='numeric'
+                 maxLength={10}
+                 onChangeText={(t)=>setOfficeNo(t)}
+                >{officeNo}</TextInput>
+            </View>
+
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Office Address</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setOfficeAdd(t)}
+                >{officeAdd}</TextInput>
+            </View>
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle2}>Mother Details</Text>
             </View>
             
+            <Pressable style={styles.profileButton} onPress={()=>setCertifModal(true)}>
+            <Image style={styles.ProfileImage} resizeMode='cover' source={ certif_Copy==='' ? require('../../../assests/images/businessman.png') : {uri:certif_Copy}} />
+            <View style={styles.editIconView} >
+                <Image source={constant.Icons.edit} tintColor={constant.baseColor} style={styles.editIcon} />
+            </View>
+            </Pressable>
 
             <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Previous School Name</Text>
+                <Text style={styles.cardTitle}>Name</Text>
                 <TextInput
                  style={styles.cardInput}
-                 onChangeText={(t)=>setSchoolName(t)}
-                >{schoolName}</TextInput>
+                 onChangeText={(t)=>setM_Name(t)}
+                >{M_name}</TextInput>
+            </View>
+
+          <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Email ID</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setM_Email(t)}
+                >{M_email}</TextInput>
             </View>
 
             <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Transfer Certificate Copy:</Text>
-                <Pressable style={styles.certifButton} onPress={()=>setCertifModal(true)}>
-                    {
-                        certif_Copy ===  '' ?
-                        <Image source={require('../../../assests/images/add.png')} resizeMode='contain' style={styles.plusStyle} />
-                      :
-                      <Image source={{uri:certif_Copy}} style={styles.certifyStyle} resizeMode='stretch' />
-
-                    }
-                </Pressable>
+                <Text style={styles.cardTitle}>Mobile No.</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 keyboardType='numeric'
+                 maxLength={10}
+                 onChangeText={(t)=>setM_Mobile(t)}
+                >{M_mobile}</TextInput>
             </View>
 
-            <CommonButton 
+            {/* <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>WhatsappNo</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 keyboardType='numeric'
+                 maxLength={10}
+                 onChangeText={(t)=>setM_WhatsAppNo(t)}
+                >{M_whatsAppNo}</TextInput>
+            </View> */}
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Organization</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setM_Org(t)}
+                >{M_org}</TextInput>
+            </View>
+
+            
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Occupation</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setM_Occup(t)}
+                >{M_occup}</TextInput>
+            </View>
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Designation</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setM_Desig(t)}
+                >{M_desig}</TextInput>
+            </View>
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Office No.</Text>
+                <TextInput
+                 keyboardType='numeric'
+                 maxLength={10}
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setM_OfficeNo(t)}
+                >{M_officeNo}</TextInput>
+            </View>
+
+
+            <View style={styles.cardView}>
+                <Text style={styles.cardTitle}>Office Address</Text>
+                <TextInput
+                 style={styles.cardInput}
+                 onChangeText={(t)=>setM_OfficeAdd(t)}
+                >{M_officeAdd}</TextInput>
+            </View>
+
+        
+
+           <CommonButton 
                     title="Submit"
                     extStyle={{marginTop:'10%',marginBottom:'15%'}}
                     buttonClick={()=>{fn_UpdateProfile()}}
@@ -641,4 +677,4 @@ const EditProfile = (props) => {
   );
 };
 
-export default EditProfile;
+export default ParentsEditProfile;

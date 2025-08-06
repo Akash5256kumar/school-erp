@@ -174,6 +174,8 @@ import VersionCheck from 'react-native-version-check';
 import {Alert, BackHandler, Linking} from 'react-native';
 import SubjectScreen from './src/components/StudentModule/SubjectScreen/SubjectScreen';
 import EditProfile from './src/components/StudentModule/Profile/EditProfile';
+import GuardianEditProfile from './src/components/StudentModule/Profile/GuardianEditProfile';
+import ParentsEditProfile from './src/components/StudentModule/Profile/ParentsEditProfile';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -321,6 +323,15 @@ const App = () => {
         <Stack.Screen
           name="EditProfile"
           component={EditProfile}
+        />
+         <Stack.Screen
+          name="GuardianEditProfile"
+          component={GuardianEditProfile}
+        />
+
+        <Stack.Screen
+          name="ParentsEditProfile"
+          component={ParentsEditProfile}
         />
       </Stack.Navigator>
     </NavigationContainer>

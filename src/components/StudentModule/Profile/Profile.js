@@ -52,13 +52,27 @@ class Profile extends Component {
     };
 
 
+    // async componentDidMount() {
+    //     const value = await AsyncStorage.getItem('@id')
+    //     console.log('value-->>', value)
+    //     this.setState({
+    //         id: value
+    //     })
+    //     this.ProfileApi()
+    // }
+
     async componentDidMount() {
         const value = await AsyncStorage.getItem('@id')
         console.log('value-->>', value)
-        this.setState({
-            id: value
-        })
-        this.ProfileApi()
+        this.setState({ id: value })
+    
+        // Run ProfileApi first time
+        this.ProfileApi();
+    
+        // Add listener for screen focus
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+            this.ProfileApi(); // Fetch fresh data every time the screen is focused
+        });
     }
 
 
@@ -128,6 +142,15 @@ class Profile extends Component {
     this.props.navigation.navigate("EditProfile",{"profileData":this.state.profileData})
  }
 
+ fn_EditGuardian(){
+    this.props.navigation.navigate("GuardianEditProfile",{"profileData":this.state.profileData})
+    
+ }
+
+ fn_ParentEdit(){
+    this.props.navigation.navigate("ParentsEditProfile",{"profileData":this.state.profileData})
+    
+ }
 
     render() {
         return (
@@ -141,9 +164,7 @@ class Profile extends Component {
                             <Image style={styles.HeaderArrowImage}
                                 source={require('../../../assests/images/leftarrow.png')} />
                         </TouchableOpacity>
-                        <Pressable style={styles.editButton} onPress={()=>this.fn_Edit()} >
-                            <Text style={styles.editButtonText}>Edit</Text>
-                        </Pressable>
+                       
                         </View>
                         <View style={styles.ProfileImageBackground}>
                             <Image style={styles.ProfileImage}
@@ -353,7 +374,11 @@ class Profile extends Component {
                       </View>
 
                       </View>
+                      <Pressable style={styles.editButton} onPress={()=>this.fn_Edit()} >
+                            <Text style={styles.editButtonText}>Edit</Text>
+                        </Pressable>
                     </View>
+                    
                     </View>}
 
                     {this.state.active  === 2 && <View>
@@ -462,6 +487,9 @@ class Profile extends Component {
   </View>
   
   </View>
+  <Pressable style={styles.editButton} onPress={()=>this.fn_ParentEdit()} >
+                            <Text style={styles.editButtonText}>Edit</Text>
+                        </Pressable>
 </View>
 
 
@@ -525,6 +553,9 @@ class Profile extends Component {
                       </View>
   
   </View>
+  <Pressable style={styles.editButton} onPress={()=>this.fn_EditGuardian()} >
+                            <Text style={styles.editButtonText}>Edit</Text>
+                        </Pressable>
 </View>
 
 </View>}

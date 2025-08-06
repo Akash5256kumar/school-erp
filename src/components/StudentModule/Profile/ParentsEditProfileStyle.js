@@ -17,15 +17,7 @@ export default styles = StyleSheet.create({
     profileButton:{
         alignSelf:'center',
         marginTop:constant.resW(3),
-        marginBottom:constant.resW(4)
-    },
-    profileTitle:{
-        color: 'black',
-        fontSize: constant.font15,
-        fontFamily: constant.typeSemiBold,
-        marginBottom:constant.resW(0),
-        marginTop:constant.resW(0),
-        alignSelf:'center'
+        marginBottom:constant.resW(5)
     },
     editIconView:{
         height:constant.resW(8),
@@ -47,9 +39,9 @@ export default styles = StyleSheet.create({
     },
     cardTitle2:{
         color: 'black',
-        fontSize: constant.font18,
-        fontFamily: constant.typeSemiBold,
-        marginBottom:constant.resW(1),
+        fontSize: constant.font20,
+        fontFamily: constant.typeBold,
+        marginBottom:constant.resW(3),
         marginTop:constant.resW(3)
     },
     cardTitle:{

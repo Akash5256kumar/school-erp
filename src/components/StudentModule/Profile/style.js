@@ -200,10 +200,16 @@ export default styles = StyleSheet.create({
         paddingHorizontal:resW(4), 
         alignItems:'center',
         justifyContent:'center',
+        backgroundColor:baseColor,
+        marginHorizontal:resW(3),
+        paddingVertical:resW(4),
+        marginTop:resW(5),
+        marginBottom:resW(3),
+        borderRadius:resW(2)
         },
         editButtonText:{
             color:whiteColor,
-            fontSize:font17,
+            fontSize:font18,
             fontFamily:typeMedium   
         }
 

@@ -30,7 +30,7 @@ console.log("listite",JSON.stringify(list))
         renderDropdownIcon={isOpened => {
             return (
                 <View style={{alignItems:'center',justifyContent:'center'}}>
-                 {/* <Image  source={isOpened ? Icons.upArrow: Icons?.downArrow} type='1' tintColor={'#fff'} style={styles.upIcon} /> */}
+                 <Image  source={isOpened ? Icons.upArrow: Icons?.downArrow}  tintColor={'#000'} resizeMode="contain" style={styles.upIcon} />
              </View>
             );
           }}
@@ -98,8 +98,9 @@ const styles = StyleSheet.create({
         width:resW(5),
     },
     upIcon:{
-      height:resW(3),
-      width:resW(3),
+      height:resW(3.5),
+      width:resW(3.5),
+      marginRight:resW(1)
     },
     dropdown1SearchInputStyle: {
         backgroundColor: '#444444',
