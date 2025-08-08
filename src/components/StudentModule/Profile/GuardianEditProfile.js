@@ -94,7 +94,7 @@ const GuardianEditProfile = (props) => {
     setCountry(profileData?.L_country)
     setPincode(profileData?.L_pincode)
 
-    profileData?.gaurdianimg && profileData?.gaurdianimg != null && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.gaurdianimg)
+    profileData?.gaurdianimg && profileData?.gaurdianimg != null && setProfilePic("http://139.59.90.236:86/images/student_image/GUARDIAN/"+profileData?.gaurdianimg)
    
 
     },[])

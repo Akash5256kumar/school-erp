@@ -109,7 +109,7 @@ const ParentsEditProfile = (props) => {
     setOfficeAdd(profileData?.Fofficeaddress)
     setOfficeNo(profileData?.Foficemobile)
    
-    profileData?.fatherimage && profileData?.fatherimage != null && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.fatherimage)
+    profileData?.fatherimage && profileData?.fatherimage != null && setProfilePic("http://139.59.90.236:86/images/student_image/FATHER/"+profileData?.fatherimage)
    
     setM_Name(profileData?.M_name)
     setM_Mobile(profileData?.M_mobile)
@@ -120,11 +120,9 @@ const ParentsEditProfile = (props) => {
     setM_Desig(profileData?.M_designation)
     setM_OfficeAdd(profileData?.Mofficeaddress)
     setM_OfficeNo(profileData?.Mofficemobile)
-    profileData?.motherimage && profileData?.motherimage != null && setCertif_Copy("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.motherimage)
+    profileData?.motherimage && profileData?.motherimage != null && setCertif_Copy("http://139.59.90.236:86/images/student_image/MOTHER/"+profileData?.motherimage)
 
-
-
-    },[])
+  },[])
 
       
     const handleBackPress = useCallback(() => {

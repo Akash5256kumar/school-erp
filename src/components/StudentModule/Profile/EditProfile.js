@@ -106,10 +106,11 @@ const EditProfile = (props) => {
     setPer_Country(profileData?.perm_country)
     setper_Pincode(profileData?.perm_pincode)
     setSchoolName(profileData?.previous_scl_name)
-    setCertif_Copy(profileData?.prev_certificate)
+    profileData?.prev_certificate&& setCertif_Copy("http://139.59.90.236:86/images/student_image/prev_certificate/"+profileData?.prev_certificate)
 
-    
-    // profileData?.studentimage && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.studentimage)
+    profileData?.studentimage && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.studentimage)
+  
+  
     if(profileData?.bloodgroup != null){
     const result = matchBloodGroup(profileData?.bloodgroup);
     result != undefined && Object.keys(result).length > 0 && setBloodGroup(result.code)
@@ -245,7 +246,7 @@ const EditProfile = (props) => {
     }
     }
 
-    const fn_UpdateProfile=()=>{
+    const fn_UpdateProfile= async()=>{
         let imageParam
         let certifImageParam
         if(isEdit){
@@ -312,10 +313,11 @@ const EditProfile = (props) => {
 
         fetch(myConst.BASEURL + 'updateStudentProfile', data)
         .then((response) => response.json())
-        .then((responseJson) => {
+        .then(async (responseJson) => {
             console.log('data-->', responseJson)
             setEmptyLoader(false)
             if (responseJson.status === true) {
+                await AsyncStorage.setItem('userData', JSON.stringify(responseJson?.data)); // safer with JSON.stringify
                 navigation.goBack()
             } else if (responseJson.status === false) {
                 // showMessage(responseJson.message)

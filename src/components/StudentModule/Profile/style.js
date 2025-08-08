@@ -28,7 +28,16 @@ export default styles = StyleSheet.create({
         width: 100,
         height: 100,
         // marginTop: 5,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        borderRadius:resW(50)
+    },
+    ProfileImage2: {
+        width: resW(20),
+        height: resW(20),
+        // marginTop: 5,
+        alignSelf: 'center',
+        borderRadius:resW(50),
+        marginTop:resW(2)
     },
 
     HeaderArrowImage: {

@@ -32,7 +32,11 @@ class Profile extends Component {
             dayScholar: '',
             id: '',
             profileData:{},
-            active:1
+            active:1,
+            profilePic:'',
+            M_ProfilePic:'',
+            F_ProfilePic:'',
+            G_ProfilePic:''
         }
 
     }
@@ -112,8 +116,13 @@ class Profile extends Component {
                         parentAddress: response.Fofficeaddress,
                         parentPhnNum: response.F_mobile,
                         Foccupation: response.F_occupation,
-                        profileData:responseJson?.data
+                        profileData:responseJson?.data,
                     })
+                    response?.studentimage && this.setState({profilePic : "http://139.59.90.236:86/images/student_image/STUDENT/"+response.studentimage})
+                    response?.fatherimage && this.setState({F_ProfilePic : "http://139.59.90.236:86/images/student_image/FATHER/"+response.fatherimage})
+                    response?.motherimage && this.setState({M_ProfilePic : "http://139.59.90.236:86/images/student_image/MOTHER/"+response.motherimage})
+                    response?.gaurdianimg && this.setState({G_ProfilePic : "http://139.59.90.236:86/images/student_image/GUARDIAN/"+response.gaurdianimg})
+
                 } else if (responseJson.staus === false) {
 
                     // console.log('status-->>>>', responseJson.status)
@@ -168,7 +177,7 @@ class Profile extends Component {
                         </View>
                         <View style={styles.ProfileImageBackground}>
                             <Image style={styles.ProfileImage}
-                                source={require('../../../assests/images/businessman.png')} />
+                                source={this.state.profilePic != '' ? {uri:this.state.profilePic} : require('../../../assests/images/businessman.png')} />
                             <Text style={styles.TextName}>{this.state.studentName}</Text>
                             <Text style={styles.TextAddress}>{this.state.rollNo}</Text>
                         </View>
@@ -370,7 +379,10 @@ class Profile extends Component {
 
                       <View style={styles.profileCardView}>
                           <Text style={styles.profileCardTitle}>Transfer Certificate Copy</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.prev_certificate}</Text>
+                          {this.state.profileData?.prev_certificate &&
+                          <Image source={{uri:"http://139.59.90.236:86/images/student_image/prev_certificate/"+this.state.profileData?.prev_certificate}} resizeMode='stretch' style={{height:resW(15),width:resW(15),borderRadius:5}} />
+                          }
+                        {/* <Text style={styles.profileCardValue}>{this.state.profileData?.prev_certificate}</Text> */}
                       </View>
 
                       </View>
@@ -385,7 +397,10 @@ class Profile extends Component {
 
 <View style={styles.profileCardMainView}>
     <Text style={styles.profileTitle}>Father's Personal Details</Text>
+    
     <View style={styles.profileCardSubView}>
+    <Image style={[styles.ProfileImage2]} source={this.state.F_ProfilePic != '' ? {uri:this.state.F_ProfilePic} : require('../../../assests/images/businessman.png')} />
+                          
     <View style={styles.profileCardView}>
       <Text style={styles.profileCardTitle}>Name</Text>
     <Text style={styles.profileCardValue}>{this.getText(this.getText(this.state.profileData?.F_name))}</Text>
@@ -396,10 +411,10 @@ class Profile extends Component {
     <Text style={styles.profileCardValue}>{this.state.profileData?.F_mobile ? this.state.profileData?.F_mobile : '----'}</Text>
   </View>
 
-  <View style={styles.profileCardView}>
+  {/* <View style={styles.profileCardView}>
       <Text style={styles.profileCardTitle}>Whatsapp No</Text>
     <Text style={styles.profileCardValue}>{this.state.profileData?.F_telephon ? this.state.profileData?.F_telephon : '----'}</Text>
-  </View>
+  </View> */}
 
   <View style={styles.profileCardView}>
       <Text style={styles.profileCardTitle}>Email ID</Text>
@@ -439,6 +454,8 @@ class Profile extends Component {
 <View style={styles.profileCardMainView}>
     <Text style={styles.profileTitle}>Mother's Personal Details</Text>
     <View style={styles.profileCardSubView}>
+    <Image style={[styles.ProfileImage2]} source={this.state.M_ProfilePic != '' ? {uri:this.state.M_ProfilePic} : require('../../../assests/images/businessman.png')} />
+
     <View style={styles.profileCardView}>
       <Text style={styles.profileCardTitle}>Name</Text>
     <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_name)}</Text>
@@ -449,10 +466,10 @@ class Profile extends Component {
     <Text style={styles.profileCardValue}>{this.state.profileData?.M_mobile}</Text>
   </View>
 
-  <View style={styles.profileCardView}>
+  {/* <View style={styles.profileCardView}>
       <Text style={styles.profileCardTitle}>Whatsapp No</Text>
     <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_whatsapp)}</Text>
-  </View>
+  </View> */}
 
   <View style={styles.profileCardView}>
       <Text style={styles.profileCardTitle}>Email ID</Text>
@@ -492,7 +509,7 @@ class Profile extends Component {
                         </Pressable>
 </View>
 
-
+ 
 </View>}
 
 {this.state.active  === 3 && <View>
@@ -500,6 +517,8 @@ class Profile extends Component {
 <View style={styles.profileCardMainView}>
     <Text style={styles.profileTitle}>Personal Details</Text>
     <View style={styles.profileCardSubView}>
+    <Image style={[styles.ProfileImage2]} source={this.state.G_ProfilePic != '' ? {uri:this.state.G_ProfilePic} : require('../../../assests/images/businessman.png')} />
+
     <View style={styles.profileCardView}>
       <Text style={styles.profileCardTitle}>Name</Text>
     <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_name)}</Text>

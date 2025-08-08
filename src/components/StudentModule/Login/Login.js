@@ -128,7 +128,7 @@ class Login extends Component {
       fetch(myConst.BASEURL + 'login', data)
         .then(response => response.json())
         .then(async responseJson => {
-          console.log('responseJson-->', responseJson);
+          console.log('Login responseJson-->', responseJson);
           if (responseJson.status === true) {
             const currentdate = new Date();
             const date =
@@ -142,6 +142,8 @@ class Login extends Component {
             console.log('timeeee--->', time);
             this.setState({isLoading: false});
             await AsyncStorage.setItem('@id', String(responseJson.data.id));
+            await AsyncStorage.setItem('userData', String(responseJson.data));
+
             await AsyncStorage.setItem(
               '@class',
               responseJson.data.Student_class,
