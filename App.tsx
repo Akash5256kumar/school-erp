@@ -118,6 +118,8 @@
 // export default App;
 import 'react-native-gesture-handler';
 import React, {useEffect} from 'react';
+import { Provider } from 'react-redux'
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Splash from './src/components/Splash';
@@ -176,6 +178,8 @@ import SubjectScreen from './src/components/StudentModule/SubjectScreen/SubjectS
 import EditProfile from './src/components/StudentModule/Profile/EditProfile';
 import GuardianEditProfile from './src/components/StudentModule/Profile/GuardianEditProfile';
 import ParentsEditProfile from './src/components/StudentModule/Profile/ParentsEditProfile';
+import Store from './src/components/Redux/Store';
+import HomeScreen from './src/components/StudentModule/Home/HomeScreen';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -333,9 +337,33 @@ const App = () => {
           name="ParentsEditProfile"
           component={ParentsEditProfile}
         />
+
+<Stack.Screen
+          name="HomeScreen"
+          component={HomeScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
-export default App;
+// export default App;
+const MainApp = () => 
+  {
+
+     return(
+      <SafeAreaProvider>
+
+      <App/>
+     
+      </SafeAreaProvider>
+    
+     )
+  }
+
+
+  export default () => (
+  <Provider store={Store}>
+         <MainApp/>
+  </Provider>
+  );

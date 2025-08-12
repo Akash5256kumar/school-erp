@@ -120,6 +120,7 @@ export const Icons = {
   Accounts : require(baseIconPath + 'Accounts.png'),
   physicaleduction : require(baseIconPath + 'physicaleduction.png'),
   edit : require(baseIconPath + 'edit.png'),
+  drawer :require(baseIconPath + 'drawer.png'),
 
 };
 

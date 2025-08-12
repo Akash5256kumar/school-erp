@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import Home from './StudentModule/Home/Home';
 import SideBar from './SideBar';
+import HomeScreen from './StudentModule/Home/HomeScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -22,7 +23,7 @@ class DrawerNavigation extends Component {
       }}
         // drawerType='slide'
         drawerContent={(props) => <SideBar {...props} />}>
-        <Drawer.Screen name="Home" component={Home} />
+        <Drawer.Screen name="Home" component={HomeScreen} />
       </Drawer.Navigator>
     );
   }
