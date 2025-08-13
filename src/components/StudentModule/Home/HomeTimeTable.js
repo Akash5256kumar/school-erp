@@ -56,16 +56,13 @@ const HomeTimeTable = (props) => {
               if (responseJson.status === true) {
                   const response = responseJson.data
                    setSchedule(response?.schedule)
-                   console.log("moment ",moment(new Date()).format("DD"))
 
-                   const formattedDay = capitalizeFirstLetter('Monday'.trim().toLowerCase());
+                   const formattedDay = capitalizeFirstLetter(moment().format("dddd").trim().toLowerCase());
                    const scheduleForDay = schedule[formattedDay] || [];
 
-                   setSylabus(scheduleForDay.filter(s => s.type !== "Break"));
-                   setBreakData(scheduleForDay.filter(s => s.type === "Break"));
+                   setSylabus(response?.schedule?.Monday);
                    setSelect({ active: 0, data: [] });
-                
-                 
+                             
               } else if (responseJson.staus === false) {
 
                   Snackbar.show({
@@ -90,8 +87,8 @@ const HomeTimeTable = (props) => {
 
   const fn_click= async(item,index)=>{
     const scheduleForDay = getScheduleForDay(item);
-    setSylabus(scheduleForDay.filter(s => s.type !== "Break"));
-    setBreakData(scheduleForDay.filter(s => s.type === "Break"));
+    setSylabus(scheduleForDay);
+    // setBreakData(scheduleForDay.filter(s => s.type === "Break"));
     setSelect({ active: index, data: [] });
   }
 
@@ -107,36 +104,18 @@ const HomeTimeTable = (props) => {
 
   const renderPeriodList=({item,index})=>{
     return(
+        item?.type === 'Break' ?
+        <View style={[styles.periodListView,{paddingVertical:constant.resW(1),backgroundColor:'#A902FE'}]}>
+        <Text style={styles.periodlistText3}>{item?.start}-{item?.end}</Text>
+        <Text style={styles.periodlistText4}>{item?.label}</Text>
+        </View>
+        :
     <View style={styles.periodListView}>
         <Text style={styles.periodlistText}>{item?.start}-{item?.end}</Text>
         <Text style={styles.periodlistText2}>{item?.subject}</Text>
     </View>
-    )
-  }
+    
 
-  const fn_Seprator=()=>{
-    return(
-        <View style={{backgroundColor:'#A902FE'}}>
-           <FlatList 
-           data={[...breakData]}
-           numColumns={4}
-           renderItem={({item,index})=>{
-            return(
-                <View style={[styles.periodListView,{paddingVertical:constant.resW(1)}]}>
-                <Text style={styles.periodlistText3}>{item?.start}-{item?.end}</Text>
-                <Text style={styles.periodlistText4}>{item?.label}</Text>
-            </View>  
-            )
-           }}
-        //    contentContainerStyle={styles.listContainer}
-           showsHorizontalScrollIndicator={false}
-        //    ListHeaderComponent={()=><View style={{width:constant.resW(4)}}  />}
-        //    ItemSeparatorComponent={()=>fn_Seprator()}
-        //    ListFooterComponent={()=><View style={{width:constant.resW(4)}}  />}
-           />
-
-
-        </View>
     )
   }
 
@@ -159,10 +138,10 @@ const HomeTimeTable = (props) => {
          data={sylabus}
          numColumns={3}
          renderItem={renderPeriodList}
+         columnWrapperStyle={{alignSelf:'flex-start',alignItems:'flex-start'}}
          contentContainerStyle={styles.listContainer}
          showsHorizontalScrollIndicator={false}
          ListHeaderComponent={()=><View style={{width:constant.resW(4)}}  />}
-         ItemSeparatorComponent={()=>fn_Seprator()}
          ListFooterComponent={()=><View style={{width:constant.resW(4)}}  />}
         />
       </View>
@@ -212,11 +191,17 @@ export default HomeTimeTable;
     paddingVertical:constant.resW(2),
     marginVertical:constant.resW(5),
     borderRadius:5,
-    elevation:1
+    elevation:1,
+    alignItems:'flex-start',
+    justifyContent:'flex-start'
   },
   periodListView:{
-  flex:1,
-  paddingVertical:constant.resW(2)
+//   flex:1,
+  paddingVertical:constant.resW(2),
+  alignSelf:'flex-start',
+  justifyContent:'flex-start',
+  width:constant.resW(31)
+  
 //   alignItems:'center'
   },
   periodlistText:{
@@ -227,9 +212,10 @@ export default HomeTimeTable;
   },
   periodlistText2:{
     color:constant.blackColor,
-    fontSize: constant.font14,
+    fontSize: constant.font13,
     fontFamily:constant.typeSemiBold,
-    alignSelf:'center'
+    alignSelf:'center',
+    marginTop:constant.resW(1)
   },
   periodlistText3:{
     color:constant.whiteColor,
@@ -239,9 +225,10 @@ export default HomeTimeTable;
   },
   periodlistText4:{
     color:constant.whiteColor,
-    fontSize: constant.font14,
+    fontSize: constant.font13,
     fontFamily:constant.typeSemiBold,
-    alignSelf:'center'
+    alignSelf:'center',
+    marginTop:constant.resW(1)
   },
    
 })

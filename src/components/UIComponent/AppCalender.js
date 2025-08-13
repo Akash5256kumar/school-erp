@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { View, Modal, StyleSheet, Text, TouchableOpacity, ImageBackground, Pressable } from "react-native"
+import { View, Modal, StyleSheet, Text, TouchableOpacity, ImageBackground, Pressable, ActivityIndicator } from "react-native"
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from "moment"
 import FastImage from "react-native-fast-image";
@@ -23,7 +23,7 @@ LocaleConfig.locales['custom'] = {
 LocaleConfig.defaultLocale = 'custom';
 
 const AppCalender = (props) => {
-    const { markData,fn_ClickLeftArrow,fn_ClickRightArrow,current,monthString,onDateClick } = props
+    const { markData,fn_ClickLeftArrow,fn_ClickRightArrow,current,monthString,onDateClick,loader } = props
     const [selectDate, setSelectDate] = useState('')
     const tabWidth = resW(38);
     const [monthChange, setMonthChange] = useState(moment(new Date).format("MMMM - YYYY"))
@@ -33,6 +33,10 @@ const AppCalender = (props) => {
     useEffect(()=>{
      setCurrentMonth(moment(monthString).format("YYYY-MM-DD"))
     },[monthString])
+
+    useEffect(()=>{
+   setSelectDate(current)
+    },[current])
 
  
     const changeMonth = (direction) => {
@@ -179,6 +183,20 @@ const AppCalender = (props) => {
                             renderHeader={(date) => renderCustomHeader(date, (change) => setCurrentMonth(moment(date).add(change, "months").format("MMMM YYYY")))}
                             markedDates={markData}
                         />
+
+                       {loader && <View style={{
+                          position: 'absolute',
+                          top:0,
+                          left:0,
+                          right:0,
+                          bottom:0,
+                          flex:1,
+                          alignItems:'center',
+                          justifyContent:'center',
+                          backgroundColor:'#00000020'
+                        }}>
+                          <ActivityIndicator color={constant.baseColor} size={'large'} />
+                        </View>}
                  
                     </View>
 

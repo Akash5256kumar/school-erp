@@ -1,79 +1,99 @@
-import React, { Component } from 'react';
-import { Image, View, Text, TouchableOpacity, StyleSheet, Alert,Pressable,ScrollView } from "react-native";
-const baseColor = '#0747a6'
+import React, { useState, useEffect } from 'react';
+import { Image, View, Text, TouchableOpacity, StyleSheet, Alert, Pressable, ScrollView } from "react-native";
+const baseColor = '#0747a6'; // Note: This variable is defined but not used in the styles.
 import AsyncStorage from "@react-native-community/async-storage";
 import LinearGradient from 'react-native-linear-gradient';
-import * as constant from '../Utils/Constant'
+import * as constant from '../Utils/Constant';
+import { useSelector } from 'react-redux';
 
-class SideBar extends Component {
+const SideBar = (props) => {
+    const { navigation } = props;
+    const userData = useSelector(state=>state.userSlice.userData)
+    // State management using useState hook
+    const [name, setName] = useState('');
+    const [std_roll, setStdRoll] = useState('');
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
+  console.log("user",JSON.stringify(userData))
+    // Replaces componentDidMount with useEffect
+    useEffect(() => {
+        // The 'focus' event listener runs whenever the screen comes into focus.
+        const unsubscribe = navigation.addListener('focus', async () => {
+            console.log('sidebar focused');
+            try {
+                const value = await AsyncStorage.getItem('@name');
+                const value1 = await AsyncStorage.getItem('@std_roll');
+                const datee = await AsyncStorage.getItem('@date');
+                const timee = await AsyncStorage.getItem('@time');
+                
+                console.log('value-->>', value);
+                console.log('value2-->', value1);
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false,
-            admissionNo: '',
-            name: '',
-            date: '',
-            time: '',
-            dataSource: []
-        }
-
-    }
-
-
-    async componentDidMount() {
-        const { navigation } = this.props;
-        navigation.addListener('focus', async () => {
-            // call your refresh method here
-            console.log('sidebar')
-            const value = await AsyncStorage.getItem('@name')
-            const value1 = await AsyncStorage.getItem('@std_roll')
-            const datee = await AsyncStorage.getItem('@date')
-            const timee = await AsyncStorage.getItem('@time')
-            console.log('value-->>', value)
-            console.log('value2-->', value1)
-            this.setState({
-                name: value,
-                std_roll: value1,
-                date: datee,
-                time: timee
-            })
+                setName(value || '');
+                setStdRoll(value1 || '');
+                setDate(datee || '');
+                setTime(timee || '');
+            } catch (error) {
+                console.error("Failed to fetch data from AsyncStorage", error);
+            }
         });
 
-    }
+        // Return a cleanup function to unsubscribe from the event when the component unmounts
+        return unsubscribe;
+    }, [navigation]); // Dependency array ensures this effect runs only when navigation prop changes
 
+    const handleLogout = () => {
+        Alert.alert(
+            'Log out',
+            'Do you want to logout?',
+            [
+                { text: 'Cancel', onPress: () => null, style: 'cancel' },
+                {
+                    text: 'Confirm', onPress: () => {
+                        AsyncStorage.clear();
+                        navigation.navigate('Login');
+                    }
+                },
+            ],
+            { cancelable: false }
+        );
+    };
 
+    return (
+        <LinearGradient colors={['#A902FE', '#5E3BF9', '#5E3BF9']} style={{ flex: 1 }} >
+            <View>
+                {/* <Pressable style={styles.bellIconView} onPress={() => navigation.navigate('Notification')}>
+                    <Image source={constant.Icons.bellIcon} style={styles.bellIcon} />
+                    <Pressable style={styles.drawerButton2}>
+                    </Pressable>
+                </Pressable> */}
+                <View style={styles.ImageStyleView}>
+                    <TouchableOpacity
+                        style={styles.imageButton}
+                        onPress={() => navigation.navigate('Profile')}>
+                        <Image style={styles.ProfileImage}
+                            source={userData?.studentimage && userData?.studentimage === '' ?
+                                  require('../assests/images/businessman.png')
+                                  :
+                                  {uri:"http://139.59.90.236:86/images/student_image/STUDENT/"+userData?.studentimage}
+                                } />
+                    </TouchableOpacity>
+                    <Text style={styles.TextStyle}>{userData?.Student_name}</Text>
+                    <Text style={styles.TextStyle2}>{userData?.std_roll}</Text>
+                    <Text style={styles.TextStyle2}>{userData?.Student_class} Section-{userData?.Student_section}</Text>
 
-    render() {
-        return (
-            <LinearGradient colors={['#A902FE','#5E3BF9','#5E3BF9']} style={{flex:1}} >
-                <View style={{  }}>
-                <Pressable style={styles.bellIconView}  onPress={() => this.props.navigation.navigate('Notification')}>
-                                    <Image source={constant.Icons.bellIcon} style={styles.bellIcon} />
-                                    <Pressable style={styles.drawerButton2}>
-                                    </Pressable>  
-                                </Pressable>
-                    <View style={styles.ImageStyleView}>
-                        <TouchableOpacity
-                          style={styles.imageButton}
-                            onPress={() => this.props.navigation.navigate('Profile')}>
-                            <Image style={styles.ProfileImage}
-                                source={require('../assests/images/businessman.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.TextStyle}>{this.state.name}</Text>
-                        <Text style={styles.TextStyle2}>{this.state.std_roll}</Text>
-                    </View>
-                    <View style={styles.LoginDetails}>
-                        <Text style={styles.LastLoginText}>Last Login : </Text>
-                        <Text style={styles.DateTimeText}>{this.state.date} {this.state.time}</Text>
-                    </View>
                 </View>
-                <ScrollView>
+                <View style={styles.LoginDetails}>
+                    <Text style={styles.LastLoginText}>Last Login : </Text>
+                    <Text style={styles.DateTimeText}>{date} {time}</Text>
+                </View>
+            </View>
+            <ScrollView>
                 <View style={styles.DrawerBackground}>
                     <View style={styles.Sideview}>
 
                         <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => this.props.navigation.navigate('Home')}
+                            onPress={() => navigation.navigate('Home')}
                         >
                             <Image style={styles.DrawerImage}
                                 source={constant.Icons.drawerHome} />
@@ -81,7 +101,7 @@ class SideBar extends Component {
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => this.props.navigation.navigate('Sibling')}
+                            onPress={() => navigation.navigate('Sibling')}
                         >
                             <Image style={styles.DrawerImage}
                                 source={constant.Icons.sibling} />
@@ -89,7 +109,7 @@ class SideBar extends Component {
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => this.props.navigation.navigate('RateUs')}
+                            onPress={() => navigation.navigate('RateUs')}
                         >
                             <Image style={styles.DrawerImage}
                                 source={constant.Icons.rating} />
@@ -97,7 +117,7 @@ class SideBar extends Component {
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => this.props.navigation.navigate('ContactUs')}
+                            onPress={() => navigation.navigate('ContactUs')}
                         >
                             <Image style={styles.DrawerImage}
                                 source={constant.Icons.drawerContact} />
@@ -105,72 +125,24 @@ class SideBar extends Component {
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => this.props.navigation.navigate("LoginDevice")}
+                            onPress={() => navigation.navigate("LoginDevice")}
                         >
                             <Image style={styles.DrawerImage}
                                 source={constant.Icons.loginDevice} />
                             <Text style={styles.sideText}>Login devices</Text>
                         </TouchableOpacity>
 
-
-                        {/* <TouchableOpacity onPress={() =>
-                            Alert.alert(
-                                'Log out',
-                                'Do you want to logout?',
-                                [
-                                    { text: 'Cancel', onPress: () => { return null } },
-                                    {
-                                        text: 'Confirm', onPress: () => {
-                                            AsyncStorage.clear();
-                                            this.props.navigation.navigate('Login')
-                                            // BackHandler.exitApp();
-                                        }
-                                    },
-                                ],
-                                { cancelable: false }
-                            )
-                        }>
-                            <View style={{ flexDirection: 'row'}}>
-                                <Image style={styles.DrawerImage}
-                                    source={require('../assests/images/logout.png')} />
-                                <Text style={styles.sideText}>Logout</Text>
-                            </View>
-                        </TouchableOpacity> */}
-
-                        <Pressable style={styles.logoutButton}
-                        onPress={() =>
-                            Alert.alert(
-                                'Log out',
-                                'Do you want to logout?',
-                                [
-                                    { text: 'Cancel', onPress: () => { return null } },
-                                    {
-                                        text: 'Confirm', onPress: () => {
-                                            AsyncStorage.clear();
-                                            this.props.navigation.navigate('Login')
-                                            // BackHandler.exitApp();
-                                        }
-                                    },
-                                ],
-                                { cancelable: false }
-                            )
-                        }
-                        >
+                        <Pressable style={styles.logoutButton} onPress={handleLogout}>
                             <Text style={styles.logoutText}>Logout</Text>
                             <Image style={styles.logoutImage}
-                                    source={constant.Icons.logout} />
+                                source={constant.Icons.logout} />
                         </Pressable>
-                        {/* </View> */}
                     </View>
-               
                 </View>
-                </ScrollView>
-            
-            </LinearGradient>
-        )
-    }
-
-}
+            </ScrollView>
+        </LinearGradient>
+    );
+};
 
 const styles = StyleSheet.create({
     touchStyle: {
@@ -219,9 +191,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
-        // marginTop: 3,
-        // marginStart: 20,
-        // marginBottom: 20,
         fontSize: constant.font10,
         fontFamily:constant.typeRegular
     },
@@ -244,14 +213,12 @@ const styles = StyleSheet.create({
         marginTop: 2,
         fontSize: constant.font10,
         fontFamily:constant.typeRegular
-        // marginBottom: 20
     },
     DrawerImage: {
         height: constant.resW(7),
         width: constant.resW(7)
     },
     DrawerBackground: {
-        // backgroundColor: 'white', 
         height: '100%'
     },
     bellIcon:{
@@ -275,9 +242,9 @@ const styles = StyleSheet.create({
         flex:1,
     },
     drawerButton:{
-    position:'absolute',
-    top:0,
-    left:0
+        position:'absolute',
+        top:0,
+        left:0
     },
     drawerButton2:{
         position:'absolute',
@@ -287,40 +254,40 @@ const styles = StyleSheet.create({
         width:constant.resW(4),
         borderRadius:constant.resW(10),
         backgroundColor:'#FFD14A'
-        },
-        imageButton:{
-            height:constant.resW(29),
-            width:constant.resW(29),
-            backgroundColor:'#ffffff40',
-            borderRadius:constant.resW(40),
-            justifyContent:'center',
-            alignItems:'center',
-            marginTop:'4%',
-            marginBottom:'3%'
-        },
-        logoutButton:{
-            backgroundColor:'#ffffff40',
-            borderRadius:10,
-            flexDirection:'row',
-            alignItems:'center',
-            justifyContent:'center',
-            alignSelf:'center',
-            paddingVertical:'4%',
-            paddingHorizontal:'12%',
-            borderRadius:constant.resW(40),
-            marginTop:'30%',
-            marginBottom:'10%'
-        },
-        logoutImage:{
-            height:constant.resW(6.5),
-            width:constant.resW(6.5),
-            marginLeft:'3%'
-        },
-        logoutText:{
-            color:constant.whiteColor,
-            fontSize: constant.font15,
-            fontFamily:constant.typeRegular,
-        },
+    },
+    imageButton:{
+        height:constant.resW(29),
+        width:constant.resW(29),
+        backgroundColor:'#ffffff40',
+        borderRadius:constant.resW(40),
+        justifyContent:'center',
+        alignItems:'center',
+        marginTop:'4%',
+        marginBottom:'3%'
+    },
+    logoutButton:{
+        backgroundColor:'#ffffff40',
+        borderRadius:10,
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center',
+        alignSelf:'center',
+        paddingVertical:'4%',
+        paddingHorizontal:'12%',
+        borderRadius:constant.resW(40),
+        marginTop:'30%',
+        marginBottom:'10%'
+    },
+    logoutImage:{
+        height:constant.resW(6.5),
+        width:constant.resW(6.5),
+        marginLeft:'3%'
+    },
+    logoutText:{
+        color:constant.whiteColor,
+        fontSize: constant.font15,
+        fontFamily:constant.typeRegular,
+    },
 });
 
 export default SideBar;

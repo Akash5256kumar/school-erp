@@ -15,6 +15,7 @@ import * as constant from '../../../Utils/Constant'
 import HomeHeader from './HomeHeader';
 import HomeTransport from './HomeTransport';
 import HomeTimeTable from './HomeTimeTable';
+import HomeMenu from './HomeMenu';
 
 
 const HomeScreen = ({ navigation }) => {
@@ -30,6 +31,7 @@ const HomeScreen = ({ navigation }) => {
                </View>
                <HomeTransport />
                <HomeTimeTable />
+               <HomeMenu navigation={navigation}  />
         <View style={{height:constant.resW(10)}}  />
               
             </ScrollView>

@@ -56,11 +56,12 @@ const HomeCalender = ({ navigation }) => {
             setStrSection(sectionn);
             setStrRollNo(rollno);
 
-            attendanceApi(moment().format("YYYY-MM-DD"), classes, sectionn, rollno);
+            attendanceApi(moment().format("YYYY-MM-DD"),1, classes, sectionn, rollno);
         })();
     }, []);
 
-    const attendanceApi = useCallback((dateString, cls = strClass, sec = strSection, roll = strRollNo) => {
+    const attendanceApi = useCallback((dateString,type, cls = strClass, sec = strSection, roll = strRollNo) => {
+        setLoader(true)
         let formData = new FormData();
         formData.append('std_class', cls);
         formData.append('std_section', sec);
@@ -97,20 +98,32 @@ const HomeCalender = ({ navigation }) => {
                 setEventMarkDate(rv2);
                 setEventData(events);
                 setHolidayData(holiday_details);
+               
+                if(type == 2){
+                    setSelectedDate(dateString);
+                    const matchedEvents = events
+                        .filter(event => event.event_time === dateString)
+                        .map(event => ({ ...event, type: "event" }));
+                        console.log("asdf"+JSON.stringify(events))
+                    const matchedHolidays = holiday_details
+                        .filter(holiday => holiday.holiday_date === dateString)
+                        .map(holiday => ({ ...holiday, type: "holiday" }));
+                    setEventsResult([...matchedEvents, ...matchedHolidays]); 
+                }
             })
-            .catch(error => console.log(error));
+            .catch(error => console.log(error)).finally(()=>setLoader(false))
     }, [strClass, strSection, strRollNo]);
 
     const fnMonthClick = (data) => {
         setCurrentDate(data)
-        attendanceApi(data);
-        setEventsResult([]);
+        attendanceApi(data,1);
+        // setEventsResult([]);
         setMarkedDates([])
         
     };
 
     const fnDayClick = (dayData) => {
-        const inputDate = dayData?.dateString;
+        const inputDate = dayData;
         setLoader(true);
         setSelectedDate(inputDate);
 
@@ -137,7 +150,7 @@ const HomeCalender = ({ navigation }) => {
         setCalendarKey(prev => prev + 1);
         setSelectedDate(moment().format('YYYY-MM-DD'));
         
-        attendanceApi(moment().format("YYYY-MM-DD"));
+        attendanceApi(moment().format("YYYY-MM-DD"),2);
     };
 
     const getMarkedDatesForEventCalendar = () => {
@@ -182,7 +195,7 @@ const HomeCalender = ({ navigation }) => {
                         setActive(true);
                         setCurrentDate(moment().format('YYYY-MM-DD'));
                         setCalendarKey(prev => prev + 1);
-                        attendanceApi(moment().format("YYYY-MM-DD"));
+                        attendanceApi(moment().format("YYYY-MM-DD"),1);
                     }}
                 >
                     <Text style={active ? styles.buttonTextStyle : styles.buttonTextStyle2}>Attendance</Text>
@@ -200,11 +213,12 @@ const HomeCalender = ({ navigation }) => {
                     <View>
                         <AppCalender
                          markData={markedDates}
-                         current={currentDate}
+                         current={selectedDate}
                          monthString={currentDate}
                          fn_ClickLeftArrow={(d)=>fnMonthClick(d)}
                          fn_ClickRightArrow={(d)=>fnMonthClick(d)}
                          onDateClick={(d)=>setSelectedDate(d?.dateString)}
+                         loader={loader}
                         />
                       
                       <View style={{marginHorizontal:resW(4),flexDirection:'row',marginTop:resW(2),marginBottom:resW(2)}}>
@@ -253,13 +267,14 @@ const HomeCalender = ({ navigation }) => {
                     <View>          
                         <AppCalender
                          markData={getMarkedDatesForEventCalendar()}
-                         current={currentDate}
+                         current={selectedDate}
                          monthString={currentDate}
                          fn_ClickLeftArrow={(d)=>fnMonthClick(d)}
                          fn_ClickRightArrow={(d)=>fnMonthClick(d)}
+                         loader={loader}
                          onDateClick={(d)=>{
                             setSelectedDate(d?.dateString)
-                            fnDayClick(d)
+                            fnDayClick(d?.dateString)
                          }}
                         />
                       { eventsResult.length >0 && <View style={{marginHorizontal:resW(4),flexDirection:'row',marginTop:resW(2),marginBottom:resW(2)}}>

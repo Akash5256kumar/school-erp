@@ -71,44 +71,44 @@ const HomeTransport = (props) => {
    
     <View style={styles.container}>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Route No.:</Text>
+        <Text style={styles.cardText}>Route No.</Text>
         <Text style={styles.cardValue}>{transpartData?.route_no}</Text>
       </View>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Vehicle No.:</Text>
+        <Text style={styles.cardText}>Vehicle No.</Text>
         <Text style={styles.cardValue}>{transpartData?.bus_no}</Text>
       </View>
     </View>
 
     <View style={styles.container}>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Pick Up Point:</Text>
+        <Text style={styles.cardText}>Pick Up Point</Text>
         <Text style={styles.cardValue}>{transpartData?.pickup_point}</Text>
       </View>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Drop Point:</Text>
+        <Text style={styles.cardText}>Drop Point</Text>
         <Text style={styles.cardValue}>{transpartData?.drop_point}</Text>
       </View>
     </View>
 
     <View style={styles.container}>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Incharge Name:</Text>
+        <Text style={styles.cardText}>Incharge Name</Text>
         <Text style={styles.cardValue}>{transpartData?.incharge}</Text>
       </View>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Incharge No.:</Text>
+        <Text style={styles.cardText}>Incharge No.</Text>
         <Text style={styles.cardValue}>{transpartData?.contact_no}</Text>
       </View>
     </View>
 
     <View style={styles.container}>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Driver Name:</Text>
+        <Text style={styles.cardText}>Driver Name</Text>
         <Text style={styles.cardValue}>{transpartData?.driver_name}</Text>
       </View>
       <View style={styles.cardView}>
-        <Text style={styles.cardText}>Driver No.:</Text>
+        <Text style={styles.cardText}>Driver No.</Text>
         <Text style={styles.cardValue}>{transpartData?.driver_mobile_no}</Text>
       </View>
     </View>
@@ -149,21 +149,24 @@ export default HomeTransport;
     },
     cardView:{
      flex:0.48,
-     alignItems:'center',
-     flexDirection:'row',
-     justifyContent:'space-between',
-     flexWrap:'wrap',
-     gap:constant.resW(1)
+    //  alignItems:'center',
+    //  flexDirection:'row',
+    //  justifyContent:'center',
+    //  flexWrap:'wrap',
+     gap:constant.resW(1),
     },
     cardText:{
       color:constant.blackColor,
-      fontSize: constant.font13,
-      fontFamily:constant.typeMedium,
+      fontSize: constant.font16,
+      fontFamily:constant.typeSemiBold,
+      // textAlign:'center'
+
     },
     cardValue:{
       color:constant.blackColor,
       fontSize: constant.font13,
-      fontFamily:constant.typeSemiBold,
+      fontFamily:constant.typeMedium,
+      // textAlign:'center'
     }
   
 })

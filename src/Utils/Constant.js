@@ -3,6 +3,8 @@ import {Dimensions, Platform, StatusBar, View} from 'react-native';
 import Snackbar from 'react-native-snackbar';
 const {width, height} = Dimensions.get('screen');
 const baseIconPath = '../assests/Icons/';
+const baseImagePath = '../assests/images/';
+
 const window_Height = Dimensions.get('window').height;
 const window_Width = Dimensions.get('window').width;
 export const DeviceWidth = Dimensions.get('screen').width;
@@ -121,6 +123,9 @@ export const Icons = {
   physicaleduction : require(baseIconPath + 'physicaleduction.png'),
   edit : require(baseIconPath + 'edit.png'),
   drawer :require(baseIconPath + 'drawer.png'),
+  studHomeImage :require(baseImagePath + 'studHomeWork.png'),
+  studFeeDue :require(baseImagePath + 'studFeeDue.png'),
+
 
 };
 
