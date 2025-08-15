@@ -75,13 +75,26 @@ useEffect(() => {
                   {userData?.Student_class}, Section-{userData?.Student_section}
                   </Text> */}
                 </View>
+               <View style={{
+                flexDirection: 'row',
+                alignItems:'center',
+                gap:constant.resW(1)
+               }}>
+                <Pressable
+                  style={styles.bellIconView}
+                  onPress={() => navigation.navigate('News')}
+                >
+                  <Image source={constant.Icons.news} resizeMode='stretch' style={styles.bellIcon} />
+                </Pressable>
 
                 <Pressable
                   style={styles.bellIconView}
+                  
                   onPress={() => navigation.navigate('Notification')}
                 >
-                  <Image source={constant.Icons.bellIcon} style={styles.bellIcon} />
+                  <Image source={constant.Icons.bell} resizeMode='stretch' style={styles.bellIcon} />
                 </Pressable>
+                </View>
               </View>
             </LinearGradient>
   );
@@ -149,13 +162,13 @@ export default HomeHeader;
         // height: 25, width: 30, marginStart: 10
     },
     bellIcon:{
-        height:constant.resW(7),
-        width:constant.resW(7),
+        height:constant.resW(8),
+        width:constant.resW(8),
     },
     bellIconView:{
         height:constant.resW(10),
         width:constant.resW(10),
-        backgroundColor:'#ffffff80',
+        // backgroundColor:'#ffffff10',
         borderRadius:constant.resW(30),
         alignItems:'center',
         justifyContent:'center',

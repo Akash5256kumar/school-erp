@@ -7,7 +7,7 @@ import {
   BackHandler,
   Pressable,
 } from 'react-native';
-import styles from './SubjectScreenStyle';
+import styles from './FortnightlyPlannerStyle';
 import LinearGradient from 'react-native-linear-gradient';
 import * as constant from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
@@ -18,14 +18,15 @@ const data =[
     {"key":2,"topic":'Hindi'},
     {"key":3,"topic":'Math'},
     {"key":3,"topic":'Math'},
-    {"key":3,"topic":'Math'},
-
-
+    {"key":3,"topic":'Math'}
 
 ]
 
-const SubjectScreen = (props) => {
+
+
+const FortnightlyPlanner = (props) => {
     const {navigation } = props
+    
     const [dataSource, setDataSource] = useState([]);
     const [originalDataSource, setOriginalDataSource] = useState([]);
     const [classes, setClasses] = useState('');
@@ -33,19 +34,19 @@ const SubjectScreen = (props) => {
     const [loading, setLoading] = useState(false);
 
   // Back button handler
-  const handleBackPress = useCallback(() => {
-    navigation.navigate('Dashboard');
-    return true;
-  }, [navigation]);
+  // const handleBackPress = useCallback(() => {
+  //   navigation.navigate('Home');
+  //   return true;
+  // }, [navigation]);
 
-  // Lifecycle events
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+  // // Lifecycle events
+  // useEffect(() => {
+  //   BackHandler.addEventListener('hardwareBackPress', handleBackPress);
 
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-    };
-  }, [handleBackPress]);
+  //   return () => {
+  //     BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+  //   };
+  // }, [handleBackPress]);
 
   useEffect(() => {
     
@@ -67,10 +68,11 @@ const SubjectScreen = (props) => {
   const assignApi = (std_class,rollNo) => {
     console.log("eee",std_class)
     let formData = new FormData();
-    formData.append('std_class', std_class);
+    // formData.append('std_class', std_class);
     formData.append('std_roll', rollNo);
+    
 
-    fetch(myConst.BASEURL + 'viewassign', {
+    fetch(myConst.BASEURL + 'viewFortnightly', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -80,7 +82,7 @@ const SubjectScreen = (props) => {
     })
       .then(res => res.json())
       .then(json => {
-        console.log("rerspo",JSON.stringify(json.data))
+        console.log("rerspoviewFortnightly",JSON.stringify(json))
         setDataSource(json.data);
         setOriginalDataSource(json.data);
       })
@@ -92,7 +94,8 @@ const SubjectScreen = (props) => {
 
   const fn_ListClick=(item,index)=>{
     // fn_ReadMark(item,index)
-    navigation.navigate('Assignment', {
+     console.log("item",item)
+    navigation.navigate('FortnightlyPlannerList', {
             // otherParam: 'Assignment',
             subjectData : item
         })
@@ -185,17 +188,13 @@ const SubjectScreen = (props) => {
 
 
   const renderItem = ({ item,index }) => (
-      <Pressable style={styles.CardView} onPress={()=>fn_ListClick(item,index)}>
+      <Pressable style={styles.noteCardView} onPress={()=>fn_ListClick(item,index)}>
             <Image
-              style={styles.AssignmentImage}
+              style={styles.noteAssignmentImage}
               source={fn_GetImage(item)}
             />
-            <Text numberOfLines={2} style={styles.DashboardTextStyle}>{item?.subject}</Text>
-           {item?.unread_count >  0 && 
-           <View style={styles.dotStyle}>
-           <Text numberOfLines={2} style={styles.activeDot}>{item?.unread_count}</Text>
-           </View>
-            }
+            <Text numberOfLines={2} style={styles.noteDashboardTextStyle}>{item?.subject}</Text>
+         
       </Pressable>
   );
 
@@ -203,7 +202,7 @@ const SubjectScreen = (props) => {
     <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
       <View style={styles.MainContainer}>
         <CommonHeader
-          title={'Subject'}
+          title={'Fortnightly Planner'}
           onLeftClick={() => {
             navigation.goBack();
           }}
@@ -212,16 +211,15 @@ const SubjectScreen = (props) => {
         <FlatList
           numColumns={3}
           data={dataSource}
-          contentContainerStyle={styles.listContainer}
-          columnWrapperStyle={styles.listColumn}
+          contentContainerStyle={styles.notelistContainer}
+          columnWrapperStyle={styles.notelistColumn}
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
           ItemSeparatorComponent={()=>constant.listSpace(constant.resW(3))}
-          ListFooterComponent={()=><View style={{height:constant.resW(5)}} />}
         />
       </View>
     </LinearGradient>
   );
 };
 
-export default SubjectScreen;
+export default FortnightlyPlanner;

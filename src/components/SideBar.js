@@ -14,12 +14,10 @@ const SideBar = (props) => {
     const [std_roll, setStdRoll] = useState('');
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
-  console.log("user",JSON.stringify(userData))
     // Replaces componentDidMount with useEffect
     useEffect(() => {
         // The 'focus' event listener runs whenever the screen comes into focus.
         const unsubscribe = navigation.addListener('focus', async () => {
-            console.log('sidebar focused');
             try {
                 const value = await AsyncStorage.getItem('@name');
                 const value1 = await AsyncStorage.getItem('@std_roll');
@@ -83,52 +81,83 @@ const SideBar = (props) => {
                     <Text style={styles.TextStyle2}>{userData?.Student_class} Section-{userData?.Student_section}</Text>
 
                 </View>
-                <View style={styles.LoginDetails}>
+                {/* <View style={styles.LoginDetails}>
                     <Text style={styles.LastLoginText}>Last Login : </Text>
                     <Text style={styles.DateTimeText}>{date} {time}</Text>
-                </View>
+                </View> */}
             </View>
-            <ScrollView>
+            <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
                 <View style={styles.DrawerBackground}>
                     <View style={styles.Sideview}>
 
                         <TouchableOpacity style={styles.touchStyle}
                             onPress={() => navigation.navigate('Home')}
                         >
-                            <Image style={styles.DrawerImage}
-                                source={constant.Icons.drawerHome} />
+                            {/* <Image style={styles.DrawerImage}
+                                source={constant.Icons.drawerHome} /> */}
                             <Text style={styles.sideText}>Home</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.touchStyle}
                             onPress={() => navigation.navigate('Sibling')}
                         >
-                            <Image style={styles.DrawerImage}
-                                source={constant.Icons.sibling} />
+                            {/* <Image style={styles.DrawerImage}
+                                source={constant.Icons.sibling} /> */}
                             <Text style={styles.sideText}>Siblings</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Event')}>
+                            <Text style={styles.sideText}>Event</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Holiday')}>
+                            <Text style={styles.sideText}>Holidays</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Transport')}>
+                            <Text style={styles.sideText}>Transport</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Syllabus', { otherParam: 'Syllabus' })}>
+                            <Text style={styles.sideText}>Syllabus</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Syllabus', { otherParam: 'Exam Schedule' })}>
+                            <Text style={styles.sideText}>Exam Schedule</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Library', { otherParam: 'Books' })}>
+                            <Text style={styles.sideText}>Library</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Notes', { otherParam: 'Notes' })}>
+                            <Text style={styles.sideText}>Notes</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Multimedia')}>
+                            <Text style={styles.sideText}>Multimedia</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.touchStyle}
                             onPress={() => navigation.navigate('RateUs')}
                         >
-                            <Image style={styles.DrawerImage}
-                                source={constant.Icons.rating} />
+                            {/* <Image style={styles.DrawerImage}
+                                source={constant.Icons.rating} /> */}
                             <Text style={styles.sideText}>Rate Us</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.touchStyle}
+                        {/* <TouchableOpacity style={styles.touchStyle}
                             onPress={() => navigation.navigate('ContactUs')}
                         >
                             <Image style={styles.DrawerImage}
                                 source={constant.Icons.drawerContact} />
                             <Text style={styles.sideText}>Contact Us</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         <TouchableOpacity style={styles.touchStyle}
                             onPress={() => navigation.navigate("LoginDevice")}
                         >
-                            <Image style={styles.DrawerImage}
-                                source={constant.Icons.loginDevice} />
+                            {/* <Image style={styles.DrawerImage}
+                                source={constant.Icons.loginDevice} /> */}
                             <Text style={styles.sideText}>Login devices</Text>
                         </TouchableOpacity>
 
@@ -148,15 +177,18 @@ const styles = StyleSheet.create({
     touchStyle: {
         flexDirection: 'row',
         alignItems:'center',
-        paddingVertical:'5%'
+        paddingVertical:'3%',
+        // borderBottomWidth:1,
+        borderBottomColor:constant.whiteColor
+        // backgroundColor:'red'
     },
     Sideview: {
-        paddingHorizontal: '8%',
+        paddingHorizontal: constant.resW(5),
         justifyContent: 'space-around',
-        marginTop:'9%'
+        marginTop:'4%'
     },
     sideText: {
-        marginLeft: '5%',
+        // marginLeft: '5%',
         fontSize: constant.font20,
         color: constant.whiteColor,
         fontFamily:constant.typeRegular
@@ -219,7 +251,7 @@ const styles = StyleSheet.create({
         width: constant.resW(7)
     },
     DrawerBackground: {
-        height: '100%'
+        // height: '100%'
     },
     bellIcon:{
         height:constant.resW(7),
@@ -275,8 +307,8 @@ const styles = StyleSheet.create({
         paddingVertical:'4%',
         paddingHorizontal:'12%',
         borderRadius:constant.resW(40),
-        marginTop:'30%',
-        marginBottom:'10%'
+        marginTop:'10%',
+        marginBottom:constant.resW(25)
     },
     logoutImage:{
         height:constant.resW(6.5),

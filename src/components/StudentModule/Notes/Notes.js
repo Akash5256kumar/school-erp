@@ -7,7 +7,7 @@ import {
   BackHandler,
   Pressable,
 } from 'react-native';
-import styles from './SubjectScreenStyle';
+import styles from './NotesStyle';
 import LinearGradient from 'react-native-linear-gradient';
 import * as constant from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
@@ -18,13 +18,11 @@ const data =[
     {"key":2,"topic":'Hindi'},
     {"key":3,"topic":'Math'},
     {"key":3,"topic":'Math'},
-    {"key":3,"topic":'Math'},
-
-
+    {"key":3,"topic":'Math'}
 
 ]
 
-const SubjectScreen = (props) => {
+const Notes = (props) => {
     const {navigation } = props
     const [dataSource, setDataSource] = useState([]);
     const [originalDataSource, setOriginalDataSource] = useState([]);
@@ -68,9 +66,9 @@ const SubjectScreen = (props) => {
     console.log("eee",std_class)
     let formData = new FormData();
     formData.append('std_class', std_class);
-    formData.append('std_roll', rollNo);
+    // formData.append('std_roll', rollNo);
 
-    fetch(myConst.BASEURL + 'viewassign', {
+    fetch(myConst.BASEURL + 'viewnotes', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -92,7 +90,7 @@ const SubjectScreen = (props) => {
 
   const fn_ListClick=(item,index)=>{
     // fn_ReadMark(item,index)
-    navigation.navigate('Assignment', {
+    navigation.navigate('NotesList', {
             // otherParam: 'Assignment',
             subjectData : item
         })
@@ -185,15 +183,15 @@ const SubjectScreen = (props) => {
 
 
   const renderItem = ({ item,index }) => (
-      <Pressable style={styles.CardView} onPress={()=>fn_ListClick(item,index)}>
+      <Pressable style={styles.noteCardView} onPress={()=>fn_ListClick(item,index)}>
             <Image
-              style={styles.AssignmentImage}
+              style={styles.noteAssignmentImage}
               source={fn_GetImage(item)}
             />
-            <Text numberOfLines={2} style={styles.DashboardTextStyle}>{item?.subject}</Text>
+            <Text numberOfLines={2} style={styles.noteDashboardTextStyle}>{item?.subject}</Text>
            {item?.unread_count >  0 && 
            <View style={styles.dotStyle}>
-           <Text numberOfLines={2} style={styles.activeDot}>{item?.unread_count}</Text>
+           <Text numberOfLines={2} style={styles.noteactiveDot}>{item?.unread_count}</Text>
            </View>
             }
       </Pressable>
@@ -212,8 +210,8 @@ const SubjectScreen = (props) => {
         <FlatList
           numColumns={3}
           data={dataSource}
-          contentContainerStyle={styles.listContainer}
-          columnWrapperStyle={styles.listColumn}
+          contentContainerStyle={styles.notelistContainer}
+          columnWrapperStyle={styles.notelistColumn}
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
           ItemSeparatorComponent={()=>constant.listSpace(constant.resW(3))}
@@ -224,4 +222,4 @@ const SubjectScreen = (props) => {
   );
 };
 
-export default SubjectScreen;
+export default Notes;

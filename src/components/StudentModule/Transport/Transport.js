@@ -72,15 +72,15 @@ class Transport extends Component {
                 if (responseJson.status === true) {
                     const response = responseJson.data
                     this.setState({
-                        busNo: response?.bus_no,
-                        incharge: response?.incharge,
+                        busNo: response?.registration_no,
+                        incharge: response?.incharge_name,
                         contactNo: response?.contact_no,
                         routeName: response?.route_name,
                         routeNo: response?.route_no,
                         stopName: response?.stop_name,
                         stopNo: response?.stop_no,
-                        pickUpTime: response?.pickup_time,
-                        dropTime: response?.drop_time,
+                        pickUpTime: response?.pickup_point,
+                        dropTime: response?.drop_point,
                         driverName: response?.driver_name,
                         driverNo: response?.driver_mobile_no
                     })

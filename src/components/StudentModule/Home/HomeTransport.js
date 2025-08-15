@@ -44,7 +44,7 @@ const HomeTransport = (props) => {
       fetch(myConst.BASEURL + 'viewtransport', data)
           .then((response) => response.json())
           .then(responseJson => {
-              console.log('responseJson-->', responseJson)
+              console.log('transport-->', responseJson)
               if (responseJson.status === true) {
                   const response = responseJson.data
                   setTransportData(response)
@@ -76,7 +76,7 @@ const HomeTransport = (props) => {
       </View>
       <View style={styles.cardView}>
         <Text style={styles.cardText}>Vehicle No.</Text>
-        <Text style={styles.cardValue}>{transpartData?.bus_no}</Text>
+        <Text style={styles.cardValue}>{transpartData?.registration_no}</Text>
       </View>
     </View>
 
@@ -94,7 +94,7 @@ const HomeTransport = (props) => {
     <View style={styles.container}>
       <View style={styles.cardView}>
         <Text style={styles.cardText}>Incharge Name</Text>
-        <Text style={styles.cardValue}>{transpartData?.incharge}</Text>
+        <Text style={styles.cardValue}>{transpartData?.incharge_name}</Text>
       </View>
       <View style={styles.cardView}>
         <Text style={styles.cardText}>Incharge No.</Text>

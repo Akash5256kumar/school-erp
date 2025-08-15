@@ -22,7 +22,7 @@ export default styles = StyleSheet.create({
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.4,
         shadowRadius: 5,
-        elevation: 0,
+        elevation: 2,
         borderRadius: 8,
         alignItems:'center',
         justifyContent:'center',

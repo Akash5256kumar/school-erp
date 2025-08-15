@@ -125,6 +125,15 @@ export const Icons = {
   drawer :require(baseIconPath + 'drawer.png'),
   studHomeImage :require(baseImagePath + 'studHomeWork.png'),
   studFeeDue :require(baseImagePath + 'studFeeDue.png'),
+  achivement :require(baseImagePath + 'achivement.png'),
+  planner :require(baseImagePath + 'planner.png'),
+  support : require(baseImagePath + 'support.png'),
+  grade :require(baseImagePath + 'grade.png'),
+  add :require(baseImagePath + 'add.png'),
+  house :require(baseImagePath + 'house.png'),
+  bell  :require(baseImagePath + 'bell.png'),
+  news  :require(baseImagePath + 'news.png'),
+  
 
 
 };

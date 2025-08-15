@@ -180,6 +180,11 @@ import GuardianEditProfile from './src/components/StudentModule/Profile/Guardian
 import ParentsEditProfile from './src/components/StudentModule/Profile/ParentsEditProfile';
 import Store from './src/components/Redux/Store';
 import HomeScreen from './src/components/StudentModule/Home/HomeScreen';
+import Notes from './src/components/StudentModule/Notes/Notes';
+import NotesList from './src/components/StudentModule/Notes/NotesList';
+import Grade from './src/components/StudentModule/Grade/Grade';
+import FortnightlyPlanner from './src/components/StudentModule/FortnightlyPlanner/FortnightlyPlanner';
+import FortnightlyPlannerList from './src/components/StudentModule/FortnightlyPlanner/FortnightlyPlannerList';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -342,6 +347,24 @@ const App = () => {
           name="HomeScreen"
           component={HomeScreen}
         />
+        <Stack.Screen
+          name="Notes"
+          component={Notes}
+        />
+         <Stack.Screen
+          name="NotesList"
+          component={NotesList}
+        />
+          {/* <Stack.Screen
+          name="FortnightlyPlanner"
+          component={FortnightlyPlanner}
+        /> */}
+          <Stack.Screen
+          name="FortnightlyPlannerList"
+          component={FortnightlyPlannerList}
+        />
+
+       
       </Stack.Navigator>
     </NavigationContainer>
   );

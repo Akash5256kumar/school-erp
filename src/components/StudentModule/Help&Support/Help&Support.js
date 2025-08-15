@@ -1,350 +1,234 @@
-import React, { Component } from 'react';
-import { Text, View, Image, TouchableOpacity, TextInput, Modal, BackHandler,StatusBar,SafeAreaView, Pressable, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Text, View, Image, TouchableOpacity, TextInput, Modal, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
-const baseColor = '#0747a6'
-import styles from './style';
 import Snackbar from 'react-native-snackbar';
-import * as myConst from '../../Baseurl';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { Picker } from '@react-native-picker/picker';
-import CommonHeader from '../../CommonHeader';
 import LinearGradient from 'react-native-linear-gradient';
-import * as constant from '../../../Utils/Constant'
+import { useFocusEffect } from '@react-navigation/native';
+
+import styles from './style';
+import * as myConst from '../../Baseurl';
+import * as constant from '../../../Utils/Constant';
+import CommonHeader from '../../CommonHeader';
 import CommonButton from '../../Button/CommonButton';
 import SelectDropList from '../../SelectDropList';
-class HelpSupport extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false,
-            isVisible: false,
-            title: '',
-            issue: '',
-            file: {},
-            isVisiblPickerDialog: false,
-            type: '',
-            fileName: '',
-            fileUri: '',
-            fileType: '',
-            options: [],
-            selectedValue: '',
-            std_roll: '',
-            uri: '',
-            name:''
+const HelpSupport = ({ navigation }) => {
+  const [loading, setLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [title, setTitle] = useState('');
+  const [issue, setIssue] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [uri, setUri] = useState('');
+  const [fileType, setFileType] = useState('');
+  const [isVisiblPickerDialog, setIsVisiblPickerDialog] = useState(false);
+  const [options, setOptions] = useState([]);
+  const [selectedValue, setSelectedValue] = useState('');
+  const [stdRoll, setStdRoll] = useState('');
+  const [name, setName] = useState('');
+  const  [loader,setLoader] = useState(false)
+
+  const showMessage = (message) => {
+    Snackbar.show({
+      text: message,
+      duration: Snackbar.LENGTH_SHORT,
+      backgroundColor: '#f15270'
+    });
+  };
+
+  const supportTypeApi = () => {
+    fetch(myConst.BASEURL + 'supporttype', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        if (responseJson.status === true) {
+          let selectIssue = ["Select Issue"];
+          const interest = [...selectIssue, ...responseJson.data];
+          setOptions(interest);
+        } else {
+          showMessage(responseJson.message);
         }
+      })
+      .catch((error) => console.log(error))
+      .finally(() => setLoading(false));
+  };
 
-    }
-
-
-    componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    handleBackPress = () => {
-        this.props.navigation.navigate('Home')
-        return true;
+  const selectFile = (type) => {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+      includeBase64: false,
+      selectionLimit: 1,
     };
 
-
-
-    async componentDidMount() {
-        const { navigation } = this.props;
-        navigation.addListener('focus', async () => {
-            const value = await AsyncStorage.getItem('@std_roll')
-            const studentName = await AsyncStorage.getItem('@name')
-            console.log('value-->>', value)
-            this.setState({
-                std_roll: value,
-                issue: '',
-                uri: '',
-                selectedValue: '',
-                name:studentName,
-            })
-            this.supportTypeApi();
-
-        });
-    }
-
-
-    changeIssue = (issue) => {
-        this.setState({ issue: issue })
-    }
-
-    showMessage(message) {
-        Snackbar.show({
-            text: message,
-            duration: Snackbar.LENGTH_SHORT,
-            backgroundColor: '#f15270'
-        });
-    }
-
-
-
-    selectFile = (type) => {
-        const options = {
-            mediaType: 'photo',
-            videoQuality: 'high',
-            quality: 1,
-            maxWidth: 0,
-            maxHeight: 0,
-            includeBase64: false,
-            cameraType: 'back',
-            selectionLimit: 1,
-            saveToPhotos: false,
-            durationLimit: 0,
-        };
-        if (type === 'Gallery') {
-
-            launchImageLibrary(options, (response) => {
-                try {
-                    console.log(response);
-                    console.log(response.assets[0].fileName);
-                    console.log(response.assets[0].uri);
-                    console.log(response.assets[0].type);
-                    this.setState({
-                        fileName: response.assets[0].fileName,
-                        uri: response.assets[0].uri,
-                        fileType: response.assets[0].type
-                    })
-                    this.setState({ isVisiblPickerDialog: false })
-                    console.log('fileeee---->>>>>>>>>', this.state.uri)
-                } catch (error) {
-                    console.log(error)
-                    this.setState({ isVisiblPickerDialog: false })
-                }
-            })
-          
-
-        } else if (type === 'Camera') {
-            launchCamera(options, (response) => {
-                try {
-                    console.log(response);
-                    console.log(response.assets[0].fileName);
-                    console.log(response.assets[0].uri);
-                    console.log(response.assets[0].type);
-                    this.setState({
-                        fileName: response.assets[0].fileName,
-                        uri: response.assets[0].uri,
-                        fileType: response.assets[0].type
-                    })
-                    this.setState({ isVisiblPickerDialog: false })
-                    console.log('fnameeee---->>>>>>>>>', this.state.uri)
-                } catch (error) {
-                    this.setState({ isVisiblPickerDialog: false })
-                    console.log(error)
-                }
-            })
-            // this.setState({ isVisiblPickerDialog: false })
-
-
+    const callback = (response) => {
+      try {
+        if (response?.assets?.[0]) {
+          setFileName(response.assets[0].fileName);
+          setUri(response.assets[0].uri);
+          setFileType(response.assets[0].type);
         }
+      } catch (error) {
+        console.log(error);
+      }
+      setIsVisiblPickerDialog(false);
+    };
+
+    if (type === 'Gallery') {
+      launchImageLibrary(options, callback);
+    } else if (type === 'Camera') {
+      launchCamera(options, callback);
     }
+  };
 
-
-
-    helpSupportApi() {
-        const { issue } = this.state;
-        if (issue == '') {
-            this.showMessage('Please enter issue.')
+  const helpSupportApi = () => {
+    if (issue.trim() === '') {
+      showMessage('Please enter issue.');
+      return;
+    }
+    if (uri === '') {
+      showMessage('Please attach issue picture');
+      return;
+    }
+    let formData = new FormData();
+    formData.append('admission_no', stdRoll);
+    formData.append('title', selectedValue);
+    formData.append('issue', issue);
+    formData.append('file', { uri, name: fileName, type: fileType });
+    setLoader(true)
+    fetch(myConst.BASEURL + 'support', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        if (responseJson.status === true) {
+          navigation.goBack()
+          showMessage('Issue submitted successfully.');
         } else {
-            let formData = new FormData()
-            formData.append('admission_no', this.state.std_roll)
-            formData.append('title', this.state.selectedValue)
-            formData.append('issue', issue)
-            formData.append('file', { uri: this.state.uri, name: this.state.fileName, type: this.state.fileType })
-            let data = {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'multipart/form-data',
-                },
-                body: formData
-            }
-            console.log("dataa",JSON.stringify(data))
-            fetch(myConst.BASEURL + 'support', data)
-                .then((response) => response.json())
-                .then((responseJson) => {
-                    console.log('data-->', responseJson)
-                    if (responseJson.status === true) {
-                        this.props.navigation.navigate('Home')
-                        // this.showMessage(responseJson.message)
-                    } else if (responseJson.status === false) {
-                        this.showMessage(responseJson.message)
-                    }
-                })
-                .catch((error) => console.log(JSON.stringify(error)))
-                .finally(() => {
-                    this.setState({ isLoading: false });
-                })
+          showMessage(responseJson.message);
         }
-    }
+      })
+      .catch((error) => console.log('error'+JSON.stringify(error)))
+      .finally(() => {
+        setLoading(false)
+        setLoader(false)
+      });
+  };
 
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const value = await AsyncStorage.getItem('@std_roll');
+        const studentName = await AsyncStorage.getItem('@name');
+        setStdRoll(value);
+        setName(studentName);
+        setIssue('');
+        setUri('');
+        setSelectedValue('');
+        supportTypeApi();
+      };
+      fetchData();
+    }, [])
+  );
 
+  return (
+    <View style={{ flex: 1 }}>
+      <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
+        <CommonHeader
+          title={'Help & Support'}
+          onLeftClick={() => navigation.goBack()}
+        />
+        <ScrollView>
+          <View style={styles.MainContainer}>
+            <Image style={styles.ProfileImage} resizeMode='contain' source={require('../../../assests/images/businessman.png')} />
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.rollno}>{stdRoll}</Text>
 
-    supportTypeApi() {
-        let data = {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-            },
-        }
-        fetch(myConst.BASEURL + 'supporttype', data)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log('data-->', responseJson.data)
-                if (responseJson.status === true) {
-                    let selectIssue = ["Select Issue"]
-                    const interest = [...selectIssue, ...responseJson.data];
-                    console.log(interest)
-                    this.setState({
-                        options: interest
-                    })
-                } else if (responseJson.status === false) {
-                    this.showMessage(responseJson.message)
-                }
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
-    }
+            <View style={styles.HelpSupportform}>
+              <View style={styles.DropDownBackground}>
+                {options.length > 0 && (
+                  <SelectDropList
+                    list={options}
+                    title={selectedValue === '' ? 'Select Issue' : selectedValue}
+                    buttonExt={styles.dropList}
+                    textExt={styles.dropListText}
+                    type={1}
+                    on_Select={(d) => setSelectedValue(d)}
+                  />
+                )}
+              </View>
 
+              <View style={styles.midView}>
+                <TextInput
+                  style={styles.IssueStyle}
+                  placeholder='Issue Description'
+                  placeholderTextColor={constant.grayColor}
+                  multiline
+                  onChangeText={setIssue}
+                  value={issue}
+                />
+                {uri !== '' && <Image style={styles.uploadImage2} source={{ uri }} />}
+                <Pressable style={styles.attachView} onPress={() => setIsVisiblPickerDialog(true)}>
+                  <Text style={styles.attachText}>Attach Files</Text>
+                  <Image source={constant.Icons.attachIcon} style={styles.attachImage} />
+                </Pressable>
+              </View>
 
+              <CommonButton
+                title="Submit"
+                extStyle={{ marginTop: '10%', marginBottom: '15%' }}
+                buttonClick={helpSupportApi}
+              />
+            </View>
 
-    render() {
-        const { isVisiblPickerDialog } = this.state;
-        return (
-            <View style={{flex:1}}>
-            <LinearGradient colors={['#DFE6FF','#ffffff']} style={{flex:1}} >
-            <CommonHeader 
-            title={'Help & Support'}
-            onLeftClick={() => {
-                this.props.navigation.navigate('Home')
-            }}
-            />
-           <ScrollView>
-            <View style={styles.MainContainer}>
-                {/* <View style={styles.HeaderBackground}>
-                    <View style={styles.HeaderStyle}>
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate('Home')}>
-                            <Image style={styles.HeaderArrowImage}
-                                source={require('../../../assests/images/leftarrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.HeaderText}>Help & Support</Text>
-                        <View></View>
-                    </View>
-                </View> */}
-          
-             <Image style={styles.ProfileImage} resizeMode='contain' source={require('../../../assests/images/businessman.png')} />
-             <Text style={styles.name}>{this.state.name}</Text>
-             <Text style={styles.rollno}>{this.state.std_roll}</Text>
-                <View style={styles.HelpSupportform}>
-                    {/* <Text style={styles.TextView}>Admission Number</Text>
-
-                    <Text style={styles.EditTextStyle}>{this.state.std_roll}</Text>
-
-                    <Text style={styles.TextView}>Select Issue</Text> */}
-
-                    <View style={styles.DropDownBackground}>
-                    {this.state.options.length > 0 && <SelectDropList 
-                        list={this.state.options}
-                        title={this.state.selectedValue === '' ? 'Select Issue' : this.state.selectedValue}
-                        buttonExt={styles.dropList}
-                        textExt={styles.dropListText}
-                        type={1}
-                        on_Select={(d)=>this.setState({
-                            selectedValue: d
-                        })}
-                        />}
-                        {/* <Picker
-                            mode='dropdown'
-                            selectedValue={this.state.selectedValue}
-                            onValueChange={(itemValue) => {
-                                this.setState({
-                                    selectedValue: itemValue
-                                })
-                            }
-                            }>
-                            {this.state.options.map((item, index) => {
-                                return (<Picker.Item label={item} value={item} key={index} />)
-                            })}
-                        </Picker> */}
-                    </View>
-                    <View style={styles.midView}>
-                    <TextInput style={styles.IssueStyle}
-                        placeholder='Issue Description'
-                        placeholderTextColor={constant.grayColor}
-                        multiline
-                        onChangeText={this.changeIssue}
-                        value={this.state.issue}
-                    >
-                    </TextInput>
-                   {this.state.uri != ''&& <Image style={styles.uploadImage2 } source={{uri: this.state.uri}} /> }
-                    <Pressable style={styles.attachView} onPress={()=>this.setState({ isVisiblPickerDialog: true })}>
-                        <Text style={styles.attachText}>Attach Files</Text>
-                        <Image source={constant.Icons.attachIcon} style={styles.attachImage} />
-                    </Pressable>
-                    </View>
-
-                    
-
-                    {/* <Text style={styles.TextView}>Issue</Text> */}
-                  
-{/* 
-                    <Text style={styles.TextView}>Upload Files</Text>
-                    <TouchableOpacity onPress={() => this.setState({ isVisiblPickerDialog: true })}>
-
-                        <View style={styles.UploadFilesStyle}>
-                            <Image style={this.state.uri ? styles.uploadImage : styles.HeaderArrowImage}
-                                source={this.state.uri ? {
-                                    uri: this.state.uri
-                                } : require('../../../assests/images/upload_image.png')} />
-                            <Text style={styles.AddImageText}>Add Images</Text>
-
-                        </View>
-                    </TouchableOpacity> */}
-                   <CommonButton 
-                    title="Submit"
-                    extStyle={{marginTop:'10%',marginBottom:'15%'}}
-                    buttonClick={()=>{this.helpSupportApi()}}
-                   />
-                   
-                    {/* <TouchableOpacity
-                        onPress={() => this.helpSupportApi()}>
-                        <Text style={styles.submitButton}>Submit</Text>
-                    </TouchableOpacity> */}
-
+            <Modal
+              animationType="slide"
+              transparent
+              visible={isVisiblPickerDialog}
+              presentationStyle="overFullScreen"
+            >
+              <View style={styles.viewWrapper}>
+                <View style={styles.modalView}>
+                  <TouchableOpacity onPress={() => selectFile('Camera')}>
+                    <Text style={styles.modalText}>Choose from Camera</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => selectFile('Gallery')}>
+                    <Text style={styles.modalText}>Pick from Gallery</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setIsVisiblPickerDialog(false)}>
+                    <Text style={styles.CancelButton}>Cancel</Text>
+                  </TouchableOpacity>
                 </View>
-                <Modal animationType="slide"
-                    transparent visible={isVisiblPickerDialog}
-                    presentationStyle="overFullScreen">
-                    <View style={styles.viewWrapper}>
-                        <View style={styles.modalView}>
-                            <TouchableOpacity onPress={() => this.selectFile('Camera')}>
-                                <Text style={styles.modalText}>Choose from Camera</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => this.selectFile('Gallery')}>
-                                <Text style={styles.modalText}>Pick from Gallery</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => this.setState({ isVisiblPickerDialog: false })}>
-                                <Text style={styles.CancelButton}>Cancel</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
-            </View>
-            </ScrollView>
-            </LinearGradient>
-            </View>
-        )
-    }
-
-}
+              </View>
+            </Modal>
+          </View>
+        </ScrollView>
+        {loader && <View style={{
+                          position: 'absolute',
+                          top:0,
+                          left:0,
+                          right:0,
+                          bottom:0,
+                          flex:1,
+                          alignItems:'center',
+                          justifyContent:'center',
+                          backgroundColor:'#00000020'
+                        }}>
+                          <ActivityIndicator color={constant.baseColor} size={'large'} />
+                        </View>}
+      </LinearGradient>
+    </View>
+  );
+};
 
 export default HelpSupport;

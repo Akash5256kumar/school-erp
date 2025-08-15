@@ -121,11 +121,29 @@ const Assignment = ({ navigation, route }) => {
   };
 
   const onSearch = (text) => {
-    const filtered = originalDataSource.filter(item =>
-      item.topic.toLowerCase().includes(text.toLowerCase())
-    );
-    setDataSource(text ? filtered : originalDataSource);
+    const searchText = text.toLowerCase().trim();
+  
+    if (!searchText) {
+      setDataSource(originalDataSource);
+      return;
+    }
+    
+    // Define all the fields you want to search in
+    const fieldsToSearch = ['subject', 'topic', 'teachername','book'];
+  
+    const filteredArr = originalDataSource.filter((item) => {
+      // .some() will return true if the condition is met for at least one field
+      return fieldsToSearch.some((field) => {
+        // Safely access the field's value and check for inclusion
+        const fieldValue = item[field];
+        return fieldValue?.toString().toLowerCase().includes(searchText);
+      });
+    });
+  
+    setDataSource(filteredArr);
   };
+
+ 
 
   const renderItem = ({ item }) => (
     <View style={styles.FlatListView}>

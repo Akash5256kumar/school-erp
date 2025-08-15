@@ -8,8 +8,8 @@ import * as constant from '../../../Utils/Constant'
 export default styles = StyleSheet.create({
 
     MainContainer: {
-        width: '100%',
-        height: '100%',
+        // width: '100%',
+        // height: '100%',
         // backgroundColor: '#FFFFFF'
     },
 
@@ -69,6 +69,7 @@ export default styles = StyleSheet.create({
     FirstRowStyle: { 
         //  flexDirection: 'row',
         //   justifyContent: 'space-between'
+        flex:1
          },
 
     CardviewText: {
@@ -146,11 +147,14 @@ export default styles = StyleSheet.create({
         justifyContent:'space-between',
         flexDirection:'row',
         paddingVertical:'4%',
-        paddingHorizontal:'5%',
+        paddingHorizontal:constant.resW(3),
         marginTop:'2%',
         marginBottom:'2%',
         marginHorizontal:'4%',
-        alignItems:'center'
+        alignItems:'center',
+        flex:1,
+        gap:constant.resW(3)
+        
     },
 
     AssignmentImage: {
@@ -216,15 +220,17 @@ export default styles = StyleSheet.create({
         borderRadius: 30,
         backgroundColor: baseColor,
         position: 'absolute',
-        bottom: 10,
-        right: 10,
+        bottom: constant.resW(20),
+        right: constant.resW(5),
+        alignItems:'center',
+        justifyContent:'center'
     },
 
     FloatIconStyle : {
         height: 25,
         width: 25,
-        marginTop: 10,
-        marginStart: 10
+        // marginTop: 10,
+        // marginStart: 10
     },
     mainView:{
         height:constant.resW(15),
@@ -332,7 +338,8 @@ export default styles = StyleSheet.create({
                 height:constant.resW(6),
                 width:constant.resW(6),
                 marginRight:'8%'    
-            }
+            },
+          
 
 
 })

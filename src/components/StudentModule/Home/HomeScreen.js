@@ -32,7 +32,7 @@ const HomeScreen = ({ navigation }) => {
                <HomeTransport />
                <HomeTimeTable />
                <HomeMenu navigation={navigation}  />
-        <View style={{height:constant.resW(10)}}  />
+        <View style={{height:constant.resW(15)}}  />
               
             </ScrollView>
         </SafeAreaView>
