@@ -28,6 +28,7 @@ const TOTAL_ITEM_WIDTH = ITEM_WIDTH + SEPARATOR_WIDTH;
 const HomeTimeTable = (props) => {
     const { navigation } = props
     const userData = useSelector(state => state.userSlice.userData)
+    const usertoken = useSelector(state=>state.userSlice.token)
     const [sylabus, setSylabus] = useState([])
     const [schedule, setSchedule] = useState({})
     const [select, setSelect] = useState({ "active": 0, 'data': [] })
@@ -47,6 +48,7 @@ const HomeTimeTable = (props) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
+                'Authorization' : usertoken
             },
             body: formData
         }

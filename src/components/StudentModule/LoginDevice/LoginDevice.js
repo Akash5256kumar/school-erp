@@ -1,149 +1,120 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, Image, FlatList, BackHandler } from 'react-native';
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from '@react-native-community/async-storage';
 import styles from './style';
-const baseColor = '#0747a6'
 import * as myConst from '../../Baseurl';
 import Header from '../../Header/Header';
+import { useSelector } from 'react-redux';
 
-class LoginDevice extends Component {
+const LoginDevice = ({ navigation }) => {
+    const userData = useSelector(state=>state.userSlice.userData)
+    const usertoken = useSelector(state=>state.userSlice.token)
+  const [dataSource, setDataSource] = useState([]);
+  const [stdRoll, setStdRoll] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false,
-            dataSource: [],
-            type: '',
-            version: '',
-            name: '',
-            serialNo: ''
-        }
-
-    }
-
-
-    componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    handleBackPress = () => {
-        this.props.navigation.navigate('Dashboard')
-        return true;
+  // Handle back press
+  useEffect(() => {
+    const backAction = () => {
+      navigation.navigate('Dashboard');
+      return true;
     };
 
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
 
-    async componentDidMount() {
-        const value = await AsyncStorage.getItem('@std_roll')
-        console.log('value-->>', value)
-        this.setState({
-            std_roll: value
-        })
-        this.loginDeviceApi();
-    }
+    return () => backHandler.remove();
+  }, [navigation]);
 
-
-    loginDeviceApi() {
-        let formData = new FormData()
-        formData.append('std_roll', this.state.std_roll)
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-            },
-            body: formData
+  // Fetch std_roll and call API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const value = await AsyncStorage.getItem('@std_roll');
+        console.log('value-->>', value);
+        if (value) {
+          setStdRoll(value);
+          loginDeviceApi(value);
         }
-        fetch(myConst.BASEURL + 'logindevices', data)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                // console.log('logindevices--->>>', responseJson)
-                // console.log('data-->', responseJson.data)
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-                this.setState({
-                    dataSource: responseJson.data,
-                })
+    fetchData();
+  }, []);
 
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
+  const loginDeviceApi = async (roll) => {
+    setIsLoading(true);
+    let formData = new FormData();
+    formData.append('std_roll', roll);
+
+    let data = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        'Authorization' : usertoken
+      },
+      body: formData,
+    };
+
+    try {
+      const response = await fetch(myConst.BASEURL + 'logindevices', data);
+      const responseJson = await response.json();
+      console.log('logindevices response:', responseJson);
+      if (responseJson?.data) {
+        setDataSource(responseJson.data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
+  return (
+    <View style={styles.MainContainer}>
+      <Header
+        title={'Login Devices'}
+        goBack={() => {
+          navigation.goBack();
+        }}
+      />
 
+      <FlatList
+        data={dataSource}
+        renderItem={({ item }) => (
+          <View style={styles.FlatListView}>
+            <View style={styles.CardView}>
+              <View style={styles.RowStyle}>
+                <Text style={styles.TextLeft}>Serial No:</Text>
+                <Text style={styles.TextRight}>{item.id}</Text>
+              </View>
 
-    render() {
-        return (
-            <View style={styles.MainContainer}>
+              <View style={styles.RowStyle}>
+                <Text style={styles.TextLeft}>App Version:</Text>
+                <Text style={styles.TextRight}>{item.deviceVersion}</Text>
+              </View>
 
-                <Header title={'Login Devices'}
-                    goBack={() => {
-                        this.props.navigation.goBack()
-                    }}
-                />
+              <View style={styles.RowStyle}>
+                <Text style={styles.TextLeft}>Device Name:</Text>
+                <Text style={styles.TextRight}>{item.deviceName}</Text>
+              </View>
 
-                <FlatList
-                    data={this.state.dataSource}
-
-                    renderItem={({ item }) =>
-                        <View style={styles.FlatListView}>
-                            <View style={styles.CardView}>
-
-                                <View style={styles.RowStyle}>
-                                    <View>
-                                        <Text style={styles.TextLeft}>Serial No:</Text>
-                                    </View>
-                                    <View>
-                                        <Text style={styles.TextRight}>{item.id}</Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.RowStyle}>
-                                    <View>
-                                        <Text style={styles.TextLeft}>App Version:</Text>
-                                    </View>
-                                    <View>
-                                        <Text style={styles.TextRight}>{item.deviceVersion}</Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.RowStyle}>
-                                    <View>
-                                        <Text style={styles.TextLeft}>Device Name:</Text>
-                                    </View>
-                                    <View>
-                                        <Text style={styles.TextRight}>{item.deviceName}</Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.RowStyle}>
-                                    <View>
-                                        <Text style={styles.TextLeft}>Device Type:</Text>
-                                    </View>
-                                    <View>
-                                        <Text style={styles.TextRight}>{item.deviceType}</Text>
-                                    </View>
-                                    {/* <View>
-                                        <Image style={styles.DeleteImageStyle}
-                                            source={require('../../assests/images/delete.png')} />
-                                    </View> */}
-                                </View>
-
-                            </View>
-                        </View>
-                    }
-                    keyExtractor={(item, index) => index}
-                />
-
+              <View style={styles.RowStyle}>
+                <Text style={styles.TextLeft}>Device Type:</Text>
+                <Text style={styles.TextRight}>{item.deviceType}</Text>
+              </View>
             </View>
-        )
-    }
-
-
-}
+          </View>
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    </View>
+  );
+};
 
 export default LoginDevice;

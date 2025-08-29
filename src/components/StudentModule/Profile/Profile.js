@@ -1,587 +1,562 @@
-import React, { Component } from 'react';
-import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler,ScrollView, Platform, Pressable } from 'react-native';
-// import { ScrollView } from 'react-native-gesture-handler';
-import styles from './style';
-const baseColor = '#0747a6'
-import * as myConst from '../../Baseurl';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler, ScrollView, Platform, Pressable } from 'react-native';
+import styles from './style'; // Assuming style.js contains the styles
+const baseColor = '#0747a6'; // Assuming this is needed from the original code
+import * as myConst from '../../Baseurl'; // Assuming this is needed from the original code
 import Snackbar from 'react-native-snackbar';
 import AsyncStorage from "@react-native-community/async-storage";
-import { resW } from '../../../Utils/Constant';
+import { resW } from '../../../Utils/Constant'; // Assuming this is needed from the original code
 import moment from 'moment';
+import { useSelector } from 'react-redux';
 
+const Profile = ({ navigation }) => {
+  const userData = useSelector(state=>state.userSlice.userData)
+  const usertoken = useSelector(state=>state.userSlice.token)
+    const [loading, setLoading] = useState(false);
+    const [studentName, setStudentName] = useState('');
+    const [rollNo, setRollNo] = useState('');
+    const [phoneNum, setPhoneNum] = useState('');
+    const [dob, setDob] = useState('');
+    const [studentClass, setStudentClass] = useState(''); // Renamed to avoid conflict with 'class' keyword
+    const [section, setSection] = useState('');
+    const [residental, setResidental] = useState('');
+    const [staff, setStaff] = useState('');
+    const [fatherName, setFatherName] = useState('');
+    const [motherName, setMotherName] = useState('');
+    const [parentPhnNum, setParentPhnNum] = useState('');
+    const [parentAddress, setParentAddress] = useState('');
+    const [Foccupation, setFoccupation] = useState('');
+    const [dayScholar, setDayScholar] = useState('');
+    const [id, setId] = useState('');
+    const [profileData, setProfileData] = useState({});
+    const [active, setActive] = useState(1);
+    const [profilePic, setProfilePic] = useState('');
+    const [M_ProfilePic, setM_ProfilePic] = useState('');
+    const [F_ProfilePic, setF_ProfilePic] = useState('');
+    const [G_ProfilePic, setG_ProfilePic] = useState('');
 
-class Profile extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false,
-            studentName: '',
-            rollNo: '',
-            phoneNum: '',
-            dob: '',
-            class: '',
-            section: '',
-            residental: '',
-            staff: '',
-            fatherName: '',
-            motherName: '',
-            parentPhnNum: '',
-            parentAddress: '',
-            Foccupation: '',
-            dayScholar: '',
-            id: '',
-            profileData:{},
-            active:1,
-            profilePic:'',
-            M_ProfilePic:'',
-            F_ProfilePic:'',
-            G_ProfilePic:''
-        }
-
-    }
-
-
-    componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    handleBackPress = () => {
-        this.props.navigation.navigate('Dashboard')
+    const handleBackPress = useCallback(() => {
+        navigation.navigate('Dashboard');
         return true;
+    }, [navigation]);
+
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+        return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    }, [handleBackPress]);
+
+    const ProfileApi = useCallback(async () => {
+        setLoading(true);
+        try {
+            const storedId = await AsyncStorage.getItem('@id');
+            if (storedId) {
+                setId(storedId);
+            }
+
+            let formData = new FormData();
+            formData.append('id', storedId || id); // Use storedId if available, otherwise current id state
+
+            let data = {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization' : usertoken
+                },
+                body: formData
+            };
+
+            const response = await fetch(myConst.BASEURL + 'studentprofile', data);
+            const responseJson = await response.json();
+
+            if (responseJson.status === true) {
+                let responseData = responseJson.data;
+                if (responseData.day_scholar === 1) {
+                    setDayScholar('Day Scholar');
+                } else if (responseData.day_scholar === 2) {
+                    setDayScholar('Residential');
+                }
+                setStudentName(responseData.Student_name);
+                setRollNo(responseData.std_roll);
+                setStudentClass(responseData.Student_class);
+                setSection(responseData.Student_section);
+                setResidental(responseData.Student_name); // This seems like a potential copy-paste error from the original. Should it be something else?
+                setDob(responseData.dob);
+                setPhoneNum(responseData.phoneno);
+                setStaff(responseData.staff);
+                setFatherName(responseData.F_name);
+                setMotherName(responseData.M_name);
+                setParentAddress(responseData.Fofficeaddress);
+                setParentPhnNum(responseData.F_mobile);
+                setFoccupation(responseData.F_occupation);
+                setProfileData(responseJson?.data);
+
+                responseData?.studentimage && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/" + responseData.studentimage);
+                responseData?.fatherimage && setF_ProfilePic("http://139.59.90.236:86/images/student_image/FATHER/" + responseData.fatherimage);
+                responseData?.motherimage && setM_ProfilePic("http://139.59.90.236:86/images/student_image/MOTHER/" + responseData.motherimage);
+                responseData?.gaurdianimg && setG_ProfilePic("http://139.59.90.236:86/images/student_image/GUARDIAN/" + responseData.gaurdianimg);
+
+            } else {
+                Snackbar.show({
+                    text: responseJson.message,
+                    duration: Snackbar.LENGTH_SHORT,
+                    backgroundColor: '#f15270'
+                });
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [id]);
+
+    useEffect(() => {
+        const fetchIdAndProfile = async () => {
+            const value = await AsyncStorage.getItem('@id');
+            if (value) {
+                setId(value);
+            }
+            ProfileApi(); // Initial fetch
+        };
+
+        fetchIdAndProfile();
+
+        // Add listener for screen focus
+        const unsubscribe = navigation.addListener('focus', () => {
+            ProfileApi(); // Fetch fresh data every time the screen is focused
+        });
+
+        return unsubscribe; // Cleanup the listener
+    }, [navigation, ProfileApi]);
+
+    const getText = (title) => {
+        if (title) {
+            return title.charAt(0).toUpperCase() + title.slice(1);
+        } else {
+            return '----';
+        }
     };
 
+    const fn_Edit = () => {
+        navigation.navigate("EditProfile", { "profileData": profileData });
+    };
 
-    // async componentDidMount() {
-    //     const value = await AsyncStorage.getItem('@id')
-    //     console.log('value-->>', value)
-    //     this.setState({
-    //         id: value
-    //     })
-    //     this.ProfileApi()
-    // }
+    const fn_EditGuardian = () => {
+        navigation.navigate("GuardianEditProfile", { "profileData": profileData });
+    };
 
-    async componentDidMount() {
-        const value = await AsyncStorage.getItem('@id')
-        console.log('value-->>', value)
-        this.setState({ id: value })
-    
-        // Run ProfileApi first time
-        this.ProfileApi();
-    
-        // Add listener for screen focus
-        this._unsubscribe = this.props.navigation.addListener('focus', () => {
-            this.ProfileApi(); // Fetch fresh data every time the screen is focused
-        });
-    }
+    const fn_ParentEdit = () => {
+        navigation.navigate("ParentsEditProfile", { "profileData": profileData });
+    };
 
-
-    ProfileApi() {
-        let formData = new FormData()
-        formData.append('id', this.state.id)
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-            },
-            body: formData
-        }
-        fetch(myConst.BASEURL + 'studentprofile', data)
-            .then((response) => response.json())
-            .then(responseJson => {
-                console.log('responseJson-->', responseJson.data)
-                if (responseJson.status === true) {
-                    let response = responseJson.data
-                    if (response.day_scholar === 1) {
-                        this.setState({ dayScholar: 'Day Scholar' })
-                    } else if (response.day_scholar === 2) {
-                        this.setState({ dayScholar: 'Residential' })
-                    }
-                    this.setState({
-                        studentName: response.Student_name,
-                        rollNo: response.std_roll,
-                        class: response.Student_class,
-                        section: response.Student_section,
-                        residental: response.Student_name,
-                        dob: response.dob,
-                        phoneNum: response.phoneno,
-                        staff: response.staff,
-                        fatherName: response.F_name,
-                        motherName: response.M_name,
-                        parentAddress: response.Fofficeaddress,
-                        parentPhnNum: response.F_mobile,
-                        Foccupation: response.F_occupation,
-                        profileData:responseJson?.data,
-                    })
-                    response?.studentimage && this.setState({profilePic : "http://139.59.90.236:86/images/student_image/STUDENT/"+response.studentimage})
-                    response?.fatherimage && this.setState({F_ProfilePic : "http://139.59.90.236:86/images/student_image/FATHER/"+response.fatherimage})
-                    response?.motherimage && this.setState({M_ProfilePic : "http://139.59.90.236:86/images/student_image/MOTHER/"+response.motherimage})
-                    response?.gaurdianimg && this.setState({G_ProfilePic : "http://139.59.90.236:86/images/student_image/GUARDIAN/"+response.gaurdianimg})
-
-                } else if (responseJson.staus === false) {
-
-                    // console.log('status-->>>>', responseJson.status)
-                    Snackbar.show({
-                        text: responseJson.message,
-                        duration: Snackbar.LENGTH_SHORT,
-                        backgroundColor: '#f15270'
-                    });
-                }
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
-    }
-
- getText(title){
-   if(title){
-    return title.charAt(0).toUpperCase() + title.slice(1)
-   }else{
-    return '----'
-   }
- }
-
- fn_Edit(){
-    this.props.navigation.navigate("EditProfile",{"profileData":this.state.profileData})
- }
-
- fn_EditGuardian(){
-    this.props.navigation.navigate("GuardianEditProfile",{"profileData":this.state.profileData})
-    
- }
-
- fn_ParentEdit(){
-    this.props.navigation.navigate("ParentsEditProfile",{"profileData":this.state.profileData})
-    
- }
-
-    render() {
-        return (
-            <ScrollView showsVerticalScrollIndicator={false} bounces={false} >
-                <View style={{backgroundColor:'#fff'}}>
-                    <ImageBackground style={styles.ContainerImage}
-                        source={require('../../../assests/images/profile_shape.jpg')}>
-                        <View style={{height:Platform.OS==='ios' ? resW(8): resW(0)}} />
-                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingVertical:resW(3)}}>
-                        <TouchableOpacity   onPress={() => this.props.navigation.navigate('Dashboard')}>
+    return (
+        <ScrollView showsVerticalScrollIndicator={false} bounces={false} >
+            <View style={{ backgroundColor: '#fff' }}>
+                <ImageBackground style={styles.ContainerImage}
+                    source={require('../../../assests/images/profile_shape.jpg')}>
+                    <View style={{ height: Platform.OS === 'ios' ? resW(8) : resW(0) }} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: resW(3) }}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Dashboard')}>
                             <Image style={styles.HeaderArrowImage}
                                 source={require('../../../assests/images/leftarrow.png')} />
                         </TouchableOpacity>
-                       
-                        </View>
-                        <View style={styles.ProfileImageBackground}>
-                            <Image style={styles.ProfileImage}
-                                source={this.state.profilePic != '' ? {uri:this.state.profilePic} : require('../../../assests/images/businessman.png')} />
-                            <Text style={styles.TextName}>{this.state.studentName}</Text>
-                            <Text style={styles.TextAddress}>{this.state.rollNo}</Text>
-                        </View>
-                    </ImageBackground>
 
-                    <View style={styles.buttonMainView}>
-                    <Pressable style={this.state.active=== 1 ? styles.buttonStyle : styles.buttonStyle2}  onPress={()=>this.setState({active:1})}  >
-                        <Text style={this.state.active=== 1 ? styles.buttonTextStyle : styles.buttonTextStyle2}>Student</Text>
+                    </View>
+                    <View style={styles.ProfileImageBackground}>
+                        <Image style={styles.ProfileImage}
+                            source={profilePic != '' ? { uri: profilePic } : require('../../../assests/images/businessman.png')} />
+                        <Text style={styles.TextName}>{studentName}</Text>
+                        <Text style={styles.TextAddress}>{rollNo}</Text>
+                    </View>
+                </ImageBackground>
+
+                <View style={styles.buttonMainView}>
+                    <Pressable style={active === 1 ? styles.buttonStyle : styles.buttonStyle2} onPress={() => setActive(1)}  >
+                        <Text style={active === 1 ? styles.buttonTextStyle : styles.buttonTextStyle2}>Student</Text>
                     </Pressable>
-                    <Pressable style={this.state.active === 2 ? styles.buttonStyle : styles.buttonStyle2} onPress={()=>this.setState({active:2})}  >
-                        <Text style={this.state.active === 2 ? styles.buttonTextStyle : styles.buttonTextStyle2}>Parents</Text>
+                    <Pressable style={active === 2 ? styles.buttonStyle : styles.buttonStyle2} onPress={() => setActive(2)}  >
+                        <Text style={active === 2 ? styles.buttonTextStyle : styles.buttonTextStyle2}>Parents</Text>
                     </Pressable>
-                    <Pressable style={this.state.active === 3 ? styles.buttonStyle : styles.buttonStyle2} onPress={()=>this.setState({active:3})}  >
-                        <Text style={this.state.active=== 3 ? styles.buttonTextStyle : styles.buttonTextStyle2}>Guardian</Text>
+                    <Pressable style={active === 3 ? styles.buttonStyle : styles.buttonStyle2} onPress={() => setActive(3)}  >
+                        <Text style={active === 3 ? styles.buttonTextStyle : styles.buttonTextStyle2}>Guardian</Text>
                     </Pressable>
                 </View>
 
-                   {this.state.active  === 1 && <View>
+                {active === 1 && <View>
 
                     <View style={styles.profileCardMainView}>
                         <Text style={styles.profileTitle}>General</Text>
                         <View style={styles.profileCardSubView}>
-                        <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Date of Birth</Text>
-                        <Text style={styles.profileCardValue}>{moment(this.state.dob).format("DD-MM-YYYY")}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Date of Birth</Text>
+                                <Text style={styles.profileCardValue}>{moment(dob).format("DD-MM-YYYY")}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Email ID</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.email)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Email ID</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.email)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Gender</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.gender)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Gender</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.gender)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Religious Belief</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.religious)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Religious Belief</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.religious)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Category</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.category)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Category</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.category)}</Text>
+                            </View>
 
-                      </View>
+                        </View>
                     </View>
 
                     <View style={styles.profileCardMainView}>
                         <Text style={styles.profileTitle}>Educational Details</Text>
                         <View style={styles.profileCardSubView}>
-                        <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Admission No</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.std_roll}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Admission No</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.std_roll}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Date of Admission</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.admission_date ? this.state.profileData?.admission_date : "----" }</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Date of Admission</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.admission_date ? profileData?.admission_date : "----"}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Student Type</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.student_type}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Student Type</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.student_type}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>APAAR ID</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.apaar_id ? this.state.profileData?.apaar_id : "----"}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>APAAR ID</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.apaar_id ? profileData?.apaar_id : "----"}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>PEN ID</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.pan_id ? this.state.profileData?.pan_id : '----'}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>PEN ID</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.pan_id ? profileData?.pan_id : '----'}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Class</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.std_class}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Class</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.std_class}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Section</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.std_section}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Section</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.std_section}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Stream Chosen</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.stream ? this.state.profileData?.stream : '----'}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Stream Chosen</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.stream ? profileData?.stream : '----'}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Optional Subject</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.optional_sub ? this.state.profileData?.optional_sub : "----"}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Optional Subject</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.optional_sub ? profileData?.optional_sub : "----"}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Subject Combination</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.subject_combination ? this.state.profileData?.subject_combination : '----'}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Subject Combination</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.subject_combination ? profileData?.subject_combination : '----'}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Class Teacher Name</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.staff)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Class Teacher Name</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.staff)}</Text>
+                            </View>
 
-                      </View>
+                        </View>
                     </View>
 
                     <View style={styles.profileCardMainView}>
                         <Text style={styles.profileTitle}>Medical Details</Text>
                         <View style={styles.profileCardSubView}>
-                        <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Blood Group</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.bloodgroup}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Blood Group</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.bloodgroup}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Any Medical Condition</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.medical_condition ? this.state.profileData?.medical_condition : "----"}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Any Medical Condition</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.medical_condition ? profileData?.medical_condition : "----"}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Allergies</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.allergy ? this.state.profileData?.allergy : "----"}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Allergies</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.allergy ? profileData?.allergy : "----"}</Text>
+                            </View>
 
-                      </View>
+                        </View>
                     </View>
 
 
                     <View style={styles.profileCardMainView}>
                         <Text style={styles.profileTitle}>Address Details</Text>
                         <View style={styles.profileCardSubView}>
-                        <Text style={styles.profileTitle2}>Correspondence Address</Text>
-                        <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Address</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.address)}</Text>
-                      </View>
+                            <Text style={styles.profileTitle2}>Correspondence Address</Text>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Address</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.address)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>City</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.city)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>City</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.city)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>State</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.state)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>State</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.state)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Country</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.country)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Country</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.country)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Pin Code</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.pincode ? this.state.profileData?.pincode : "----"}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Pin Code</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.pincode ? profileData?.pincode : "----"}</Text>
+                            </View>
 
-                      <Text style={styles.profileTitle2}>Permanent Address</Text>
-                        <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Address</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.perm_address)}</Text>
-                      </View>
+                            <Text style={styles.profileTitle2}>Permanent Address</Text>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Address</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.perm_address)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>City</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.perm_city)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>City</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.perm_city)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>State</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.perm_state)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>State</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.perm_state)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Country</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.perm_country)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Country</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.perm_country)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Pin Code</Text>
-                        <Text style={styles.profileCardValue}>{this.state.profileData?.perm_pincode ? this.state.profileData?.perm_pincode : '----'}</Text>
-                      </View>
-                      
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Pin Code</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.perm_pincode ? profileData?.perm_pincode : '----'}</Text>
+                            </View>
+
+                        </View>
                     </View>
 
-                     <View style={styles.profileCardMainView}>
+                    <View style={styles.profileCardMainView}>
                         <Text style={styles.profileTitle}>Previous School Details</Text>
                         <View style={styles.profileCardSubView}>
-                        <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>School Name</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.previous_scl_name)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>School Name</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.previous_scl_name)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Transfer Certificate Copy</Text>
-                          {this.state.profileData?.prev_certificate &&
-                          <Image source={{uri:"http://139.59.90.236:86/images/student_image/prev_certificate/"+this.state.profileData?.prev_certificate}} resizeMode='stretch' style={{height:resW(15),width:resW(15),borderRadius:5}} />
-                          }
-                        {/* <Text style={styles.profileCardValue}>{this.state.profileData?.prev_certificate}</Text> */}
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Transfer Certificate Copy</Text>
+                                {profileData?.prev_certificate &&
+                                    <Image source={{ uri: "http://139.59.90.236:86/images/student_image/prev_certificate/" + profileData?.prev_certificate }} resizeMode='stretch' style={{ height: resW(15), width: resW(15), borderRadius: 5 }} />
+                                }
+                            </View>
 
-                      </View>
-                      <Pressable style={styles.editButton} onPress={()=>this.fn_Edit()} >
+                        </View>
+                        <Pressable style={styles.editButton} onPress={fn_Edit} >
                             <Text style={styles.editButtonText}>Edit</Text>
                         </Pressable>
                     </View>
-                    
-                    </View>}
 
-                    {this.state.active  === 2 && <View>
+                </View>}
 
-<View style={styles.profileCardMainView}>
-    <Text style={styles.profileTitle}>Father's Personal Details</Text>
-    
-    <View style={styles.profileCardSubView}>
-    <Image style={[styles.ProfileImage2]} source={this.state.F_ProfilePic != '' ? {uri:this.state.F_ProfilePic} : require('../../../assests/images/businessman.png')} />
-                          
-    <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Name</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.getText(this.state.profileData?.F_name))}</Text>
-  </View>
+                {active === 2 && <View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Mobile No</Text>
-    <Text style={styles.profileCardValue}>{this.state.profileData?.F_mobile ? this.state.profileData?.F_mobile : '----'}</Text>
-  </View>
+                    <View style={styles.profileCardMainView}>
+                        <Text style={styles.profileTitle}>Father's Personal Details</Text>
 
-  {/* <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Whatsapp No</Text>
-    <Text style={styles.profileCardValue}>{this.state.profileData?.F_telephon ? this.state.profileData?.F_telephon : '----'}</Text>
-  </View> */}
+                        <View style={styles.profileCardSubView}>
+                            <Image style={[styles.ProfileImage2]} source={F_ProfilePic != '' ? { uri: F_ProfilePic } : require('../../../assests/images/businessman.png')} />
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Email ID</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.F_email)}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Name</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.F_name)}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Mobile No</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.F_mobile ? profileData?.F_mobile : '----'}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Email ID</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.F_email)}</Text>
+                            </View>
 
 
-  <Text style={styles.profileTitle2}>Official Details</Text>
-    <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Organization</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.F_organization)}</Text>
-  </View>
+                            <Text style={styles.profileTitle2}>Official Details</Text>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Organization</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.F_organization)}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Occupation</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.F_occupation)}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Occupation</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.F_occupation)}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Designation</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.F_designation)}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Designation</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.F_designation)}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Office No</Text>
-    <Text style={styles.profileCardValue}>{this.state.profileData?.Foficemobile ? this.state.profileData?.Foficemobile : '----'}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Office No</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.Foficemobile ? profileData?.Foficemobile : '----'}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Office Address</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.Fofficeaddress)}</Text>
-  </View>
-  
-  </View>
-</View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Office Address</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.Fofficeaddress)}</Text>
+                            </View>
 
-<View style={styles.profileCardMainView}>
-    <Text style={styles.profileTitle}>Mother's Personal Details</Text>
-    <View style={styles.profileCardSubView}>
-    <Image style={[styles.ProfileImage2]} source={this.state.M_ProfilePic != '' ? {uri:this.state.M_ProfilePic} : require('../../../assests/images/businessman.png')} />
+                        </View>
+                    </View>
 
-    <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Name</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_name)}</Text>
-  </View>
+                    <View style={styles.profileCardMainView}>
+                        <Text style={styles.profileTitle}>Mother's Personal Details</Text>
+                        <View style={styles.profileCardSubView}>
+                            <Image style={[styles.ProfileImage2]} source={M_ProfilePic != '' ? { uri: M_ProfilePic } : require('../../../assests/images/businessman.png')} />
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Mobile No</Text>
-    <Text style={styles.profileCardValue}>{this.state.profileData?.M_mobile}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Name</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.M_name)}</Text>
+                            </View>
 
-  {/* <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Whatsapp No</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_whatsapp)}</Text>
-  </View> */}
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Mobile No</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.M_mobile}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Email ID</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_email)}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Email ID</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.M_email)}</Text>
+                            </View>
 
 
-  <Text style={styles.profileTitle2}>Official Details </Text>
-    <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Organization</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_organization)}</Text>
-  </View>
+                            <Text style={styles.profileTitle2}>Official Details </Text>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Organization</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.M_organization)}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Occupation</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_occupation)}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Occupation</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.M_occupation)}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Designation</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.M_designation)}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Designation</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.M_designation)}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Office No</Text>
-    <Text style={styles.profileCardValue}>{this.state.profileData?.Mofficemobile ? this.state.profileData?.Mofficemobile : '----'}</Text>
-  </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Office No</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.Mofficemobile ? profileData?.Mofficemobile : '----'}</Text>
+                            </View>
 
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Office Address</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.Mofficeaddress)}</Text>
-  </View>
-  
-  </View>
-  <Pressable style={styles.editButton} onPress={()=>this.fn_ParentEdit()} >
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Office Address</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.Mofficeaddress)}</Text>
+                            </View>
+
+                        </View>
+                        <Pressable style={styles.editButton} onPress={fn_ParentEdit} >
                             <Text style={styles.editButtonText}>Edit</Text>
                         </Pressable>
-</View>
-
- 
-</View>}
-
-{this.state.active  === 3 && <View>
-
-<View style={styles.profileCardMainView}>
-    <Text style={styles.profileTitle}>Personal Details</Text>
-    <View style={styles.profileCardSubView}>
-    <Image style={[styles.ProfileImage2]} source={this.state.G_ProfilePic != '' ? {uri:this.state.G_ProfilePic} : require('../../../assests/images/businessman.png')} />
-
-    <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Name</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_name)}</Text>
-  </View>
-
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Relation</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_relation)}</Text>
-  </View>
-
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Mobile No</Text>
-    <Text style={styles.profileCardValue}>{this.state.profileData?.L_mobile}</Text>
-  </View>
-
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Whatsapp No</Text>
-    <Text style={styles.profileCardValue}>{this.state.profileData?.L_whatsup_no}</Text>
-  </View>
-
-  <View style={styles.profileCardView}>
-      <Text style={styles.profileCardTitle}>Email ID</Text>
-    <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_email)}</Text>
-  </View>
+                    </View>
 
 
-  <Text style={styles.profileTitle2}>Residential Details</Text>
-  <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Address</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_address)}</Text>
-                      </View>
+                </View>}
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>City</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_city)}</Text>
-                      </View>
+                {active === 3 && <View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>State</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_state)}</Text>
-                      </View>
+                    <View style={styles.profileCardMainView}>
+                        <Text style={styles.profileTitle}>Personal Details</Text>
+                        <View style={styles.profileCardSubView}>
+                            <Image style={[styles.ProfileImage2]} source={G_ProfilePic != '' ? { uri: G_ProfilePic } : require('../../../assests/images/businessman.png')} />
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Country</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_country)}</Text>
-                      </View>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Name</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_name)}</Text>
+                            </View>
 
-                      <View style={styles.profileCardView}>
-                          <Text style={styles.profileCardTitle}>Pin Code</Text>
-                        <Text style={styles.profileCardValue}>{this.getText(this.state.profileData?.L_pincode)}</Text>
-                      </View>
-  
-  </View>
-  <Pressable style={styles.editButton} onPress={()=>this.fn_EditGuardian()} >
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Relation</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_relation)}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Mobile No</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.L_mobile}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Whatsapp No</Text>
+                                <Text style={styles.profileCardValue}>{profileData?.L_whatsup_no}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Email ID</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_email)}</Text>
+                            </View>
+
+
+                            <Text style={styles.profileTitle2}>Residential Details</Text>
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Address</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_address)}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>City</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_city)}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>State</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_state)}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Country</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_country)}</Text>
+                            </View>
+
+                            <View style={styles.profileCardView}>
+                                <Text style={styles.profileCardTitle}>Pin Code</Text>
+                                <Text style={styles.profileCardValue}>{getText(profileData?.L_pincode)}</Text>
+                            </View>
+
+                        </View>
+                        <Pressable style={styles.editButton} onPress={fn_EditGuardian} >
                             <Text style={styles.editButtonText}>Edit</Text>
                         </Pressable>
-</View>
+                    </View>
 
-</View>}
-                  <View style={{height:resW(5)}} />
-                </View>
-            </ScrollView>
-        )
-    }
-}
+                </View>}
+                <View style={{ height: resW(5) }} />
+            </View>
+        </ScrollView>
+    );
+};
 export default Profile;

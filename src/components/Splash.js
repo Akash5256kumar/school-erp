@@ -18,10 +18,12 @@ const Splash = () => {
       const value = await AsyncStorage.getItem('@std_roll');
       const role = await AsyncStorage.getItem('@role');
       const userData = await AsyncStorage.getItem('userData');
+      const token = await AsyncStorage.getItem('@token');
 
+    console.log("token",token)
       if (userData !== null) {
         let data ={
-            "token":'',
+            "token":"Bearer "+token,
             'data' : JSON.parse(userData)
         }
         dispatch(saveUserData(data))

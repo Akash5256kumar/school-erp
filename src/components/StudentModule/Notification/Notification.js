@@ -1,121 +1,116 @@
-import React, { Component } from 'react';
-import { Text, View, FlatList, Image, BackHandler } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Text, View, FlatList, Image, BackHandler, RefreshControl } from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
-import Header from '../../Header/Header';
-import style from './style';
-import * as myConst from '../../Baseurl';
-import CommonHeader from '../../CommonHeader';
 import LinearGradient from 'react-native-linear-gradient';
-import * as constant from '../../../Utils/Constant'
-import CommonSearch from '../../Search/CommonSearch';
+import * as myConst from '../../Baseurl';
+import * as constant from '../../../Utils/Constant';
+import CommonHeader from '../../CommonHeader';
+import style from './style';
+import { useSelector } from 'react-redux';
 
-class Notification extends Component {
+const Notification = ({ navigation }) => {
+  const [dataSource, setDataSource] = useState([]);
+  const [stdRoll, setStdRoll] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const usertoken = useSelector(state=>state.userSlice.token)
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            isVisible: false,
-            std_roll: '',
-            dataSource: [],
-            name: '',
-            class: '',
-            section: '',
-            admission_no: '',
-        }
-    }
-
-
-    componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    handleBackPress = () => {
-        this.props.navigation.navigate('Dashboard')
+  // Back button handler
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        navigation.navigate('Dashboard');
         return true;
+      }
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
+
+  // Fetch notifications
+  const notificationApi = async (roll) => {
+    try {
+      let formData = new FormData();
+      formData.append('std_roll', roll);
+
+      let data = {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+          'Authorization' : usertoken
+        },
+        body: formData,
+      };
+
+      let response = await fetch(myConst.BASEURL + 'viewnotifications', data);
+      let responseJson = await response.json();
+      console.log('data-->', responseJson.data);
+
+      setDataSource(responseJson.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Get roll number and call API on mount
+  useEffect(() => {
+    const getRoll = async () => {
+      const value = await AsyncStorage.getItem('@std_roll');
+      console.log('value-->>', value);
+      setStdRoll(value);
+      if (value) {
+        notificationApi(value);
+      }
     };
+    getRoll();
+  }, []);
 
-
-    async componentDidMount(){
-        const value = await AsyncStorage.getItem('@std_roll')
-        console.log('value-->>', value)
-        this.setState({
-            std_roll: value
-        })
-        this.notificationApi();
+  // Refresh handler
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    if (stdRoll) {
+      notificationApi(stdRoll);
     }
+  }, [stdRoll]);
 
-    notificationApi() {
-        let formData = new FormData()
-        formData.append('std_roll', this.state.std_roll)
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-            },
-            body: formData
-        }
-        fetch(myConst.BASEURL + 'viewnotifications', data)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log('data-->', responseJson.data)
-                this.setState({
-                    dataSource: responseJson.data,
-                })
+  return (
+    <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
+      <View style={style.MainContainer}>
+        <CommonHeader
+          title={'Notification'}
+          onLeftClick={() => navigation.goBack()}
+        />
 
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
-    }
-
-
-    render() {
-        return (
-            <LinearGradient colors={['#DFE6FF','#ffffff']} style={{flex:1}} >
-
-            <View style={style.MainContainer}>
-                {/* <Header title={'Notification'}
-                    goBack={() => {
-                        this.props.navigation.goBack()
-                    }}
-                /> */}
-                <CommonHeader 
-            title={'Notification'}
-            onLeftClick={() => {
-                this.props.navigation.goBack()
-            }}
-            />
-
-                <FlatList
-                    data={this.state.dataSource}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) =>
-                        <View style={style.FlatListView}>
-                            <View style={style.CardView}>
-                                <View style={style.CardViewStyle}>
-                                    <Image style={style.ProfileImage}
-                                        source={constant.Icons.notifyIcon} />
-                                    <Text numberOfLines={2} style={style.TextName}>{item.title}</Text>
-                                </View>
-
-                            </View>
-                        </View>
-                    }
-                    keyExtractor={(item, index) => index}
-                    ListFooterComponent={()=>constant.listSpace(constant.resW(10))}
-                />
-
+        <FlatList
+          data={dataSource}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={style.FlatListView}>
+              <View style={style.CardView}>
+                <View style={style.CardViewStyle}>
+                  <Image
+                    style={style.ProfileImage}
+                    source={constant.Icons.notifyIcon}
+                  />
+                  <Text numberOfLines={2} style={style.TextName}>
+                    {item.title}
+                  </Text>
+                </View>
+              </View>
             </View>
-            </LinearGradient>
-        )
-    }
-
-}
+          )}
+          ListFooterComponent={() => constant.listSpace(constant.resW(10))}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      </View>
+    </LinearGradient>
+  );
+};
 
 export default Notification;

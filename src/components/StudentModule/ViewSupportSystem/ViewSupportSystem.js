@@ -8,8 +8,10 @@ import moment from 'moment';
 import * as constant from '../../../Utils/Constant';
 import LinearGradient from 'react-native-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 const ViewSupportSystem = ({ navigation }) => {
+    const usertoken = useSelector(state=>state.userSlice.token)
     const [loading, setLoading] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [dataSource, setDataSource] = useState([]);
@@ -93,6 +95,7 @@ const ViewSupportSystem = ({ navigation }) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
+                'Authorization' : usertoken
             },
             body: formData
         };

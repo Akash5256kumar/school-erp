@@ -24,6 +24,7 @@ import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import CommonButton from '../../Button/CommonButton';
 import Snackbar from 'react-native-snackbar';
+import { useSelector } from 'react-redux';
 
 const bloodGroupList=[
     { "code": "A+", "description": "A+" },
@@ -44,6 +45,8 @@ const bloodGroupList=[
 
 
 const ParentsEditProfile = (props) => {
+    const userData = useSelector(state=>state.userSlice.userData)
+    const usertoken = useSelector(state=>state.userSlice.token)
     const {navigation,route } = props
     const profileData = route.params.profileData
     const [isVisiblPickerDialog,setIsVisiblPickerDialog] = useState(false)
@@ -355,6 +358,7 @@ const ParentsEditProfile = (props) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
+                'Authorization' : usertoken
             },
             body: formData
         }

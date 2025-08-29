@@ -13,6 +13,7 @@ import * as constant from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as myConst from '../../Baseurl';
+import { useSelector } from 'react-redux';
 const data =[
     {"key":1,"topic":'English'},
     {"key":2,"topic":'Hindi'},
@@ -27,6 +28,7 @@ const data =[
 const SubjectScreen = (props) => {
     const {navigation } = props
     const [dataSource, setDataSource] = useState([]);
+    const usertoken = useSelector(state=>state.userSlice.token)
     const [originalDataSource, setOriginalDataSource] = useState([]);
     const [classes, setClasses] = useState('');
     const [classesRoll, setClassesRoll] = useState('');
@@ -75,6 +77,7 @@ const SubjectScreen = (props) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
+        'Authorization' : usertoken
       },
       body: formData,
     })
@@ -115,6 +118,7 @@ const SubjectScreen = (props) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization' : usertoken
       },
       body: formData,
     })

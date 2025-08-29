@@ -12,8 +12,10 @@ import * as constant from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
 import CommonButton from '../../Button/CommonButton';
 import SelectDropList from '../../SelectDropList';
+import { useSelector } from 'react-redux';
 
 const HelpSupport = ({ navigation }) => {
+  const usertoken = useSelector(state=>state.userSlice.token)
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [title, setTitle] = useState('');
@@ -42,6 +44,7 @@ const HelpSupport = ({ navigation }) => {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
+        'Authorization' : usertoken
       },
     })
       .then((response) => response.json())
@@ -106,6 +109,7 @@ const HelpSupport = ({ navigation }) => {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
+        'Authorization' : usertoken
       },
       body: formData
     })

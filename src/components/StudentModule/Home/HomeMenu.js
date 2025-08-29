@@ -27,6 +27,7 @@ const listData = [
 const HomeMenu = (props) => {
     const { navigation } = props
     const userData = useSelector(state=>state.userSlice.userData)
+    const usertoken = useSelector(state=>state.userSlice.token)
     const [count,setCount] = useState(0)
 
     const fn_click=(item)=>{
@@ -49,6 +50,7 @@ const HomeMenu = (props) => {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'Authorization' : usertoken
         },
         body: JSON.stringify(formData), // FIX: Must stringify for JSON body
       })

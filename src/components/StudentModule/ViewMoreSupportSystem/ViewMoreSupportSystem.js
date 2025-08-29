@@ -6,8 +6,11 @@ import * as myConst from '../../Baseurl';
 import moment from 'moment';
 import CommonHeader from '../../CommonHeader';
 import LinearGradient from 'react-native-linear-gradient';
+import { useSelector } from 'react-redux';
 
 const ViewMoreSupportSystem = ({ navigation }) => {
+  const userData = useSelector(state=>state.userSlice.userData)
+  const usertoken = useSelector(state=>state.userSlice.token)
   const [classes, setClasses] = useState('');
   const [section, setSection] = useState('');
   const [name, setName] = useState('');
@@ -53,6 +56,7 @@ const ViewMoreSupportSystem = ({ navigation }) => {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
+        'Authorization' : usertoken
       },
       body: formData
     })

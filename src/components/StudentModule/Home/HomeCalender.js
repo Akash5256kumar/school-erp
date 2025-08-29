@@ -26,6 +26,8 @@ LocaleConfig.defaultLocale = 'en';
 
 const HomeCalender = ({ navigation }) => {
     const userData = useSelector(state=>state.userSlice.userData)
+    const usertoken = useSelector(state=>state.userSlice.token)
+
     const [markedDates, setMarkedDates] = useState({});
     const [strClass, setStrClass] = useState('');
     const [strSection, setStrSection] = useState('');
@@ -74,6 +76,7 @@ const HomeCalender = ({ navigation }) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
+                'Authorization' : usertoken
             },
             body: formData
         })

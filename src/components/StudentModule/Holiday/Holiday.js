@@ -6,8 +6,11 @@ import * as myConst from '../../Baseurl';
 import Searchbar from '../../SearchBar';
 import Header from '../../Header/Header';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
 
 const Holiday = ({ navigation }) => {
+  const userData = useSelector(state=>state.userSlice.userData)
+    const usertoken = useSelector(state=>state.userSlice.token)
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [dataSource, setDataSource] = useState([]);
@@ -26,6 +29,7 @@ const Holiday = ({ navigation }) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
+        'Authorization' : usertoken
       },
     })
       .then((response) => response.json())

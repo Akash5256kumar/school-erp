@@ -24,6 +24,7 @@ import Snackbar from 'react-native-snackbar';
 const HomeTransport = (props) => {
     const { navigation } = props
     const userData = useSelector(state=>state.userSlice.userData)
+    const usertoken = useSelector(state=>state.userSlice.token)
     const [transpartData,setTransportData] = useState({})
 
     useEffect(()=>{
@@ -38,6 +39,7 @@ const HomeTransport = (props) => {
           headers: {
               'Accept': 'application/json',
               'Content-Type': 'multipart/form-data',
+              'Authorization' : usertoken
           },
           body: formData
       }

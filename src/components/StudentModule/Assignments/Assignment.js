@@ -20,9 +20,11 @@ import CommonSearch from '../../Search/CommonSearch';
 import Pdf from 'react-native-pdf';
 import BlobUtil from 'react-native-blob-util';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
 
 const Assignment = ({ navigation, route }) => {
   const subjectData = route.params.subjectData
+  const usertoken = useSelector(state=>state.userSlice.token)
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [classes, setClasses] = useState('');
@@ -69,6 +71,7 @@ const Assignment = ({ navigation, route }) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
+        'Authorization' : usertoken
       },
       body: formData,
     })

@@ -147,10 +147,12 @@ const Login = ({ navigation }) => {
         await AsyncStorage.setItem('@std_roll', responseJson.data.std_roll);
         await AsyncStorage.setItem('@date', date);
         await AsyncStorage.setItem('@time', time);
+        await AsyncStorage.setItem('@token', responseJson?.token);
+
 
          let data ={
-            "token":'',
-            'data' : responseJson.data
+            "token":"Bearer "+responseJson?.token,
+            'data' : responseJson?.data
         }
         dispatch(saveUserData(data))
         

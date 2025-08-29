@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
+import { resW } from '../../../Utils/Constant';
 const deviceHeight=Dimensions.get('window').height;
 const deviceWidth=Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -45,50 +46,67 @@ export default styles = StyleSheet.create({
 
     TextDate: { fontSize: 18, color: 'white' },
 
-    FlatStyle: { marginTop: 10, marginBottom: 10 ,
-        overflow: 'hidden', paddingBottom: 5, paddingLeft: 5 },
+    FlatStyle: {
+         marginTop: resW(4),
+        marginBottom: 0 ,
+        overflow: 'hidden', 
+        marginHorizontal:resW(4)
+        // paddingBottom: 5,
+        //  paddingLeft: 5,
+         },
 
     CircleShapeView: {
-        width: 55,
-        height: 55,
+        width: resW(15),
+        height: resW(15),
         borderRadius: 80 / 2,
         backgroundColor: '#ce8b79',
-        marginTop: 10
+        alignItems:'center',
+        justifyContent:'center'
+        // marginTop: 10
     },
 
-    CardviewStyle: { display: 'flex', flexDirection: 'row', justifyContent: 'space-around' },
+    CardviewStyle: { 
+        display: 'flex',
+         flexDirection: 'row',
+          justifyContent: 'space-around',
+         },
 
     CardView: {
         backgroundColor: '#ff926b',
-        height: 100,
+        // height: 100,
         shadowColor: '#000',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.4,
         shadowRadius: 5,
         elevation: 5,
-        marginStart: 5,
-        marginEnd: 15,
+        // marginStart: 5,
+        // marginEnd: 15,
         borderRadius: 10,
-        display: 'flex', flexDirection: 'row', justifyContent: 'space-around'
+        // display: 'flex',
+         flexDirection: 'row', 
+         justifyContent: 'space-between',
+         alignItems:'center',
+         paddingHorizontal:resW(3),
+         paddingVertical:resW(3)
     },
 
     TextViewStyle: {
         display: 'flex',
         flexDirection: 'column',
-        marginTop: 10,
+        // marginTop: 10,
         marginStart: 10
     },
 
     AssignmentImage: {
-        height: 40,
-        width: 40,
-        marginTop: 8,
-        marginStart: 8
+        height: resW(10),
+        width: resW(10),
+        // marginTop: 8,
+        // marginStart: 8
     },
 
     AssignmentDownloadImage: {
-        height: 35,
-        width: 35,
-        marginTop: 15
+        height: resW(10),
+        width: resW(10),
+        // marginTop: 15
     }
 })
