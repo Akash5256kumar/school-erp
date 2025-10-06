@@ -1,126 +1,170 @@
-import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
-const deviceHeight=Dimensions.get('window').height;
-const deviceWidth=Dimensions.get('window').width;
-const baseColor = '#0747a6'
+// GradeStyle.js
+import { StyleSheet } from 'react-native';
+import { resW, resH } from '../../../Utils/Constant';
 
-export default styles = StyleSheet.create({
-
-    MainContainer: {
-        width: '100%',
-        height: '100%',
-        // backgroundColor: '#FFFFFF'
-    },
-
-    HeaderBackground: {
-        backgroundColor: baseColor,
-        height: 65,
-        borderBottomRightRadius: 120
-    },
-
-    HeaderText: {
-        color: 'white',
-        fontSize: 25,
-        fontWeight: 'bold',
-        marginTop: 15,
-        marginEnd: 10
-    },
-
-    HeaderStyle: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-
-    HeaderImage: {
-        height: 25, width: 30
-    },
-
-    HeaderArrowImage: {
-        height: 35, width: 35, marginTop: 15, marginStart: 5
-    },
-
-    FlatListView: {
-        overflow: 'hidden',
-        paddingBottom: 5,
-        paddingLeft: 5,
-        marginTop: 8,
-        marginBottom: 8
-    },
-
-    TextRight: {
-        width: deviceWidth*0.39,
-        fontSize: 15,
-        color: '#1978a5',
-        marginStart: 10
-    },
-
-    TextLeft: {
-        width: deviceWidth*0.39,
-        fontSize: 16,
-        color: '#234E70',
-        marginTop: 5,
-        marginStart: 10,
-        fontWeight: 'bold'
-    },
-
-
-    CardView: {
-        backgroundColor: '#fff',
-        // height: 170,
-        shadowColor: '#000',
-        shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 3,
-        marginStart: 10,
-        marginEnd: 10,
-        borderRadius: 10,
-        marginBottom:'3%',
-        paddingBottom:'3%'
-    },
-
-
-    AssignmentImage: {
-        display: 'flex',
-        height: 20,
-        width: 20,
-        marginTop: 8,
-        marginStart: 10
-    },
-    
-
-    RowStyle: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-    },
-
-    FloatTabStyle: {
-        width: 50,
-        height: 50,
-        borderRadius: 30,
-        backgroundColor: baseColor,
-        position: 'absolute',
-        bottom: 10,
-        right: 10,
-    },
-
-    FloatIconStyle : {
-        height: 25,
-        width: 25,
-        marginTop: 10,
-        marginStart: 10
-    },
-
-    ViewMoreImage: {
-        height: 25,
-        width: 25,
-        marginTop: 5,
-    },
-
-    bottomRowStyle: { display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 },
-
-    TopRowStyle: { display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }
-
-})
+export default StyleSheet.create({
+  MainContainer: {
+    flex: 1,
+    padding: resW(4),
+    backgroundColor: 'transparent',
+  },
+  title: {
+    color: '#000',
+    textAlign: 'left',
+    fontSize: resW(3),
+  },
+  dropdownRowText: {
+    fontSize: resW(2.5),
+    color: '#000',
+  },
+  downIcon: {
+    height: resW(5),
+    width: resW(5),
+  },
+  upIcon: {
+    height: resW(3.5),
+    width: resW(3.5),
+    marginRight: resW(1)
+  },
+  card: {
+    borderWidth: 1,
+    borderColor: '#7B61FF',
+    borderRadius: resW(2),
+    padding: resW(4),
+    marginTop: resH(2),
+    backgroundColor: '#fff',
+  },
+  gradesTitle: {
+    marginTop: resW(2),
+    fontSize: resW(7),
+    textAlign: 'center',
+    marginBottom: resH(2),
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: resH(1.5),
+    paddingHorizontal: resW(2),
+    flex:1,
+    flexWrap:"wrap"
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#7B61FF',
+    // backgroundColor: '#F5F5F5',
+  },
+  tableHeaderText: {
+    flex: 1,
+    fontSize: resW(3.5),
+    fontWeight: 'bold',
+    color: '#000',
+    // textAlign: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: resH(1.5),
+    paddingHorizontal: resW(2),
+    // borderBottomWidth: 0.5,
+    // borderBottomColor: '#E0E0E0',
+  },
+  tableCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: resW(3.2),
+    color: '#000',
+  },
+  dropcontainer: {
+    marginBottom: resH(1),
+  },
+  dropdownContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: resH(2),
+  },
+  selectButton1: {
+    backgroundColor: '#7B61FF',
+    borderRadius: resW(1),
+    width: resW(30),
+    height: resH(4),
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginHorizontal: resW(1),
+  },
+  selectButtonText: {
+    color: "#fff",
+    fontSize: resW(3.2),
+    fontWeight: '600',
+    marginRight: resW(1),
+  },
+  // New styles for student info
+  studentInfoContainer: {
+    backgroundColor: '#fff',
+    padding: resW(3),
+    borderRadius: resW(2),
+    marginBottom: resH(2),
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  studentName: {
+    fontSize: resW(4.2),
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: resH(1),
+  },
+  studentDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: resW(3),
+  },
+  studentDetail: {
+    fontSize: resW(3.2),
+    color: '#666',
+  },
+  noDataText: {
+    textAlign: 'center',
+    padding: resH(3),
+    color: '#666',
+    fontStyle: 'italic',
+    fontSize: resW(3.5),
+  },
+  loadingContainer: {
+    padding: resH(3),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // Additional responsive styles
+  scrollContainer: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: resH(2),
+  },
+  subjectCell: {
+    flex: 2,
+    textAlign: 'left',
+    paddingLeft: resW(2),
+    fontSize: resW(3.2),
+    color: '#000',
+  },
+  markCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: resW(3.2),
+    color: '#000',
+  },
+  percentageCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: resW(3.2),
+    color: '#000',
+    fontWeight: '500',
+  },
+});

@@ -31,6 +31,7 @@ export default styles = StyleSheet.create({
     // marginTop: 50,
     // marginBottom: 30,
     marginHorizontal: '5%',
+    marginTop:"10%"
   },
 
   loginText: {

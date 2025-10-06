@@ -1,7 +1,7 @@
 import React from 'react';
-import {Dimensions, Platform, StatusBar, View} from 'react-native';
+import { Dimensions, Platform, StatusBar, View } from 'react-native';
 import Snackbar from 'react-native-snackbar';
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 const baseIconPath = '../assests/Icons/';
 const baseImagePath = '../assests/images/';
 
@@ -30,6 +30,11 @@ export const darkColor = '#3c3c3c';
 export const blackColor = '#000000';
 export const grayColor = 'gray';
 export const lightGrayColor = '#F4F4F4';
+export const lightGrey = '#F1ECEC'
+export const SilverColor = '#F5F5F5'
+export const BattleshipGrey = "#E0E0E0"
+
+
 
 //fontSize
 export const font10 = (DeviceWidth * 2.5) / 100;
@@ -103,39 +108,53 @@ export const Icons = {
   solved: require(baseIconPath + 'Solved.png'),
   upArrow: require(baseIconPath + 'upArrow.png'),
   downArrow: require(baseIconPath + 'downArrow.png'),
-  evs : require(baseIconPath + 'evs.png'),
-  chemistry : require(baseIconPath + 'chemistry.png'),
-  physies : require(baseIconPath + 'physies.png'),
-  bio : require(baseIconPath + 'bio.png'),
-  sanskrit : require(baseIconPath + 'sanskrit.png'),
-  hindi : require(baseIconPath + 'hindi.png'),
-  math : require(baseIconPath + 'math.png'),
-  english : require(baseIconPath + 'english.png'),
-  history : require(baseIconPath + 'history.png'),
-  bussinessStudy : require(baseIconPath + 'bussinessStudy.png'),
-  socialscience : require(baseIconPath + 'socialscience.png'),
-  computer : require(baseIconPath + 'computer.png'),
-  psycology : require(baseIconPath + 'psycology.png'),
-  politicalscience : require(baseIconPath + 'politicalscience.png'),
-  economic : require(baseIconPath + 'economic.png'),
-  music : require(baseIconPath + 'music.png'),
-  Accounts : require(baseIconPath + 'Accounts.png'),
-  physicaleduction : require(baseIconPath + 'physicaleduction.png'),
-  edit : require(baseIconPath + 'edit.png'),
-  drawer :require(baseIconPath + 'drawer.png'),
-  studHomeImage :require(baseImagePath + 'studHomeWork.png'),
-  studFeeDue :require(baseImagePath + 'studFeeDue.png'),
-  achivement :require(baseImagePath + 'achivement.png'),
-  planner :require(baseImagePath + 'planner.png'),
-  support : require(baseImagePath + 'support.png'),
-  grade :require(baseImagePath + 'grade.png'),
-  add :require(baseImagePath + 'add.png'),
-  house :require(baseImagePath + 'house.png'),
-  bell  :require(baseImagePath + 'bell.png'),
-  news  :require(baseImagePath + 'news.png'),
-  
+  evs: require(baseIconPath + 'evs.png'),
+  chemistry: require(baseIconPath + 'chemistry.png'),
+  physies: require(baseIconPath + 'physies.png'),
+  bio: require(baseIconPath + 'bio.png'),
+  sanskrit: require(baseIconPath + 'sanskrit.png'),
+  hindi: require(baseIconPath + 'hindi.png'),
+  math: require(baseIconPath + 'math.png'),
+  english: require(baseIconPath + 'english.png'),
+  history: require(baseIconPath + 'history.png'),
+  bussinessStudy: require(baseIconPath + 'bussinessStudy.png'),
+  socialscience: require(baseIconPath + 'socialscience.png'),
+  computer: require(baseIconPath + 'computer.png'),
+  psycology: require(baseIconPath + 'psycology.png'),
+  politicalscience: require(baseIconPath + 'politicalscience.png'),
+  economic: require(baseIconPath + 'economic.png'),
+  music: require(baseIconPath + 'music.png'),
+  Accounts: require(baseIconPath + 'Accounts.png'),
+  physicaleduction: require(baseIconPath + 'physicaleduction.png'),
+  edit: require(baseIconPath + 'edit.png'),
+  drawer: require(baseIconPath + 'drawer.png'),
+  studHomeImage: require(baseImagePath + 'studHomeWork.png'),
+  studFeeDue: require(baseImagePath + 'studFeeDue.png'),
+  achivement: require(baseImagePath + 'achivement.png'),
+  planner: require(baseImagePath + 'planner.png'),
+  support: require(baseImagePath + 'support.png'),
+  grade: require(baseImagePath + 'grade.png'),
+  add: require(baseImagePath + 'add.png'),
+  house: require(baseImagePath + 'house.png'),
+  bell: require(baseImagePath + 'bell.png'),
+  news: require(baseImagePath + 'news.png'),
+  proficiency: require(baseIconPath + 'proficiency.png'),
+  libraryIcon: require(baseIconPath + 'libraryIcon.png'),
+  leaveIcon: require(baseIconPath + 'leaveIcon.png'),
+  homeIcon: require(baseIconPath + 'homeIcon.png'),
+  SupportIcon: require(baseIconPath + 'SupportIcon.png'),
+  profileIcon: require(baseIconPath + 'profileIcon.png'),
+  notificationIcon: require(baseIconPath + 'notification.png'),
+  StaffAttendanceIcon: require(baseIconPath + 'Staffattendance.png'),
+  StudentComplaintIcon: require(baseIconPath + 'StudentComplaint.png'),
+  homeWorkIcon: require(baseIconPath + 'homeWorkIcon.png'),
 
-
+  notesIcon1: require(baseIconPath + 'notesIcon1.png'),
+  fornightlyplannericon1: require(baseIconPath + 'fornightlyplannericon1.png'),
+  gradesIcon: require(baseIconPath + 'gradesIcon.png'),
+  studentperformanceIcon: require(baseIconPath + 'studentperformance.png'),
+  MultimediaIcon: require(baseIconPath + 'MultimediaIcon.png'),
+  AddIcon:require(baseIconPath + 'addIcon.png')
 };
 
 export const showAlert = message => {
@@ -148,5 +167,5 @@ export const showAlert = message => {
 };
 
 export const listSpace = h => {
-  return <View style={{height: h}} />;
+  return <View style={{ height: h }} />;
 };

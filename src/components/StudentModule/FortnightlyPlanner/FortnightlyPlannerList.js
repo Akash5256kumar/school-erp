@@ -20,7 +20,7 @@ import * as constant from '../../../Utils/Constant';
 import CommonSearch from '../../Search/CommonSearch';
 import Pdf from 'react-native-pdf';
 import BlobUtil from 'react-native-blob-util';
-
+import { PermissionsAndroid } from 'react-native';
 const baseColor = '#0747a6';
 
 const FortnightlyPlannerList = ({ navigation, route }) => {
@@ -71,42 +71,65 @@ const FortnightlyPlannerList = ({ navigation, route }) => {
     downloadHistory(file);
   };
 
-  const downloadHistory = (id) => {
-    const { fs } = BlobUtil;
-    let downloadPath =
-      Platform.OS === 'ios'
-        ? fs.dirs.DocumentDir + '/' + id
-        : fs.dirs.PictureDir + '/' + id;
+ const requestStoragePermission = async () => {
+  if (Platform.OS === 'android' && Platform.Version < 33) {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'Storage Permission',
+        message: 'App needs access to your storage to download files',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      }
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return true;
+};
 
-    let options = {
+const downloadHistory = async (fileName) => {
+  if (!fileName) return;
+
+  const canDownload = await requestStoragePermission();
+  if (!canDownload) {
+    constant.showAlert('Storage permission denied');
+    return;
+  }
+
+  const { fs } = BlobUtil;
+  const uri = `http://139.59.90.236:86/uploads/fortnightly/${fileName}`;
+
+  // Save directly to Downloads folder on Android
+  let downloadPath =
+    Platform.OS === 'ios'
+      ? fs.dirs.DocumentDir + `/Fortnightly-${fileName}`
+      : `/storage/emulated/0/Download/Fortnightly-${fileName}`; // 👈 Downloads folder
+
+  try {
+    const res = await BlobUtil.config({
       fileCache: true,
       path: downloadPath,
-    };
+      addAndroidDownloads:
+        Platform.OS === 'android'
+          ? {
+              useDownloadManager: true,
+              notification: true,
+              path: downloadPath,
+              description: 'Fortnightly Planner PDF',
+              mime: 'application/pdf',
+              mediaScannable: true,
+            }
+          : undefined,
+    }).fetch('GET', uri);
 
-    if (Platform.OS === 'android') {
-      options.addAndroidDownloads = {
-        useDownloadManager: true,
-        notification: true,
-        path: downloadPath,
-        description: 'Report Download',
-        mime: 'application/pdf',
-        mediaScannable: true,
-      };
-    }
-
-    BlobUtil.config(options)
-      .fetch('GET', `https://myskool.sdvonline.in/images/${id}`)
-      .then((res) => {
-        constant.showAlert('Download Successfully');
-        console.log('Downloaded to -> ', res.path());
-      })
-      .catch((err) => {
-        console.log('Download error: ' + JSON.stringify(err));
-      });
-  };
-
- 
-
+    constant.showAlert('Download Successfully');
+    console.log('Downloaded to -> ', res.path());
+  } catch (err) {
+    console.log('Download Error:', err);
+    constant.showAlert('Download Failed');
+  }
+};
   const onSearch = (text) => {
     let filteredArr = originalDataSource.filter((object) =>
       object.subject.toLowerCase().includes(text)
@@ -185,9 +208,12 @@ const FortnightlyPlannerList = ({ navigation, route }) => {
                     tintColor={'#fff'}
                     resizeMode="contain"
                     style={{
-                      height: constant.resW(8),
-                      width: constant.resW(8),
-                      marginTop: '5%',
+                     
+                        height: constant.resW(7), 
+        width: constant.resW(7), 
+       marginTop: constant.resW(3),
+        // marginEnd: constant.resW(3),
+        tintColor:constant.whiteColor
                     }}
                   />
                 </Pressable>
@@ -205,7 +231,7 @@ const FortnightlyPlannerList = ({ navigation, route }) => {
             {ext === 'pdf' ? (
               <Pdf
                 source={{
-                  uri: 'http://139.59.90.236/images/' + pdf,
+                  uri: 'http://139.59.90.236:86/uploads/fortnightly/' + pdf,
                   cache: true,
                 }}
                 trustAllCerts={false}

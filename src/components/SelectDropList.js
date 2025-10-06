@@ -1,111 +1,85 @@
-import React,{useRef,useEffect, useState} from "react"
-import { View, StyleSheet,Image} from "react-native"
-import SelectDropdown from 'react-native-select-dropdown'
+import React, { useRef, useEffect } from "react";
+import { Image, StyleSheet } from "react-native";
+import SelectDropdown from 'react-native-select-dropdown';
 import { Icons, resW } from "../Utils/Constant";
 
 const SelectDropList = (props) => {
+    const dropdownRef = useRef({});
+    const {
+        title='Select Issue',
+        list=[],
+        on_Select=()=>null,
+        buttonExt={},
+        textExt={},
+        disable=false,
+        iconColor = '#000',
+        defaultValue
+    } = props;
 
-    const dropdownRef = useRef({}); 
-    const{title='Select Issue',list,on_Select=()=>null,buttonExt={},textExt={},disable=false,refType, dropdownIndexValue, searchValue,type}= props
+    useEffect(() => {
+        if(props.refType){
+            dropdownRef.current.reset();
+        }
+    }, [props.refType]);
 
-    useEffect(()=>{
-     if(refType){
-        dropdownRef.current.reset()
-     }
-    },[refType])
-
-console.log("listite",JSON.stringify(list))
+    const displayTextStyle = [
+        styles.title,
+        textExt,
+        disable && { color: '#A0A0A0' }
+    ];
 
     return (
         <SelectDropdown
-        data={list}
-        ref={dropdownRef}
-        defaultButtonText={title}
-        disabled={disable}
-        disableAutoScroll={true}
-        defaultValueByIndex={dropdownIndexValue}
-        onSelect={(selectedItem, index) => {on_Select(selectedItem,index)}}
-        buttonStyle={[styles.selectButton,buttonExt]}
-        buttonTextStyle={[styles.title,textExt]}
-        renderDropdownIcon={isOpened => {
-            return (
-                <View style={{alignItems:'center',justifyContent:'center'}}>
-                 <Image  source={isOpened ? Icons.upArrow: Icons?.downArrow}  tintColor={'#000'} resizeMode="contain" style={styles.upIcon} />
-             </View>
-            );
-          }}
-          dropdownIconPosition="right"
-        //   rowTextStyle={{
-        //     fontSize:Fontsize.font9,
-        //     fontFamily:fonts.typeMedium
-        //   }}
-          buttonTextAfterSelection={(selectedItem, index) => {
-            if(type===1){
-                return selectedItem
-            }else{
-           return selectedItem.description
-            }     
-        }}
-        rowTextForSelection={(item, index) => {
-            if(type===1){
-                return item
-            }else{
-            return item.description
-            }
-        }}
-        search={searchValue}
-        searchInputTxtColor={'#151E26'}
-        searchPlaceHolder={'Search here'}
-        searchPlaceHolderColor={'#72808D'}
-    />
-    )
-}
-
-// SelectDropList.defaultProps = {
-//     on_Select: function () { },
-//     title: 'Please Select',
-//     buttonExt:{},
-//     textExt:{},
-//     imageIcon:false,
-//     imageSize:resW(1),
-//     disable:false,
-//     refType:false,
-//     search:false
-// }
+            data={list}
+            ref={dropdownRef}
+            // ✅ set the default selected value
+            defaultButtonText={title} 
+           
+            disabled={disable}
+            disableAutoScroll={true}
+            onSelect={(selectedItem, index) => { if(!disable) on_Select(selectedItem, index) }}
+            buttonStyle={[styles.selectButton, buttonExt]}
+            buttonTextStyle={displayTextStyle}
+            renderDropdownIcon={isOpened => (
+                <Image
+                    source={isOpened ? Icons.upArrow : Icons.downArrow}
+                    tintColor={disable ? '#A0A0A0' : iconColor}
+                    resizeMode="contain"
+                    style={styles.iconStyle}
+                />
+            )}
+            dropdownIconPosition="right"  // ✅ force icon on right
+            buttonTextAfterSelection={(selectedItem) => selectedItem}
+            rowTextForSelection={(item) => item}
+            rowTextStyle={styles.dropdownRowText}
+        />
+    );
+};
 
 export default SelectDropList;
 
 const styles = StyleSheet.create({
-    MainView: {
-      
+    selectButton: {
+        backgroundColor: '#F7FAFC',
+        height: resW(10),
+        width: resW(50),
+        flexDirection: 'row',           // text + icon horizontal
+        alignItems: 'center',
+        justifyContent: 'space-between', // push icon right
+        paddingHorizontal: 10,           // make sure text doesn't overlap
     },
-    selectButton:{
-    backgroundColor:'#F7FAFC',
-    height:resW(10),
-    width:resW(50),
-
+    title: {
+        color: '#000',
+        fontSize: resW(3),
+        textAlign: 'left',
     },
-    title:{
-    color:'#000',
-    // fontFamily:fonts.typeBold,
-    // fontSize:Fontsize.font5,
-    textAlign:'left',
-    // fontWeight:'500'
+    dropdownRowText: {
+        fontSize: resW(3.3),
+        color: '#000',
     },
-
-    downIcon:{
-        height:resW(5),
-        width:resW(5),
-    },
-    upIcon:{
-      height:resW(3.5),
-      width:resW(3.5),
-      marginRight:resW(1)
-    },
-    dropdown1SearchInputStyle: {
-        backgroundColor: '#444444',
-        borderBottomWidth: 1,
-        borderBottomColor: '#FFFFFF',
-    },
-   
-})
+    iconStyle: {
+        width: resW(3.5),
+        height: resW(3.5),
+        marginRight: 0, // ensures it's flush to the right
+    }
+});

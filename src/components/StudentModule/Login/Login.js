@@ -15,14 +15,14 @@ import DeviceInfo from 'react-native-device-info';
 import Snackbar from 'react-native-snackbar';
 import LinearGradient from 'react-native-linear-gradient';
 import moment from 'moment';
-
+import CommonHeader from '../../CommonHeader';
 import styles from './style';
 import * as myConst from '../../Baseurl';
 import * as constant from '../../../Utils/Constant';
-import CommonButton from '../../../components/Button/CommonButton';
+
 import { saveUserData } from '../../Redux/Slice/userSlice';
 import { useDispatch } from 'react-redux';
-
+import CommonButton from '../../../components/Button/CommonButton';
 const Login = ({ navigation }) => {
   // State management with useState
   const dispatch = useDispatch()
@@ -190,6 +190,9 @@ const Login = ({ navigation }) => {
         <ScrollView keyboardShouldPersistTaps="always">
           <View style={styles.container}>
             <View>
+               <CommonHeader
+                                onLeftClick={() => navigation.goBack()}
+                              />
               <Image
                 style={styles.loginImage}
                 source={require('../../../assests/images/login_image.png')}
@@ -231,14 +234,14 @@ const Login = ({ navigation }) => {
                 buttonClick={loginApi}
                 isLoading={isLoading}
               />
-              <Text style={styles.staffLoginText}>
+              {/* <Text style={styles.staffLoginText}>
                 If you are a Staff member than please{'\n'}click here to login
               </Text>
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('StaffLogin')}>
                 <Text style={styles.staffLoginButton}>Staff Log in</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
         </ScrollView>

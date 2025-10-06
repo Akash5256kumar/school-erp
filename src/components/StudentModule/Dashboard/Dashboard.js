@@ -13,7 +13,9 @@ import { TabBarAdvancedButton } from '../../TabBarButton/TabBarButton';
 import LinearGradient from 'react-native-linear-gradient';
 import * as constant from '../../../Utils/Constant'
 import Grade from '../Grade/Grade';
+import ProficiencyScreen from '../../../../proficiencyScreen'
 import FortnightlyPlanner from '../FortnightlyPlanner/FortnightlyPlanner';
+import StudentPerformace from '../SPR/StudentPerformace';
 const Tab = createBottomTabNavigator();
 
 class Dashboard extends Component {
@@ -115,19 +117,8 @@ class Dashboard extends Component {
                                       
                       }}
                   
-                />
-                
-                
-                <Tab.Screen name='FortnightlyPlanner'
-                    component={FortnightlyPlanner}
-                    options={{
-                        tabBarLabel: 'FortnightlyPlanner',
-                        tabBarIcon: ({ color, size }) => (
-                            <Image  source={constant.Icons.planner} resizeMode='contain' style={{height:constant.resW(9),width:constant.resW(9)}} />
-                        ),
-                    }}
-                />
-                <Tab.Screen name='Help & Supports'
+                />  
+                        {/* <Tab.Screen name='Help & Supports'
                     component={ViewSupportSystem}
 
                     // component={HelpSupport}
@@ -135,6 +126,27 @@ class Dashboard extends Component {
                         tabBarLabel: 'Help & Supports',
                         tabBarIcon: ({ color, size }) => (
                             <Image  source={constant.Icons.support} resizeMode='contain' style={{height:constant.resW(9),width:constant.resW(9)}} />
+                        ),
+                    }}
+                /> */}
+              
+                <Tab.Screen name='Help & Supports'
+                    component={FortnightlyPlanner}
+
+                    // component={HelpSupport}
+                    options={{
+                        tabBarLabel: 'Help & Supports',
+                        tabBarIcon: ({ color, size }) => (
+                            <Image  source={constant.Icons.planner} resizeMode='contain' style={{height:constant.resW(9),width:constant.resW(9)}} />
+                        ),
+                    }}
+                />
+                  <Tab.Screen name='StudentPerformace'
+                    component={StudentPerformace}
+                    options={{
+                        tabBarLabel: 'StudentPerformace',
+                        tabBarIcon: ({ color, size }) => (
+                            <Image  source={constant.Icons.proficiency} resizeMode='contain' style={{height:constant.resW(9),width:constant.resW(9)}} />
                         ),
                     }}
                 />

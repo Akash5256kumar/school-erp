@@ -117,11 +117,11 @@
 
 // export default App;
 import 'react-native-gesture-handler';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { Provider } from 'react-redux'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Splash from './src/components/Splash';
 import Login from './src/components/StudentModule/Login/Login';
 import Home from './src/components/StudentModule/Home/Home';
@@ -173,7 +173,7 @@ import StaffSupportAssignedDetails from './src/components/StaffModule/StaffSuppo
 import StaffSupportUnSolvedDetails from './src/components/StaffModule/StaffSupportUnSolvedDetails/StaffSupportUnSolvedDetails';
 // import crashlytics from '@react-native-firebase/crashlytics';
 import VersionCheck from 'react-native-version-check';
-import {Alert, BackHandler, Linking} from 'react-native';
+import { Alert, BackHandler, Linking } from 'react-native';
 import SubjectScreen from './src/components/StudentModule/SubjectScreen/SubjectScreen';
 import EditProfile from './src/components/StudentModule/Profile/EditProfile';
 import GuardianEditProfile from './src/components/StudentModule/Profile/GuardianEditProfile';
@@ -185,6 +185,31 @@ import NotesList from './src/components/StudentModule/Notes/NotesList';
 import Grade from './src/components/StudentModule/Grade/Grade';
 import FortnightlyPlanner from './src/components/StudentModule/FortnightlyPlanner/FortnightlyPlanner';
 import FortnightlyPlannerList from './src/components/StudentModule/FortnightlyPlanner/FortnightlyPlannerList';
+import ProficiencyScreen from './proficiencyScreen';
+import StudentPerformace from './src/components/StudentModule/SPR/StudentPerformace';
+import RoleSelectionScreen from './src/components/RoleScreen/RoleSelectionScreen';
+import StaffModuleBottomTabs from './src/components/StaffModule/StaffModuleBottomTabs/StaffModuleBottomTabs';
+import StaffLibrary from './src/components/StaffModule/StaffLibrary/StaffLibrary';
+import StudentComplaint from './src/components/StaffModule/Staff_Student_Complaint/StudentComplaint';
+import StaffModuleHomeWork from './src/components/StaffModule/StaffModuleHomework/StaffModuleHomeWork';
+import StaffModuleStudentPerformance from './src/components/StaffModule/StaffModuleStudentPerformance/StaffModuleStudentPerformance';
+import StaffModuleMultiMedia from './src/components/StaffModule/StaffModuleMultiMedia/StaffModuleMultiMedia';
+import StaffModuleResultAndGrades from './src/components/StaffModule/StaffModuleResultAndGrades/StaffModuleResultAndGrades';
+import StaffModuleFornightlyPlanner from './src/components/StaffModule/StaffModuleFornightlyPlanner/StaffModuleFornightlyPlanner';
+import StaffModuleNotes from './src/components/StaffModule/StaffModuleNotes/StaffModuleNotes';
+import AddComplaint from './src/components/StaffModule/Staff_Student_Complaint/AddComplaint';
+import StaffAddPlanner from './src/components/StaffModule/StaffModuleFornightlyPlanner/StaffAddPlanner';
+import StaffAddNotes from './src/components/StaffModule/StaffModuleNotes/StaffAddNotes';
+import ViewStaffFornightlyPlanner from './src/components/StaffModule/StaffModuleFornightlyPlanner/ViewStaffFornightlyPlanner';
+import StaffEditFornightlyPlanner from './src/components/StaffModule/StaffModuleFornightlyPlanner/StaffEditFornightlyPlanner';
+import StaffViewNotes from './src/components/StaffModule/StaffModuleNotes/StaffViewNotes';
+import StaffEditNotes from './src/components/StaffModule/StaffModuleNotes/StaffEditNotes';
+import StaffAddHomeWork from './src/components/StaffModule/StaffModuleHomework/StaffAddHomeWork';
+import StaffEditHomeWork from './src/components/StaffModule/StaffModuleHomework/StaffEditHomeWork';
+import StaffViewHomeWork from './src/components/StaffModule/StaffModuleHomework/StaffViewHomeWork';
+import StaffAddMultiMedia from './src/components/StaffModule/StaffModuleMultiMedia/StaffAddMultiMedia';
+import StaffEditMultiMedia from './src/components/StaffModule/StaffModuleMultiMedia/StaffEditMultiMedia';
+import StaffViewMultiMedia from './src/components/StaffModule/StaffModuleMultiMedia/StaffViewMultiMedia';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -237,10 +262,10 @@ const App = () => {
               },
             },
           ],
-          {cancelable: false},
+          { cancelable: false },
         );
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   return (
@@ -279,11 +304,60 @@ const App = () => {
           name="ViewMoreSupportSystem"
           component={ViewMoreSupportSystem}
         />
+         <Stack.Screen
+        name='StaffAddPlanner'
+        component={StaffAddPlanner}/>
+        <Stack.Screen
+        name='StaffAddNotes'
+        component={StaffAddNotes}/>
+        <Stack.Screen
+        name='ViewStaffFornightlyPlanner'
+        component={ViewStaffFornightlyPlanner}/>
+        <Stack.Screen
+        name='StaffEditFornightlyPlanner'
+        component={StaffEditFornightlyPlanner}/>
+        <Stack.Screen
+        name='StaffViewNotes'
+        component={StaffViewNotes}/>
+        <Stack.Screen
+        name='StaffEditNotes'
+        component={StaffEditNotes}/>
+        <Stack.Screen
+        name='StaffAddHomeWork'
+        component={StaffAddHomeWork}/>
+        <Stack.Screen
+        name='StaffEditHomeWork'
+        component={StaffEditHomeWork}/>
+        <Stack.Screen
+        name='StaffViewHomeWork'
+        component={StaffViewHomeWork}/>
+        <Stack.Screen
+        name='StaffAddMultiMedia'
+        component={StaffAddMultiMedia}/>
+        <Stack.Screen
+        name='StaffEditMultiMedia'
+        component={StaffEditMultiMedia}/>
+        <Stack.Screen
+        name='StaffViewMultiMedia'
+        component={StaffViewMultiMedia }/>
         <Stack.Screen name="Transport" component={Transport} />
+        <Stack.Screen name="FortnightlyPlanner" component={FortnightlyPlanner} />
+        <Stack.Screen name="ProficiencyScreen" component={ProficiencyScreen} />
+        <Stack.Screen name="StudentPerformace" component={StudentPerformace} />
         <Stack.Screen name="Dashboard" component={Dashboard} />
+        <Stack.Screen name="StaffModuleBottomTabs" component={StaffModuleBottomTabs} />
         <Stack.Screen name="SideBar" component={SideBar} />
         <Stack.Screen name="Header" component={Header} />
         <Stack.Screen name="Drawer" component={DrawerNavigation} />
+        <Stack.Screen name="RoleSelectionScreen" component={RoleSelectionScreen} />
+        <Stack.Screen name="StaffLibrary" component={StaffLibrary} />
+        <Stack.Screen name="StudentComplaint" component={StudentComplaint} />
+        <Stack.Screen name="StaffModuleHomeWork" component={StaffModuleHomeWork} />
+        <Stack.Screen name="StaffModuleStudentPerformance" component={StaffModuleStudentPerformance} />
+        <Stack.Screen name="StaffModuleMultiMedia" component={StaffModuleMultiMedia} />
+        <Stack.Screen name="StaffModuleResultAndGrades" component={StaffModuleResultAndGrades} />
+        <Stack.Screen name="StaffModuleFornightlyPlanner" component={StaffModuleFornightlyPlanner} />
+        <Stack.Screen name="StaffModuleNotes" component={StaffModuleNotes} />
         <Stack.Screen name="StaffLogin" component={StaffLogin} />
         <Stack.Screen name="StaffProfile" component={StaffProfile} />
         <Stack.Screen name="StaffHome" component={StaffHome} />
@@ -333,7 +407,7 @@ const App = () => {
           name="EditProfile"
           component={EditProfile}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="GuardianEditProfile"
           component={GuardianEditProfile}
         />
@@ -343,7 +417,7 @@ const App = () => {
           component={ParentsEditProfile}
         />
 
-<Stack.Screen
+        <Stack.Screen
           name="HomeScreen"
           component={HomeScreen}
         />
@@ -351,42 +425,46 @@ const App = () => {
           name="Notes"
           component={Notes}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="NotesList"
           component={NotesList}
         />
-          {/* <Stack.Screen
+        {/* <Stack.Screen
           name="FortnightlyPlanner"
           component={FortnightlyPlanner}
         /> */}
-          <Stack.Screen
+        <Stack.Screen
           name="FortnightlyPlannerList"
           component={FortnightlyPlannerList}
         />
-
        
+         <Stack.Screen
+          name="AddComplaint"
+          component={ AddComplaint}
+        />
+
+
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
 // export default App;
-const MainApp = () => 
-  {
+const MainApp = () => {
 
-     return(
-      <SafeAreaProvider>
+  return (
+    <SafeAreaProvider>
 
-      <App/>
-     
-      </SafeAreaProvider>
-    
-     )
-  }
+      <App />
+
+    </SafeAreaProvider>
+
+  )
+}
 
 
-  export default () => (
+export default () => (
   <Provider store={Store}>
-         <MainApp/>
+    <MainApp />
   </Provider>
-  );
+);

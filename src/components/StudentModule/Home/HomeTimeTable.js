@@ -55,43 +55,55 @@ const HomeTimeTable = (props) => {
         fetch(myConst.BASEURL + 'viewTimetable', data)
             .then((response) => response.json())
             .then(responseJson => {
-                if (responseJson.status === true) {
-                    const response = responseJson.data
-                    // --- FIX 2: Use the API response directly, not the old state ---
-                    const apiSchedule = response?.schedule || {};
-                    setSchedule(apiSchedule);
+    console.log("🔴 Full Response:", JSON.stringify(responseJson, null, 2));
 
-                    const formattedDay = capitalizeFirstLetter(moment().format("dddd").trim().toLowerCase());
-                    
-                    if (formattedDay === 'Sunday') {
-                        setSylabus(apiSchedule?.Monday || []);
-                        setSelect({ active: 0, data: [] });
-                        // No need to scroll on Sunday, it will default to Monday (index 0)
-                    } else {
-                        const weekNumber = dayNames.indexOf(formattedDay);
-                        if (weekNumber !== -1) { // Ensure the day is in our list
-                            const scheduleForDay = apiSchedule?.[formattedDay] || [];
-                            setSylabus(scheduleForDay);
-                            setSelect({ active: weekNumber, data: [] });
+    if (responseJson.status === true) {
+        const response = responseJson.data;
+        console.log("🟢 Response Data:", response);
 
-                            // Scroll to the current day
-                            setTimeout(() => {
-                                listRef.current?.scrollToIndex({ animated: true, index: weekNumber });
-                            }, 1000); // A small delay can help ensure the list is ready
-                        } else {
-                          // Fallback if day is not found, e.g. Sunday
-                           setSylabus(apiSchedule?.Monday || []);
-                           setSelect({ active: 0, data: [] });
-                        }
-                    }
-                } else { // Corrected 'staus' to 'status'
-                    Snackbar.show({
-                        text: responseJson.message,
-                        duration: Snackbar.LENGTH_SHORT,
-                        backgroundColor: '#f15270'
-                    });
-                }
-            })
+        const apiSchedule = response?.schedule || response?.Schedule || response || {};
+        console.log("📅 apiSchedule Keys:", Object.keys(apiSchedule));
+
+        setSchedule(apiSchedule);
+
+        const today = moment().format("dddd");
+        console.log("📌 Today:", today);
+
+        const formattedDay = capitalizeFirstLetter(today.trim().toLowerCase());
+        console.log("📌 FormattedDay:", formattedDay);
+
+        if (formattedDay === 'Sunday') {
+            setSylabus(apiSchedule?.Monday || []);
+            setSelect({ active: 0, data: [] });
+        } else {
+            const weekNumber = dayNames.indexOf(formattedDay);
+            console.log("📌 weekNumber:", weekNumber);
+
+            if (weekNumber !== -1) {
+                const scheduleForDay = apiSchedule?.[formattedDay] || [];
+                console.log(`📚 ${formattedDay} Schedule:`, scheduleForDay);
+
+                setSylabus(scheduleForDay);
+                setSelect({ active: weekNumber, data: [] });
+
+                setTimeout(() => {
+                    listRef.current?.scrollToIndex({ animated: true, index: weekNumber });
+                }, 1000);
+            } else {
+                console.warn("⚠️ Day not found, falling back to Monday");
+                setSylabus(apiSchedule?.Monday || []);
+                setSelect({ active: 0, data: [] });
+            }
+        }
+    } else {
+        Snackbar.show({
+            text: responseJson.message,
+            duration: Snackbar.LENGTH_SHORT,
+            backgroundColor: '#f15270'
+        });
+    }
+})
+
             .catch((error) => console.log("API Error:", error))
     }
 
@@ -152,9 +164,9 @@ const HomeTimeTable = (props) => {
                     data={dayNames}
                     renderItem={renderList}
                     showsHorizontalScrollIndicator={false}
-                    // --- FIX 1 (continued): Add getItemLayout to the FlatList props ---
+                  
                     getItemLayout={getItemLayout}
-                    keyExtractor={(item) => item} // Always good practice to have a keyExtractor
+                    keyExtractor={(item) => item} 
                     ListHeaderComponent={() => <View style={{ width: constant.resW(4) }} />}
                     ItemSeparatorComponent={() => <View style={{ width: constant.resW(4) }} />}
                     ListFooterComponent={() => <View style={{ width: constant.resW(4) }} />}
@@ -165,7 +177,7 @@ const HomeTimeTable = (props) => {
                     data={sylabus}
                     numColumns={3}
                     renderItem={renderPeriodList}
-                    keyExtractor={(item, index) => `${item.subject}-${index}`} // More robust key
+                    keyExtractor={(item, index) => `${item.subject}-${index}`} 
                     columnWrapperStyle={{ alignSelf: 'flex-start', alignItems: 'flex-start' }}
                     contentContainerStyle={styles.listContainer}
                     showsHorizontalScrollIndicator={false}

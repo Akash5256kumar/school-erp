@@ -141,7 +141,7 @@ class StaffViewLeave extends Component {
             <View style={styles.MainContainer}>
                 <View style={styles.HeaderBackground}>
                     <View style={styles.HeaderContainer}>
-                        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                        <TouchableOpacity onPress={() => this.props.navigation.navigate("StaffHome")}>
                             <Image style={styles.HeaderImage}
                                 source={require('../../../assests/images/leftarrow.png')} />
                         </TouchableOpacity>

@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Text,
   View,
@@ -14,8 +14,8 @@ import * as myConst from '../../Baseurl';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 
-const Event = ({navigation}) => {
-  const usertoken = useSelector(state=>state.userSlice.token)
+const Event = ({ navigation }) => {
+  const usertoken = useSelector(state => state.userSlice.token)
   const [loading, setLoading] = useState(false);
   const [classes, setClasses] = useState('');
   const [dataSource, setDataSource] = useState([]);
@@ -36,7 +36,7 @@ const Event = ({navigation}) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
-        'Authorization' : usertoken
+        'Authorization': usertoken
       },
       body: formData,
     };
@@ -81,12 +81,16 @@ const Event = ({navigation}) => {
     <View style={styles.MainContainer}>
       <View style={styles.HeaderBackground}>
         <View style={styles.HeaderContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.BackButton}   onPress={() => {
+    console.log("Back pressed");
+    navigation.goBack();
+  }} >
             <Image
               style={styles.HeaderImage}
               source={require('../../../assests/images/leftarrow.png')}
             />
           </TouchableOpacity>
+
           <Image
             style={styles.EventImage}
             source={require('../../../assests/images/event.png')}
@@ -97,14 +101,14 @@ const Event = ({navigation}) => {
 
       <FlatList
         data={dataSource}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <View style={styles.FlatStyle}>
             <View style={styles.CardView}>
               <View style={styles.CardviewStyle}>
                 <View style={styles.CircleShapeView}>
                   <Image
                     style={styles.AssignmentImage}
-                    source={require('../../../assests/images/cake.png')}
+                    source={require('../../../assests/images/calendar.png')}
                   />
                 </View>
                 <View style={styles.TextViewStyle}>
@@ -115,12 +119,12 @@ const Event = ({navigation}) => {
                 </View>
               </View>
 
-              <View>
+              {/* <View>
                 <Image
                   style={styles.AssignmentDownloadImage}
                   source={require('../../../assests/images/calendar.png')}
                 />
-              </View>
+              </View> */}
             </View>
           </View>
         )}

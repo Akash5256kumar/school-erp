@@ -257,14 +257,8 @@ const HomeCalender = ({ navigation }) => {
                                     </View>}
                                 </View>
                             </View>  
-
-                            
-                          
-
                         </View>
                       </View>
-                      
-                       
                     </View>
                 ) : (
                     <View>          

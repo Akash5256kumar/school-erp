@@ -213,10 +213,10 @@ export default styles = StyleSheet.create({
 
     PdfHeaderText: {
         color: 'white',
-        fontSize: 20,
+        fontSize: constant.font21,
         fontWeight: 'bold',
-        marginTop: 15,
-        marginStart: 10
+        marginTop: constant.resH(3),
+        // marginStart: constant.resW(3)
         // marginEnd: 10
     },
 
@@ -228,8 +228,10 @@ export default styles = StyleSheet.create({
 
 
     PdfHeaderArrowImage: {
-        height: 32, width: 35, marginTop: 15, 
-        marginEnd: 10,
+        height: constant.resW(7), 
+        width: constant.resW(7), 
+       marginTop: constant.resH(3),
+        marginEnd: constant.resW(3),
         tintColor:constant.whiteColor
         // marginStart: 5
     },

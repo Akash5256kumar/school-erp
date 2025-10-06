@@ -7,19 +7,19 @@ const baseColor = '#0747a6'
 class StaffAttendance extends Component {
 
 
-    componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
+    // componentWillMount() {
+    //     BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    // }
 
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    }
+    // componentWillUnmount() {
+    //     BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    // }
 
     handleBackPress = () => {
         this.props.navigation.navigate('StaffHome')
         return true;
     };
-    
+
 
     render() {
         return (
@@ -41,11 +41,11 @@ class StaffAttendance extends Component {
                         <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffAddAttendance')}>
                             <Image style={styles.IconStyle}
                                 source={require("../../../assests/images/addAttendance.png")} />
-                            <Text style={styles.CardviewText}>Add Attendance</Text>
+                            <Text style={styles.CardviewText}>
+                                Add Attendance
+                            </Text>
                         </TouchableOpacity>
                     </View>
-
-
                     <View style={styles.TabCardView}>
                         <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffViewStudentAttendance')}>
                             <Image style={styles.IconStyle}

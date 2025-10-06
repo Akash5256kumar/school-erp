@@ -242,7 +242,7 @@ class StaffViewStudentAttendance extends Component {
         <View style={styles.RowStyle}>
           <Text style={styles.TextStyle}>Select Date</Text>
           <View>
-            <DatePicker
+            {/* <DatePicker
               style={styles.TextInputStyleClass}
               date={this.state.date}
               // mode="date"
@@ -262,7 +262,7 @@ class StaffViewStudentAttendance extends Component {
                 },
               }}
               onDateChange={date => this.valueChangeHandler({date: date})}
-            />
+            /> */}
           </View>
         </View>
 

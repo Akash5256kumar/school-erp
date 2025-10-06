@@ -22,9 +22,6 @@ const data =[
     {"key":3,"topic":'Math'}
 
 ]
-
-
-
 const FortnightlyPlanner = (props) => {
     const {navigation } = props
     const usertoken = useSelector(state=>state.userSlice.token)
@@ -71,8 +68,6 @@ const FortnightlyPlanner = (props) => {
     let formData = new FormData();
     // formData.append('std_class', std_class);
     formData.append('std_roll', rollNo);
-    
-
     fetch(myConst.BASEURL + 'viewFortnightly', {
       method: 'POST',
       headers: {
@@ -207,10 +202,9 @@ const FortnightlyPlanner = (props) => {
         <CommonHeader
           title={'Fortnightly Planner'}
           onLeftClick={() => {
-            navigation.goBack();
+            navigation.navigate("Home");
           }}
         />
-
         <FlatList
           numColumns={3}
           data={dataSource}

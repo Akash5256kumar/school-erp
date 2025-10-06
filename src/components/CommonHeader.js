@@ -1,7 +1,6 @@
 import React from 'react';
-import {Image, Pressable, Text, TextInput, View,StyleSheet,StatusBar, Platform} from 'react-native';
+import { Image, Pressable, Text, TextInput, View, StyleSheet, StatusBar, Platform } from 'react-native';
 import * as constant from '../Utils/Constant'
-
 const CommonHeader = (props) => {
   const {
     title,
@@ -11,9 +10,9 @@ const CommonHeader = (props) => {
 
   return (
     <View style={[styles.mainView, extStyle]}>
-    {/* <StatusBar translucent backgroundColor={'transparent'} barStyle={'dark-content'}/> */}
-      <Pressable style={styles.leftMainView} onPress={()=>onLeftClick()}>
-      <Image source={constant.Icons.backArrowIcon} resizeMode='contain' style={styles.backIcon} />
+      {/* <StatusBar translucent backgroundColor={'transparent'} barStyle={'dark-content'}/> */}
+      <Pressable style={styles.leftMainView} onPress={() => onLeftClick()}>
+        <Image source={constant.Icons.backArrowIcon} resizeMode='contain' style={styles.backIcon} />
       </Pressable>
       <View style={styles.midMainView}>
         <Text style={styles.titleStyle}>{title}</Text>
@@ -25,45 +24,44 @@ const CommonHeader = (props) => {
 };
 
 CommonHeader.defaultProps = {
-   onLeftClick : function() { },
-   title:'',
-   extStyle :{}
+  onLeftClick: function () { },
+  title: '',
+  extStyle: {}
 }
 
 export default CommonHeader;
-
 const styles = StyleSheet.create({
-  mainView:{
-  height:constant.resW(15),
-  flexDirection:'row',
-  alignItems:'center',
-  marginTop:Platform.OS === 'ios' ? constant.resW(10) : constant.resW(0),
+  mainView: {
+    height: constant.resW(15),
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Platform.OS === 'ios' ? constant.resW(10) : constant.resW(0),
   },
-  leftMainView:{
-  flex:0.15,
-  paddingLeft:'4%',
-  height:'100%',
-  justifyContent:'center',
+  leftMainView: {
+    flex: 0.15,
+    paddingLeft: '4%',
+    height: '100%',
+    justifyContent: 'center',
   },
-  backIcon:{
-  height:constant.resW(8),
-  width:constant.resW(8),
-  marginTop:'5%'
+  backIcon: {
+    height: constant.resW(8),
+    width: constant.resW(8),
+    marginTop: '5%'
   },
-  midMainView:{
-    flex:1,
-    height:'100%',
-    justifyContent:'center',
+  midMainView: {
+    flex: 1,
+    height: '100%',
+    justifyContent: 'center',
   },
-  rightMainView:{
-    flex:0.2,
-    height:'100%',
-    justifyContent:'center'
+  rightMainView: {
+    flex: 0.2,
+    height: '100%',
+    justifyContent: 'center'
   },
-  titleStyle:{
+  titleStyle: {
     fontSize: constant.font22,
     color: constant.baseTextColor,
-    fontFamily:constant.typeSemiBold,
+    fontFamily: constant.typeSemiBold,
   }
 
 })

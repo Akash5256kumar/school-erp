@@ -23,17 +23,17 @@ const ViewSupportSystem = ({ navigation }) => {
     const [stdRoll, setStdRoll] = useState('');
 
     // Back handler
-    const handleBackPress = useCallback(() => {
-        navigation.navigate('Home');
-        return true;
+  useEffect(() => {
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => {
+          navigation.navigate('Dashboard');
+          return true;
+        }
+      );
+  
+      return () => backHandler.remove();
     }, [navigation]);
-
-    useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-        };
-    }, [handleBackPress]);
 
     // Fetch initial data
     useFocusEffect(
@@ -120,7 +120,7 @@ const ViewSupportSystem = ({ navigation }) => {
 
     const fn_Header = () => (
         <View style={styles.mainView}>
-            <Pressable style={styles.leftMainView} onPress={() => navigation.navigate('Home')}>
+            <Pressable style={styles.leftMainView} onPress={() => navigation.goBack()}>
                 <Image source={constant.Icons.backArrowIcon} resizeMode='contain' style={styles.backIcon} />
             </Pressable>
             <View style={styles.midMainView}>

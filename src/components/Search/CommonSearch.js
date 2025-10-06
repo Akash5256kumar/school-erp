@@ -7,6 +7,7 @@ const CommonSearch = (props) => {
   const {
     extStyle,
     searchText,
+    placeholder
   } = props;
 
   return (
@@ -14,7 +15,7 @@ const CommonSearch = (props) => {
     // colors={constant.LinearGradientColor} start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
     style={[styles.mainView, extStyle]}>
      <TextInput
-     placeholder='Type Your Topic Subject'
+     placeholder={placeholder || 'Type Your Topic Subject'}
      selectionColor={'#000000'}
      placeholderTextColor={constant.grayColor}
       style={styles.input}

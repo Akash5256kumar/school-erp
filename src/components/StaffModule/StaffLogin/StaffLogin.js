@@ -1,4 +1,4 @@
-import React, {Component, version} from 'react';
+import React, { Component } from 'react';
 import {
   Image,
   Text,
@@ -6,35 +6,25 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  BackHandler,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import styles from './style';
-const baseColor = '#0747a6';
 import * as myConst from '../../Baseurl';
 import Snackbar from 'react-native-snackbar';
-import {StackNavigator} from 'react-navigation';
-
+import CommonHeader from '../../CommonHeader';
+import LinearGradient from 'react-native-linear-gradient';
+import CommonButton from '../../../components/Button/CommonButton';
 class StaffLogin extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      loading: false,
-      email: '',
-      password: '',
-      deviceVersion: '',
-      deviceName: '',
-      deviceType: '',
-      token: '',
-    };
+    this.state = { email: '', password: '', isLoading: false };
   }
 
-  changeEmail = email => {
-    this.setState({email: email});
-  };
-  changePassword = password => {
-    this.setState({password: password});
-  };
+  changeEmail = email => this.setState({ email });
+  changePassword = password => this.setState({ password });
 
   showMessage(message) {
     Snackbar.show({
@@ -44,103 +34,106 @@ class StaffLogin extends Component {
     });
   }
 
-  loginApi() {
-    // this.props.navigation.navigate('StaffHome');
-    // return;
-    const {email, password} = this.state;
-    if (email == '') {
-      this.showMessage('Please enter email address.');
-    } else if (password == '') {
-      this.showMessage('Please enter password.');
-    } else {
-      let data = {
+  loginApi = async () => {
+    const { email, password } = this.state;
+    if (!email) return this.showMessage('Please enter email address.');
+    if (!password) return this.showMessage('Please enter password.');
+
+    this.setState({ isLoading: true });
+
+    try {
+      const res = await fetch(myConst.BASEURL + 'staff_login', {
         method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      };
-      let self = this;
-      this.setState({isLoading: true});
-      fetch(myConst.BASEURL + 'staff_login', data)
-        .then(response => response.json())
-        .then(async responseJson => {
-          console.log('responseJson-->', responseJson);
-          if (responseJson.status === true) {
-            this.setState({isLoading: false});
-            await AsyncStorage.setItem('@id', String(responseJson.data.id));
-            await AsyncStorage.setItem('@name', responseJson.data.name);
-            await AsyncStorage.setItem('@email', responseJson.data.email);
-            if (responseJson.data.assignclass !== null) {
-              await AsyncStorage.setItem(
-                '@aclass',
-                responseJson.data.assignclass,
-              );
-            }
-            if (responseJson.data.assignsection !== null) {
-              await AsyncStorage.setItem(
-                '@asection',
-                responseJson.data.assignsection,
-              );
-            }
-            if (responseJson.data.role_type !== null) {
-              await AsyncStorage.setItem('@role', responseJson.data.role_type);
-            }
-            await AsyncStorage.setItem('@date', responseJson.data.created_at);
-            self.props.navigation.navigate('StaffHome');
-          } else if (responseJson.status === false) {
-            this.showMessage(responseJson.message);
-          }
-        })
-        .catch(error => console.log(error))
-        .finally(() => {
-          this.setState({isLoading: false});
-        });
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const resJson = await res.json();
+
+      if (resJson.status) {
+        await AsyncStorage.setItem('@id', String(resJson.data.id));
+        await AsyncStorage.setItem('@name', resJson.data.name);
+        await AsyncStorage.setItem('@email', resJson.data.email);
+        if (resJson.data.assignclass) await AsyncStorage.setItem('@aclass', resJson.data.assignclass);
+        if (resJson.data.assignsection) await AsyncStorage.setItem('@asection', resJson.data.assignsection);
+        if (resJson.data.role_type) await AsyncStorage.setItem('@role', resJson.data.role_type);
+        await AsyncStorage.setItem('@date', resJson.data.created_at);
+
+        this.props.navigation.navigate('StaffModuleBottomTabs');
+      } else {
+        this.showMessage(resJson.message);
+      }
+    } catch (error) {
+      console.log(error);
+      this.showMessage('Something went wrong. Please try again.');
+    } finally {
+      this.setState({ isLoading: false });
     }
-  }
+  };
 
   render() {
     return (
-      <View style={styles.HomeScreenView}>
-        <ScrollView>
-          <View style={styles.container}>
-            <View>
-              <Image
-                style={styles.loginImage}
-                source={require('../../../assests/images/staff_login.png')}
-              />
-            </View>
-            <View style={styles.loginForm}>
-              <Text style={styles.loginText}>Login</Text>
-              <TextInput
-                placeholder="EMAIL"
-                style={styles.TextInputStyleClass}
-                placeholderTextColor="#635d83"
-                onChangeText={this.changeEmail}></TextInput>
+      <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          >
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                {/* Header */}
+                <CommonHeader
+                  onLeftClick={() => this.props.navigation.goBack()}
+                />
 
-              <View>
-                <TextInput
-                  placeholder="PASSWORD"
-                  style={styles.TextInputStyleClass}
-                  placeholderTextColor="#635d83"
-                  secureTextEntry={true}
-                  onChangeText={this.changePassword}></TextInput>
+                {/* Top Image */}
+                <Image
+                  style={styles.loginImage}
+                  source={require('../../../assests/images/staff_login1.png')}
+                  resizeMode="contain"
+                />
+
+                {/* Login Form at Bottom */}
+                <View style={styles.loginForm}>
+                  <Text style={styles.loginText}>Login</Text>
+
+                  <TextInput
+                    placeholder="Email"
+                    style={styles.TextInputStyleClass}
+                    placeholderTextColor="#635d83"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    onChangeText={this.changeEmail}
+                  />
+
+                  <TextInput
+                    placeholder="Password"
+                    style={styles.TextInputStyleClass}
+                    placeholderTextColor="#635d83"
+                    secureTextEntry
+                    onChangeText={this.changePassword}
+                  />
+
+                  {/* <TouchableOpacity style={styles.button} onPress={this.loginApi}>
+                    <Text style={styles.buttonText}>Log in</Text>
+                  </TouchableOpacity> */}
+                  <CommonButton
+                                  title="Log in"
+                                  extStyle={{ marginTop: '15%', marginHorizontal: '15%' }}
+                                  buttonClick={this.loginApi}
+                                  // isLoading={isLoading}
+                                />
+                </View>
               </View>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => this.loginApi()}>
-                <Text style={styles.buttonText}>Log in</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
-      </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </LinearGradient>
     );
   }
 }
+
 export default StaffLogin;

@@ -1,76 +1,93 @@
 import React from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
+import { font12, font15, font18, font26, font32, font36, resH, resW } from '../../../Utils/Constant';
 const deviceHeight=Dimensions.get('window').height;
 const deviceWidth=Dimensions.get('window').width;
-const baseColor = '#0747a6'
+// const baseColor = 'white'
 
 export default styles = StyleSheet.create({
 
-    container: {
-        backgroundColor: baseColor,
-        alignItems: 'center',
-    },
+    // container: {
+    //     backgroundColor: "white",
+    //     alignItems: 'center',
+    // },
 
     loginImage: {
-        height: deviceHeight*0.3,
-        width: deviceWidth*0.6,
-        marginTop: 40,
+        height: deviceHeight*0.4,
+        width: deviceWidth*1,
+         marginTop:resH(0),
+     
         alignItems: 'center',
-        backgroundColor: baseColor
+        // backgroundColor: "white"
     },
 
     HomeScreenView: {
-        backgroundColor: baseColor, height: deviceHeight, width: deviceWidth, display: 'flex'
+        // backgroundColor: baseColor, 
+        height: deviceHeight,
+         width: deviceWidth,
+         display: 'flex'
     },
 
-    loginForm: {
-        display: 'flex',
-        backgroundColor: 'white',
-        width: deviceWidth*0.75,
-        borderRadius: 20,
-        marginTop: 50,
-        marginBottom: 30
-    },
+loginForm: {
+//   backgroundColor: 'white',
+  width: '100%',
+  paddingVertical: resH(5),
+  alignItems: 'center',
+
+  justifyContent:"flex-end"
+  // position: 'absolute',  // ❌ remove
+  // bottom: resH(3),       // ❌ remove
+},
+
+
+container: {
+    flex: 1,  // 👈 makes it take full height
+    // backgroundColor: "white",
+    // justifyContent: "flex-end", // 👈 push children down
+    // alignItems: 'center',
+},
 
     loginText: {
         color: '#635d83',
-        fontSize: 20,
+        fontSize: font26,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: 18,
-        marginBottom: 18
+        marginTop: resH(5),
+        marginBottom: resH(1)
     },
 
     TextInputStyleClass: {
-        height: 40,
-        marginLeft: 20,
-        marginRight: 20,
-        marginTop: 10,
-        marginBottom: 10,
-        padding: 12,
-        fontSize: 16,
-        borderRadius: 10,
-        backgroundColor: '#c1c0e0',
+        height: resH(7),
+        marginLeft: resW(4),
+        marginRight: resW(4),
+        marginTop: resH(1),
+        marginBottom: resH(1),
+        padding: resW(2),
+         paddingLeft: resW(4),
+        fontSize: font15,
+        borderRadius: resW(2.5),
+        backgroundColor: 'white',
         color: '#635d83',
-        width: '85%',
+        width: '90%',
     },
 
     button: {
         alignItems: 'center',
-        padding: 20,
-        paddingStart: 10,
-        paddingEnd: 10
+        padding: resH(5),
+        paddingStart: resW(3),
+        paddingEnd: resW(3)
     },
 
     buttonText: {
-        fontSize: 16,
+        fontSize: font18,
         color: 'white',
         backgroundColor: '#f15270',
-        padding: 8,
-        paddingLeft: 60,
-        paddingRight: 60,
+        padding: resH(1.8),
+          width:resW(90),
+        // paddingLeft: 60,
+        // paddingRight: 60,
         textAlign: 'center',
-        borderRadius: 8
+        borderRadius: resW(2)
     },
 
     staffLoginText: {
@@ -80,14 +97,15 @@ export default styles = StyleSheet.create({
     },
 
     staffLoginButton: {
-        fontSize: 15,
+        fontSize: font18,
         color: 'white',
-        backgroundColor: baseColor,
-        padding: 8,
-        paddingLeft: 40,
-        paddingRight: 40,
+        width:resW(90),
+        // backgroundColor: baseColor,
+        // padding: resW(5),
+        // paddingLeft: 40,
+        // paddingRight: 40,
         textAlign: 'center',
-        borderRadius: 8
+        // borderRadius: 8
     }
 
 })

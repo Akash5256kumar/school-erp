@@ -7,14 +7,11 @@ import * as constant from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
 import style from './style';
 import { useSelector } from 'react-redux';
-
 const Notification = ({ navigation }) => {
   const [dataSource, setDataSource] = useState([]);
   const [stdRoll, setStdRoll] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const usertoken = useSelector(state=>state.userSlice.token)
-
-  // Back button handler
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -45,7 +42,7 @@ const Notification = ({ navigation }) => {
 
       let response = await fetch(myConst.BASEURL + 'viewnotifications', data);
       let responseJson = await response.json();
-      console.log('data-->', responseJson.data);
+      console.log('data notification-->', responseJson.data);
 
       setDataSource(responseJson.data);
     } catch (error) {

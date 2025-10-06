@@ -28,7 +28,6 @@ const Library = ({navigation, route}) => {
   const [originalDataSource, setOriginalDataSource] = useState([]);
   const [issueBookOriginalSource, setIssueBookOriginalSource] = useState([]);
   const [active, setActive] = useState(true);
-
   const handleBackPress = useCallback(() => {
     navigation.navigate('Dashboard');
     return true;
@@ -45,11 +44,9 @@ const Library = ({navigation, route}) => {
     const fetchData = async () => {
       let otherParam = route?.params?.otherParam;
       console.log('param-->', otherParam);
-
       const value = await AsyncStorage.getItem('@std_roll');
       console.log('value-->>', value);
       setStdRoll(value);
-
       if (otherParam === 'Books') {
         libraryApi(value);
         libraryBookIssueApi(value);

@@ -198,7 +198,8 @@ const Assignment = ({ navigation, route }) => {
                       paddingLeft: '10%',
                       height: '100%',
                       justifyContent: 'center',
-                      marginTop:'5%'
+                      marginTop:'5%',
+                      paddingLeft:constant.resW(3)
                     }}
                     onPress={() => {
                       setIsModalVisible(false);
@@ -216,15 +217,15 @@ const Assignment = ({ navigation, route }) => {
                 <Text style={styles.PdfHeaderText}>{pdfName}</Text>
                 </View>
                 <TouchableOpacity
-                style={{flex:0.3,alignItems:'flex-end',justifyContent:'center'}}
-                onPress={() => showDownload && downloadHistory(pdf)}
+                style={{flex:0.3,alignItems:'flex-end',justifyContent:'center',paddingRight:constant.resW(2)}}
+                onPress={() =>  downloadHistory(pdf)}
                 >
-                  {showDownload && (
+                  {/* {showDownload && ( */}
                     <Image
                       style={styles.PdfHeaderArrowImage}
                       source={constant.Icons.downloadIcon}
                     />
-                   )} 
+                   {/* )}  */}
                 </TouchableOpacity>
               </View>
             </View>

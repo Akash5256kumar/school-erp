@@ -49,7 +49,7 @@ const SideBar = (props) => {
                 {
                     text: 'Confirm', onPress: () => {
                         AsyncStorage.clear();
-                        navigation.navigate('Login');
+                        navigation.navigate('RoleSelectionScreen');
                     }
                 },
             ],
@@ -98,13 +98,13 @@ const SideBar = (props) => {
                             <Text style={styles.sideText}>Home</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.touchStyle}
+                        {/* <TouchableOpacity style={styles.touchStyle}
                             onPress={() => navigation.navigate('Sibling')}
                         >
                             {/* <Image style={styles.DrawerImage}
                                 source={constant.Icons.sibling} /> */}
-                            <Text style={styles.sideText}>Siblings</Text>
-                        </TouchableOpacity>
+                            {/* <Text style={styles.sideText}>Siblings</Text> */}
+                        {/* </TouchableOpacity>  */}
                         <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Event')}>
                             <Text style={styles.sideText}>Event</Text>
                         </TouchableOpacity>

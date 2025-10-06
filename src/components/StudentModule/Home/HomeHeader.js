@@ -86,6 +86,21 @@ useEffect(() => {
                 >
                   <Image source={constant.Icons.news} resizeMode='stretch' style={styles.bellIcon} />
                 </Pressable>
+                    {/* <Tab.Screen name='FortnightlyPlanner'
+                    component={FortnightlyPlanner}
+                    options={{
+                        tabBarLabel: 'FortnightlyPlanner',
+                        tabBarIcon: ({ color, size }) => (
+                            <Image  source={constant.Icons.planner} resizeMode='contain' style={{height:constant.resW(9),width:constant.resW(9)}} />
+                        ),
+                    }}
+                /> */}
+                <Pressable
+                  style={styles.bellIconView}
+                  onPress={() => navigation.navigate('ViewSupportSystem')}
+                >
+    <Image  source={constant.Icons.support} resizeMode='contain' style={{height:constant.resW(9),width:constant.resW(9)}} />
+                </Pressable>
 
                 <Pressable
                   style={styles.bellIconView}
