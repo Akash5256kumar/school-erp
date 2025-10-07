@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import { Text, View ,Image , TouchableOpacity, Linking, ScrollView } from 'react-native';
+import { Text, View, Image, TouchableOpacity, Linking, ScrollView } from 'react-native';
 import styles from './style';
 const baseColor = '#0747a6'
 import * as myConst from '../../Baseurl';
 import AsyncStorage from "@react-native-community/async-storage";
-
-
 class StaffLeaveDetail extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -63,17 +60,17 @@ class StaffLeaveDetail extends Component {
                 }
 
 
-                if (response.server_ip!=null){
-                    var serverip = response.server_ip +"/images/leaverelated/";
+                if (response.server_ip != null) {
+                    var serverip = response.server_ip + "/images/leaverelated/";
                     var file1 = serverip + response.file;
-                    console.log("file1",file1);
+                    console.log("file1", file1);
                     this.setState({
                         attachment: file1
                     })
                 } else {
                     var url = "http://139.59.90.236:82/images/leaverelated/";
                     var file2 = url + response.file;
-                    console.log("file2",file2);
+                    console.log("file2", file2);
                     this.setState({
                         attachment: file2
                     })
@@ -114,63 +111,66 @@ class StaffLeaveDetail extends Component {
                 </View>
 
                 <ScrollView>
-                <View>
-                    <Text style={styles.TextStyle}>Details of the Leave : </Text>
-                </View>
-
-                <View style={styles.CardViewStyle}>
-
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Leave Type</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.leaveType}</Text></View>
+                    <View>
+                        <Text style={styles.TextStyle}>Details of the Leave : </Text>
                     </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Username</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.userName}</Text></View>
-                    </View>
+                    <View style={styles.CardViewStyle}>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Leave Type</Text></View>
+                            <View>
+                                <Text style={styles.TextRight}>
+                                    {this.state.leaveType}
+                                </Text>
+                            </View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Subject</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.subject}</Text></View>
-                    </View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Username</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.userName}</Text></View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Start Date</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.startDate}</Text></View>
-                    </View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Subject</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.subject}</Text></View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>End Date</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.endDate}</Text></View>
-                    </View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Start Date</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.startDate}</Text></View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Description</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.descrption}</Text></View>
-                    </View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>End Date</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.endDate}</Text></View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Status</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.status}</Text></View>
-                    </View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Description</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.descrption}</Text></View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Created At</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.createdAt}</Text></View>
-                    </View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Status</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.status}</Text></View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Attachment</Text></View>
-                        <View><Text style={styles.fileRightText} 
-                        onPress={() => Linking.openURL(this.state.attachment)}>{this.state.attachment}</Text></View>
-                    </View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Created At</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.createdAt}</Text></View>
+                        </View>
 
-                    <View style={styles.BottomRowStyle}>
-                        <View><Text style={styles.TextLeft}>Remark</Text></View>
-                        <View><Text style={styles.TextRight}>{this.state.remark}</Text></View>
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Attachment</Text></View>
+                            <View><Text style={styles.fileRightText}
+                                onPress={() => Linking.openURL(this.state.attachment)}>{this.state.attachment}</Text></View>
+                        </View>
+
+                        <View style={styles.BottomRowStyle}>
+                            <View><Text style={styles.TextLeft}>Remark</Text></View>
+                            <View><Text style={styles.TextRight}>{this.state.remark}</Text></View>
+                        </View>
                     </View>
-                </View>
 
                 </ScrollView>
             </View>
