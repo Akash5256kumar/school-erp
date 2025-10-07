@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { blackColor, resH, resW, whiteColor } from '../../../Utils/Constant';
+import { baseColor, blackColor, Blue, resH, resW, whiteColor } from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
 import { useNavigation } from '@react-navigation/native';
 import CustomInputField from '../../CommonInputField/CommonTextField';
@@ -28,6 +28,9 @@ const AddComplaint = () => {
         <View style={{ flex: 1, backgroundColor: whiteColor }}>
             <CommonHeader
                 title="Add Complaint"
+                backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
                 onLeftClick={() => navigation.goBack()}
             />
 

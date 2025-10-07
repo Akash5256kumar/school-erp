@@ -196,7 +196,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Snackbar from 'react-native-snackbar';
 import styles from './style';
 import { useNavigation } from '@react-navigation/native';
-
+import { resW } from '../../../Utils/Constant';
+import * as constant from '../../../Utils/Constant'
 const baseColor = '#0747a6';
 
 const StaffProfile = () => {
@@ -285,7 +286,7 @@ const StaffProfile = () => {
         <TouchableOpacity onPress={() => navigation.navigate('StaffHome')}>
           <Image
             style={styles.HeaderArrowImage}
-            source={require('../../../assests/images/arrow_back.png')}
+            source={constant.Icons.backArrowIcon}
           />
         </TouchableOpacity>
 
@@ -293,7 +294,7 @@ const StaffProfile = () => {
 
         <TouchableOpacity onPress={handleLogout}>
           <Image
-            style={styles.HeaderArrowImage}
+            style={[styles.HeaderArrowImage,{marginRight:resW(4),height: resW(6), width: resW(6),}]}
             source={require('../../../assests/images/logout1.png')}
           />
         </TouchableOpacity>

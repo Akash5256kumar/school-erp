@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Dimensions, Platform } from 'react-native';
-import { resW } from '../../../Utils/Constant';
+import { font22, resW } from '../../../Utils/Constant';
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -21,11 +21,11 @@ export default styles = StyleSheet.create({
     },
 
     HeaderImage: {
-        height: 35, width: 35, marginTop: 15, marginStart: 5
+        height: resW(7), width: resW(7), marginTop: 15, marginStart: 5
     },
 
     HeaderPlusImage: {
-        marginEnd: 10, height: 35, width: 35, marginTop: 15, marginStart: 5
+        marginEnd: 10, height: resW(7), width: resW(7), marginTop: 15, marginStart: 5
     },
 
     HeaderContainer: {
@@ -37,7 +37,7 @@ export default styles = StyleSheet.create({
 
     HeaderText: {
         color: 'white',
-        fontSize: 25,
+        fontSize: font22,
         fontWeight: 'bold',
         marginTop: 15,
         // marginEnd: 10

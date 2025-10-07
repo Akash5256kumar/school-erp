@@ -328,12 +328,8 @@ class StaffIssueSubmission extends Component {
                 }
             })
             this.setState({ isVisiblPickerDialog: false })
-
-
         }
     }
-
-
     render() {
         const { isVisiblPickerDialog } = this.state;
         return (
@@ -353,7 +349,6 @@ class StaffIssueSubmission extends Component {
                         </View>
                     </View>
                 </View>
-
                 <ScrollView>
                     <View style={styles.ContainerStyle}>
                         <Text style={styles.HeadingText}>Admission Number</Text>
@@ -364,7 +359,6 @@ class StaffIssueSubmission extends Component {
                                 onChangeText={(addmission_no) => this.valueChangeHandler({ addmission_no: addmission_no })}
                             ></TextInput>
                         </View>
-
                         <Text style={styles.HeadingText}>Name</Text>
                         <View style={styles.RowStyle}>
                             <TextInput style={styles.TextInputStyle}
@@ -372,7 +366,6 @@ class StaffIssueSubmission extends Component {
                                 onChangeText={this.changeName}
                             ></TextInput>
                         </View>
-
                         <Text style={styles.HeadingText}>Class</Text>
                         <View style={styles.RowStyle}>
                             <TextInput style={styles.TextInputStyle}
@@ -380,13 +373,11 @@ class StaffIssueSubmission extends Component {
                                 onChangeText={this.changeClass}
                             ></TextInput>
                         </View>
-
                         <Text style={styles.HeadingText}>Section</Text>
                         <TextInput style={styles.TextInputStyle}
                             value={this.state.studentsection}
                             onChangeText={this.changeSection}
                         ></TextInput>
-
                         <Text style={styles.HeadingText}>Issue Type</Text>
                         <View style={styles.DropDownBackground}>
                             <Picker
@@ -403,7 +394,6 @@ class StaffIssueSubmission extends Component {
                                 })}
                             </Picker>
                         </View>
-
                         <Text style={styles.HeadingText}>Description</Text>
                         <View style={styles.RowStyle}>
                             <TextInput
@@ -412,7 +402,6 @@ class StaffIssueSubmission extends Component {
                                 onChangeText={this.changeDescription}
                             ></TextInput>
                         </View>
-
                         <Text style={styles.HeadingText}>File Attachment</Text>
                         <View style={styles.ChooseFileBoxStyle}>
                             <Text style={styles.SelectFileText}>{this.state.fileName}</Text>
@@ -422,15 +411,12 @@ class StaffIssueSubmission extends Component {
                             >
                                 <Text style={styles.chooseFileButton}>Choose File</Text>
                             </TouchableOpacity>
-
                         </View>
-
                         <TouchableOpacity style={styles.button}
                             onPress={() => this.apiCall()}
                         >
                             <Text style={styles.buttonText}>SUBMIT</Text>
                         </TouchableOpacity>
-
                     </View>
                     <Modal animationType="slide"
                         transparent visible={isVisiblPickerDialog}
@@ -449,12 +435,9 @@ class StaffIssueSubmission extends Component {
                             </View>
                         </View>
                     </Modal>
-
                 </ScrollView>
             </View>
         )
     }
-
 }
-
 export default StaffIssueSubmission;

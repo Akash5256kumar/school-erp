@@ -10,6 +10,7 @@ import {
   font14,
   resH,
   resW,
+  Blue
 } from '../../../Utils/Constant';
 import CommonButton from '../../Button/CommonButton';
 
@@ -21,6 +22,9 @@ const StaffViewHomeWork = () => {
   return (
     <View style={{ flex: 1, backgroundColor: whiteColor }}>
       <CommonHeader
+                     backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
         title={'View Homework'}
         onLeftClick={() => navigation.goBack()}
       />

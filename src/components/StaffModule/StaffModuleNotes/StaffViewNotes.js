@@ -11,6 +11,7 @@ import {
   SilverColor,
   resH,
   resW,
+  Blue
 } from '../../../Utils/Constant';
 
 const StaffViewNotes = () => {
@@ -22,6 +23,9 @@ const StaffViewNotes = () => {
     <View style={{ flex: 1, backgroundColor: whiteColor }}>
       <CommonHeader
         title={'View Notes'}
+                       backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
         onLeftClick={() => navigation.goBack()}
       />
 

@@ -183,6 +183,10 @@ export default styles = StyleSheet.create({
     color: constant.blackColor,
     fontSize: constant.font19
   },
+  scrollContainer:{
+    paddingBottom: resH(20), 
+    backgroundColor: constant.whiteColor 
+  },
   homeNewsTextView: {
     marginHorizontal: resW(4),
     marginTop: constant.resH(1)

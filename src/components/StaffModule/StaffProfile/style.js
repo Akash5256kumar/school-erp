@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Dimensions, Platform } from 'react-native';
-import { resW } from '../../../Utils/Constant';
+import { Blue, font15, font19_5, font21, font22, resH, resW, whiteColor } from '../../../Utils/Constant';
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const baseColor = '#0747a6'
@@ -27,15 +27,18 @@ export default styles = StyleSheet.create({
     },
 
     ProfileText: {
-        color: baseColor,
-        fontSize: 25,
+        color: whiteColor,
+        fontSize: font22,
         fontWeight: 'bold',
         marginTop: 15,
         marginEnd: 10
     },
 
     HeaderArrowImage: {
-        height: 35, width: 35, marginTop: 15, marginStart: 5
+        height: resW(7), width: resW(7),
+        marginTop:resH(2),
+        marginHorizontal:resW(4),
+        tintColor:whiteColor
     },
 
 
@@ -100,7 +103,9 @@ export default styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // backgroundColor:'red',
+        backgroundColor:Blue,
+        paddingBottom:resW(4.5),
+       
         marginTop:Platform.OS === 'ios' ? resW(10) : 0
     },
 

@@ -6,16 +6,20 @@ const CommonHeader = (props) => {
     title,
     extStyle,
     onLeftClick,
+    backgroundColor,
+    IconColor,
+    textColor
   } = props;
 
   return (
-    <View style={[styles.mainView, extStyle]}>
+    <View style={[styles.mainView, extStyle, { backgroundColor: backgroundColor }]}>
       {/* <StatusBar translucent backgroundColor={'transparent'} barStyle={'dark-content'}/> */}
       <Pressable style={styles.leftMainView} onPress={() => onLeftClick()}>
-        <Image source={constant.Icons.backArrowIcon} resizeMode='contain' style={styles.backIcon} />
+        <Image source={constant.Icons.backArrowIcon} resizeMode='contain' style={[styles.backIcon, IconColor ? { tintColor: IconColor } : null
+        ]} />
       </Pressable>
       <View style={styles.midMainView}>
-        <Text style={styles.titleStyle}>{title}</Text>
+        <Text style={[styles.titleStyle, textColor ? { color: textColor } : null]}>{title}</Text>
       </View>
       <View style={styles.rightMainView}>
       </View>
@@ -26,8 +30,12 @@ const CommonHeader = (props) => {
 CommonHeader.defaultProps = {
   onLeftClick: function () { },
   title: '',
-  extStyle: {}
-}
+  extStyle: {},
+  backgroundColor: '',
+  textColor: '',
+  IconColor: ''
+};
+
 
 export default CommonHeader;
 const styles = StyleSheet.create({

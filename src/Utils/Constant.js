@@ -33,6 +33,7 @@ export const lightGrayColor = '#F4F4F4';
 export const lightGrey = '#F1ECEC'
 export const SilverColor = '#F5F5F5'
 export const BattleshipGrey = "#E0E0E0"
+export const Blue='#0747a6'
 
 
 
@@ -154,9 +155,11 @@ export const Icons = {
   gradesIcon: require(baseIconPath + 'gradesIcon.png'),
   studentperformanceIcon: require(baseIconPath + 'studentperformance.png'),
   MultimediaIcon: require(baseIconPath + 'MultimediaIcon.png'),
-  AddIcon:require(baseIconPath + 'addIcon.png')
+  AddIcon:require(baseIconPath + 'addIcon.png'),
+  CrossIcon:require(baseIconPath + 'CrossIcon.png'),
+  Search:require(baseImagePath + 'search.png')
 };
-
+ 
 export const showAlert = message => {
   Snackbar.show({
     text: message,

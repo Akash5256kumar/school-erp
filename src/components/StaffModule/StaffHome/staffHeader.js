@@ -39,7 +39,7 @@ const Header = () => {
         </TouchableOpacity>
         <View style={{ marginLeft: resW(2) }}>
           <Text style={styles.greetingText}>
-            Hi {name ? name : 'User'}!
+            Hi {name ? name : 'User'} !
           </Text>
           <Text style={styles.roleText}>{role || 'Role'}</Text>
         </View>

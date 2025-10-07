@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import CommonHeader from '../../CommonHeader';
 import { useNavigation } from '@react-navigation/native';
 import LabelHeader from '../../labelHeader';
-import { blackColor, resH, resW, whiteColor, font15 } from '../../../Utils/Constant';
+import { blackColor, resH, resW, whiteColor, font15,Blue } from '../../../Utils/Constant';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomInputField from '../../CommonInputField/CommonTextField';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -30,7 +30,7 @@ const DatePickerField = ({ date, setDate }) => {
                     style={styles.dateButton}
                     onPress={() => setShowPicker(true)}
                 >
-                    <Text style={styles.dateButtonText}>Date Picker</Text>
+                    <Text style={styles.dateButtonText}>▼</Text>
                 </TouchableOpacity>
             </View>
             {showPicker && (
@@ -53,6 +53,9 @@ const StaffAddPlanner = () => {
     return (
         <View style={{ flex: 1, backgroundColor: whiteColor }}>
             <CommonHeader
+                           backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
                 title={"Add Planner"}
                 onLeftClick={() => navigation.goBack()}
             />
@@ -66,6 +69,7 @@ const StaffAddPlanner = () => {
                     keyboardOpeningTime={0}
                     keyboardShouldPersistTaps="handled"
                 >
+                                   <View style={{ marginTop: resH(1) }} />
                     <LabelHeader label={"Date of Publish"} />
                     <View style={{ marginTop: resH(1) }} />
                     <DatePickerField

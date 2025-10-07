@@ -10,6 +10,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import CommonHeader from '../../CommonHeader';
+
 import {
   blackColor,
   font12,
@@ -20,6 +21,7 @@ import {
   resW,
   SilverColor,
   whiteColor,
+  Blue
 } from '../../../Utils/Constant';
 import * as constant from '../../../Utils/Constant';
 
@@ -110,6 +112,9 @@ const StaffModuleFornightlyPlanner = () => {
   return (
     <LinearGradient colors={[whiteColor, whiteColor]} style={{ flex: 1 }}>
       <CommonHeader
+                     backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
         title={'Fornightly Planner'}
         onLeftClick={() => navigation.goBack()}
       />
@@ -118,7 +123,7 @@ const StaffModuleFornightlyPlanner = () => {
         data={dummyData}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={{ paddingBottom: resH(18) }}
+        contentContainerStyle={{ paddingBottom: resH(18),marginTop:resH(1) }}
         showsVerticalScrollIndicator={false}
       />
 
@@ -211,19 +216,18 @@ statusButton: {
     position: 'absolute',
     bottom: resH(8),
     right: resW(4),
-    backgroundColor: SilverColor,
+    backgroundColor: Blue,
     width: resW(15),
     height: resW(15),
     borderRadius: resW(7.5),
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: blackColor,
-    borderWidth: 2,
+   
   },
   fabIcon: {
     width: resW(7),
     height: resW(7),
-    tintColor: blackColor,
+    tintColor: whiteColor,
     resizeMode: 'contain',
   },
 });

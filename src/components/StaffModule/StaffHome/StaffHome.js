@@ -196,7 +196,9 @@ import StaffAttendance from '../StaffAttendance/StaffAttendance';
 import { useNavigation } from '@react-navigation/native';
 const StaffHome = () => {
   const navigation=useNavigation()
-
+    const [currentDate, setCurrentDate] = useState(moment().format('YYYY-MM-DD'));
+    const [calendarKey, setCalendarKey] = useState(0);
+    const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
     const fnMonthClick = (data) => {
         setCurrentDate(data)
         attendanceApi(data, 1);
@@ -204,9 +206,7 @@ const StaffHome = () => {
         setMarkedDates([])
 
     };
-    const [currentDate, setCurrentDate] = useState(moment().format('YYYY-MM-DD'));
-    const [calendarKey, setCalendarKey] = useState(0);
-    const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
+
     LocaleConfig.locales['en'] = {
         formatAccessibilityLabel: "dddd d 'of' MMMM 'of' yyyy",
         monthNames: [
@@ -293,8 +293,8 @@ const StaffHome = () => {
     return (
         <View>
             <Header name='Geetanjali' />
-            <View style={{ marginBottom: resH(0), backgroundColor: "white" }} />
-            <ScrollView contentContainerStyle={{ paddingBottom: resH(20), backgroundColor: constant.whiteColor }}>
+            {/* <View style={{ marginBottom: resH(0), backgroundColor: "white" }} /> */}
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.holidayEventContainer}>
                     <Text style={styles.holidayeventText}>
                         Holiday & Event
@@ -304,8 +304,8 @@ const StaffHome = () => {
                     //  markData={markedDates}
                     current={selectedDate}
                     monthString={currentDate}
-                    fn_ClickLeftArrow={(d) => console.log("hii")}
-                    fn_ClickRightArrow={(d) => console.log("hii")}
+                    fn_ClickLeftArrow={(d) => console.log("===>")}
+                    fn_ClickRightArrow={(d) => console.log("===>")}
                     onDateClick={(d) => setSelectedDate(d?.dateString)}
                 //  loader={loader}
                 />
@@ -315,32 +315,28 @@ const StaffHome = () => {
                             News
                         </Text>
                         <LinearGradient
-                            colors={['white', 'pink']} // Pink-orange gradient
+                            colors={['white', 'pink']} 
                             start={{ x: 0, y: 1 }}
                             end={{ x: 0, y: 0 }}
                             style={styles.NewsContainer}
                         >
-                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
-
-                            </Text>
                         </LinearGradient>
                     </View>
                 </View>
                 <View style={styles.iconGrid}>
-                    {newsItems.map((item, index) => (
+                    {newsItems?.map((item, index) => (
                         <TouchableOpacity
                             key={index}
                             style={styles.iconItem}
-                            onPress={() => navigation.navigate(item.navigate)}
+                            onPress={() => navigation.navigate(item?.navigate)}
                         >
-                            <Image source={item.icon} style={styles.iconImage} />
-                            <Text style={styles.iconText}>{item.name}</Text>
+                            <Image source={item?.icon} style={styles.iconImage} />
+                            <Text style={styles.iconText}>{item?.name}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
             </ScrollView>
         </View>
-
     )
 
 }

@@ -10,6 +10,7 @@ import {
   font14,
   resH,
   resW,
+  Blue
 } from '../../../Utils/Constant';
 import CommonButton from '../../Button/CommonButton';
 
@@ -22,6 +23,9 @@ const StaffViewMultiMedia = () => {
     <View style={{ flex: 1, backgroundColor: whiteColor }}>
       {/* Header */}
       <CommonHeader
+                     backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
         title={'Multimedia'}
         onLeftClick={() => navigation.goBack()}
       />

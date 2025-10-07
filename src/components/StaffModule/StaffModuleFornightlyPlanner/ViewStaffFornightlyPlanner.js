@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import CommonHeader from '../../CommonHeader';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import CommonButton from '../../Button/CommonButton';
-import { resH, resW, font14, font16, blackColor, SilverColor, whiteColor } from '../../../Utils/Constant';
+import { resH, resW, font14, font16, blackColor, SilverColor, whiteColor,Blue } from '../../../Utils/Constant';
 
 const ViewStaffFornightlyPlanner = () => {
     const navigation = useNavigation();
@@ -14,6 +14,9 @@ const ViewStaffFornightlyPlanner = () => {
         <>
             <View style={{backgroundColor:whiteColor}}>
                 <CommonHeader
+                               backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
                     title={'View Planner'}
                     onLeftClick={() => navigation.goBack()} />
             </View>

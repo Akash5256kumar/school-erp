@@ -124,6 +124,9 @@ const StudentComplaint = () => {
     <LinearGradient colors={['white', 'white']} style={{ flex: 1 }}>
       <CommonHeader
         title={'Student Complaint'}
+                       backgroundColor={constant.Blue}
+                        textColor={constant.whiteColor}
+                        IconColor={constant.whiteColor}
         onLeftClick={() => {
           navigation.goBack();
         }}
@@ -132,7 +135,7 @@ const StudentComplaint = () => {
         data={complaintsData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: resH(2) }}
+        contentContainerStyle={{ paddingBottom: resH(2) ,marginTop:resH(1)}}
       />
       <TouchableOpacity
     style={styles.fabButton}
@@ -281,18 +284,19 @@ const styles = StyleSheet.create({
   borderRadius: resW(7.5), // make it circular
   justifyContent: 'center',
   alignItems: 'center',
+  backgroundColor:constant.Blue,
   // elevation: 5, // shadow for Android
   // shadowColor: '#000', // shadow for iOS
   // shadowOpacity: 0.3,
   // shadowOffset: { width: 0, height: 2 },
   // shadowRadius: 3,
-  borderColor:blackColor,
-  borderWidth:2
+  // borderColor:blackColor,
+  // borderWidth:2
 },
 fabIcon: {
   width: resW(7),
   height: resW(7),
-  tintColor: blackColor,
+  tintColor: constant.whiteColor,
   resizeMode: 'contain',
 },
 
