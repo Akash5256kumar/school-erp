@@ -81,65 +81,64 @@ const dummyData = [
 const StaffModuleNotes = () => {
   const navigation = useNavigation();
 
- const renderItem = ({ item }) => (
-<TouchableOpacity
-  style={styles.card}
-  onPress={() => navigation.navigate('StaffViewNotes', { note: item })}>
-    <Text style={[styles.studentInfo,{textAlign:"right",fontSize:font12,color:constant.grayColor}]}>
-      {item.Date}
-    </Text>
-    <Text style={styles.studentInfo}>
-    Subject {item.subject},Topic {item.Topic}, Class {item.class}, Section {item.section}
-    </Text>
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('StaffViewNotes', { note: item })}>
+      <Text style={[styles.studentInfo, { textAlign: "right", fontSize: font12, color: constant.grayColor }]}>
+        {item.Date}
+      </Text>
+      <Text style={styles.studentInfo}>
+        Subject {item.subject},Topic {item.Topic}, Class {item.class}, Section {item.section}
+      </Text>
 
-    {/* Row for Date + Buttons */}
-    <View style={styles.rowBetween}>
-      <View>
-        <Text style={styles.complaintLabel}>Date of Publish</Text>
-        <Text style={styles.dateText}>
-          {item.fromDate} 
-        </Text>
+      {/* Row for Date + Buttons */}
+      <View style={styles.rowBetween}>
+        <View>
+          <Text style={styles.complaintLabel}>Date of Publish</Text>
+          <Text style={styles.dateText}>
+            {item.fromDate}
+          </Text>
+        </View>
+
+        <View style={styles.rightHeader}>
+          {/* Published button */}
+          <TouchableOpacity
+            style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
+          >
+            <Text style={styles.statusText}>Published</Text>
+          </TouchableOpacity>
+
+          {/* Delete button */}
+          <TouchableOpacity
+            style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
+          >
+            <Text style={styles.statusText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <View style={styles.rightHeader}>
-        {/* Published button */}
-        <TouchableOpacity
-          style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
-        >
-          <Text style={styles.statusText}>Published</Text>
-        </TouchableOpacity>
-
-        {/* Delete button */}
-        <TouchableOpacity
-          style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
-        >
-          <Text style={styles.statusText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+    </TouchableOpacity>
+  );
 
 
   return (
     <LinearGradient colors={[whiteColor, whiteColor]} style={{ flex: 1 }}>
       <CommonHeader
         title={'Notes'}
-                       backgroundColor={Blue}
-                textColor={whiteColor}
-                IconColor={whiteColor}
+        backgroundColor={Blue}
+        textColor={whiteColor}
+        IconColor={whiteColor}
         onLeftClick={() => navigation.goBack()}
       />
-
       <FlatList
         data={dummyData}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={{ paddingBottom: resH(18),marginTop:resH(1) }}
+        contentContainerStyle={{ paddingBottom: resH(18), marginTop: resH(1) }}
         showsVerticalScrollIndicator={false}
       />
 
-      <TouchableOpacity style={styles.fabButton} onPress={()=>navigation.navigate("StaffAddNotes")}>
+      <TouchableOpacity style={styles.fabButton} onPress={() => navigation.navigate("StaffAddNotes")}>
         <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
       </TouchableOpacity>
     </LinearGradient>
@@ -177,22 +176,22 @@ const styles = StyleSheet.create({
     color: blackColor,
     fontWeight: '700',
   },
-rowBetween: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginTop: resH(1),
-},
-rightHeader: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
-statusButton: {
-  borderRadius: resW(2),
-  paddingVertical: resH(0.8),
-  paddingHorizontal: resW(3),
-  marginLeft: resW(2),
-},
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: resH(1),
+  },
+  rightHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusButton: {
+    borderRadius: resW(2),
+    paddingVertical: resH(0.8),
+    paddingHorizontal: resW(3),
+    marginLeft: resW(2),
+  },
 
   headerRow: {
     flexDirection: 'row',
@@ -234,7 +233,7 @@ statusButton: {
     borderRadius: resW(7.5),
     justifyContent: 'center',
     alignItems: 'center',
-  
+
   },
   fabIcon: {
     width: resW(7),

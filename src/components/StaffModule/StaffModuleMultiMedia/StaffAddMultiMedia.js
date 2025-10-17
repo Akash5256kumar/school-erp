@@ -3,25 +3,20 @@ import React, { useState } from 'react';
 import CommonHeader from '../../CommonHeader';
 import { useNavigation } from '@react-navigation/native';
 import LabelHeader from '../../labelHeader';
-import { blackColor, resH, resW, whiteColor, font15,Blue } from '../../../Utils/Constant';
+import { blackColor, resH, resW, whiteColor, font15, Blue } from '../../../Utils/Constant';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomInputField from '../../CommonInputField/CommonTextField';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CommonButton from '../../Button/CommonButton';
-
-// --- Custom Date Picker Field ---
 const DatePickerField = ({ date, setDate }) => {
     const [showPicker, setShowPicker] = useState(false);
-
     const onChange = (event, selectedDate) => {
         setShowPicker(Platform.OS === 'ios');
         if (selectedDate) {
             setDate(selectedDate);
         }
     };
-
     const formattedDate = date ? date.toLocaleDateString() : 'Select Date';
-
     return (
         <View style={{ marginBottom: resH(2) }}>
             <View style={styles.dateInputContainer}>
@@ -44,24 +39,18 @@ const DatePickerField = ({ date, setDate }) => {
         </View>
     );
 };
-
-// --- Main Component ---
 const StaffAddMultiMedia = () => {
     const navigation = useNavigation();
     const [publishDate, setPublishDate] = useState(null);
-
     return (
         <View style={{ flex: 1, backgroundColor: whiteColor }}>
             <CommonHeader
-                               backgroundColor={Blue}
+                backgroundColor={Blue}
                 textColor={whiteColor}
                 IconColor={whiteColor}
                 title={"Add MultiMedia"}
                 onLeftClick={() => navigation.goBack()}
             />
-
-            {/* Keyboard Avoiding View */}
-
             <KeyboardAwareScrollView
                 style={{ flex: 1 }}
                 contentContainerStyle={{ paddingHorizontal: resW(4), paddingBottom: resH(5) }}
@@ -69,14 +58,13 @@ const StaffAddMultiMedia = () => {
                 keyboardOpeningTime={0}
                 keyboardShouldPersistTaps="handled"
             >
-                                <View style={{ marginTop: resH(1) }} />
+                <View style={{ marginTop: resH(1) }} />
                 <LabelHeader label={"Date of Publish"} />
                 <View style={{ marginTop: resH(1) }} />
                 <DatePickerField
                     date={publishDate}
                     setDate={setPublishDate}
                 />
-
                 <LabelHeader label={"Class"} />
                 <CustomInputField inputStyle={styles.inputStyle} />
 
@@ -91,36 +79,50 @@ const StaffAddMultiMedia = () => {
                         <LabelHeader label={"Subject"} />
                         <CustomInputField inputStyle={[styles.inputStyle, { width: resW(40) }]} />
                     </View>
-
                     <View style={{ flex: 1, marginLeft: resW(2) }}>
                         <LabelHeader label={"Topic"} />
                         <CustomInputField inputStyle={[styles.inputStyle, { width: resW(40) }]} />
                     </View>
-
                 </View>
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                {/* <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                     <LabelHeader label={"Video Link"} />
                     <CustomInputField inputStyle={[styles.inputStyle, { width: resW(70) }]} />
                     <View style={{ marginTop: resH(5) }} />
-                </View>
-                <View style={{marginVertical:resH(2)}}>
-                     <LabelHeader label={"Or"} textstyle={{textAlign:"center"}} />
+                </View> */}
+                {/* Example for "Video Link" row */}
+                <View style={styles.rowContainer}>
+                    <LabelHeader label="Video Link" />
+                    <View style={styles.inputContainer}>
+                        <CustomInputField inputStyle={styles.inputStyle} />
                     </View>
-
-             
-                
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                    <LabelHeader label={"File +"} />
-                    <CustomInputField inputStyle={[styles.inputStyle, { width: resW(70) }]} />
-                    <View style={{ marginTop: resH(5) }} />
                 </View>
+                <View style={{ marginVertical: resH(1) }}>
+                    <LabelHeader label={"Or"} textstyle={{ textAlign: "center" }} />
+                </View>
+                {/* Example for "File +" row */}
+                <View style={styles.rowContainer}>
+                    <LabelHeader label="File +" />
+                    <View style={styles.inputContainer}>
+                        <CustomInputField inputStyle={styles.inputStyle} />
+                    </View>
+                </View>
+
+
+
+
+
+                {/* <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <LabelHeader label={"File +"} />
+                    <CustomInputField inputStyle={[styles.inputStyle]} />
+                    <View style={{ marginTop: resH(5) }} />
+                </View> */}
 
                 {/* <LabelHeader label={"Add file +"} /> */}
             </KeyboardAwareScrollView>
 
             {/* Fixed button at bottom or above keyboard */}
             <View style={styles.fixedButton}>
-                <CommonButton title="Add" />
+                <CommonButton title="Add" buttonClick={()=>console.log("hii")} />
             </View>
 
         </View>
@@ -142,6 +144,15 @@ const styles = StyleSheet.create({
     inputStyle: {
         height: resH(5.5),
         color: blackColor,
+    },
+    rowContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: resH(1),
+    },
+    inputContainer: {
+        flex: 1, 
+        marginLeft: resW(5),
     },
     dateText: {
         flex: 1,

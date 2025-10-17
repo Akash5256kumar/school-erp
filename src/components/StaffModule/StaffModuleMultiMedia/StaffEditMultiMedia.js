@@ -98,22 +98,34 @@ const StaffEditMultiMedia = () => {
                     </View>
 
                 </View>
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                    <LabelHeader label={"Video Link"} />
-                    <CustomInputField inputStyle={[styles.inputStyle, { width: resW(70) }]} />
-                    <View style={{ marginTop: resH(5) }} />
-                </View>
-                <View style={{marginVertical:resH(2)}}>
-                     <LabelHeader label={"Or"} textstyle={{textAlign:"center"}} />
-                    </View>
+               {/* Video Link Field */}
 
-             
-                
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                    <LabelHeader label={"File +"} />
-                    <CustomInputField inputStyle={[styles.inputStyle, { width: resW(70) }]} />
-                    <View style={{ marginTop: resH(5) }} />
-                </View>
+<View style={styles.rowContainer}>
+  <LabelHeader label={"Video Link"} />
+  <View style={{ flex: 1, marginLeft: resW(2) }}>
+    <CustomInputField
+      inputStyle={[styles.inputStyle, { width: '100%' }]}
+    //   placeholder="Upload file"
+    />
+  </View>
+</View>
+
+<View style={{ marginVertical: resH(2), alignItems: 'center' }}>
+  <LabelHeader label={"Or"} textstyle={{ textAlign: "center" }} />
+</View>
+
+{/* File Upload Field */}
+<View style={styles.rowContainer}>
+  <LabelHeader label={"File +"} />
+  <View style={{ flex: 1, marginLeft: resW(2) }}>
+    <CustomInputField
+      inputStyle={[styles.inputStyle, { width: '100%' }]}
+    //   placeholder="Upload file"
+    />
+  </View>
+</View>
+
+
 
                 {/* <LabelHeader label={"Add file +"} /> */}
             </KeyboardAwareScrollView>
@@ -139,6 +151,13 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         height: resH(5.5),
     },
+    rowContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: resH(2),
+},
+
     inputStyle: {
         height: resH(5.5),
         color: blackColor,

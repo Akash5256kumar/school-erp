@@ -49,6 +49,7 @@ class StaffLogin extends Component {
       });
 
       const resJson = await res.json();
+      console.log("resonse staff login details ", resJson)
 
       if (resJson.status) {
         await AsyncStorage.setItem('@id', String(resJson.data.id));
@@ -121,11 +122,11 @@ class StaffLogin extends Component {
                     <Text style={styles.buttonText}>Log in</Text>
                   </TouchableOpacity> */}
                   <CommonButton
-                                  title="Log in"
-                                  extStyle={{ marginTop: '15%', marginHorizontal: '15%' }}
-                                  buttonClick={this.loginApi}
-                                  // isLoading={isLoading}
-                                />
+                    title="Log in"
+                    extStyle={{ marginTop: '15%', marginHorizontal: '15%' }}
+                    buttonClick={this.loginApi}
+                  // isLoading={isLoading}
+                  />
                 </View>
               </View>
             </ScrollView>

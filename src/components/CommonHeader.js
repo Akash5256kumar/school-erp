@@ -8,7 +8,9 @@ const CommonHeader = (props) => {
     onLeftClick,
     backgroundColor,
     IconColor,
-    textColor
+    textColor,
+    imageSource,
+    onPressData
   } = props;
 
   return (
@@ -21,7 +23,10 @@ const CommonHeader = (props) => {
       <View style={styles.midMainView}>
         <Text style={[styles.titleStyle, textColor ? { color: textColor } : null]}>{title}</Text>
       </View>
+
       <View style={styles.rightMainView}>
+{imageSource&&
+          <><Pressable onPress={onPressData}><Image source={imageSource} style={{ width: constant.resW(7), height: constant.resW(7), tintColor: constant.whiteColor }} /></Pressable></>}
       </View>
     </View>
   );

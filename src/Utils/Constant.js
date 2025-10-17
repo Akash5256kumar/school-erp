@@ -4,25 +4,21 @@ import Snackbar from 'react-native-snackbar';
 const { width, height } = Dimensions.get('screen');
 const baseIconPath = '../assests/Icons/';
 const baseImagePath = '../assests/images/';
-
 const window_Height = Dimensions.get('window').height;
 const window_Width = Dimensions.get('window').width;
 export const DeviceWidth = Dimensions.get('screen').width;
 export const DeviceHeight = Dimensions.get('screen').height;
-
 export const resH = h => {
   return (window_Height * h) / 100;
 };
-
 export const resW = w => {
   return (window_Width * w) / 100;
 };
-
 export const LinearGradientColor = ['#A902FE', '#5E3BF9'];
-
+export const LinearwhiteColor = [whiteColor, whiteColor];
 export const baseColor = '#5E3BF9';
 export const baseColor2 = '#A902FE';
-export const baseTextColor = '#595975'; //base color in v2
+export const baseTextColor = '#595975';
 export const Primary_Color = '#C47A4F';
 export const whiteColor = '#ffffff';
 export const GrayColor = '#808080';
@@ -59,7 +55,6 @@ export const font30 = (DeviceWidth * 7.3) / 100;
 export const font32 = (DeviceWidth * 7.8) / 100;
 export const font34 = (DeviceWidth * 8.3) / 100;
 export const font36 = (DeviceWidth * 8.7) / 100;
-
 export const typeBlack = 'Inter-Black';
 export const typeExtraBold = 'Inter-ExtraBold';
 export const typeBold = 'Inter-Bold';
@@ -149,7 +144,6 @@ export const Icons = {
   StaffAttendanceIcon: require(baseIconPath + 'Staffattendance.png'),
   StudentComplaintIcon: require(baseIconPath + 'StudentComplaint.png'),
   homeWorkIcon: require(baseIconPath + 'homeWorkIcon.png'),
-
   notesIcon1: require(baseIconPath + 'notesIcon1.png'),
   fornightlyplannericon1: require(baseIconPath + 'fornightlyplannericon1.png'),
   gradesIcon: require(baseIconPath + 'gradesIcon.png'),
@@ -157,7 +151,14 @@ export const Icons = {
   MultimediaIcon: require(baseIconPath + 'MultimediaIcon.png'),
   AddIcon:require(baseIconPath + 'addIcon.png'),
   CrossIcon:require(baseIconPath + 'CrossIcon.png'),
-  Search:require(baseImagePath + 'search.png')
+  Search:require(baseImagePath + 'search.png'),
+  UserEdit:require(baseIconPath + 'UserEdit.png'),
+  changePassword:require(baseIconPath +'changePassword.png'),
+  InfoIcon:require(baseIconPath +'infoIcon.png'),
+  LogoutIcon:require(baseImagePath + 'logout1.png'),
+  RightArrow:require(baseIconPath + 'rightArrow.png'),
+  profileimg:require(baseImagePath + 'businessman.png'),
+  Filter:require(baseIconPath + 'Filter.png')
 };
  
 export const showAlert = message => {
@@ -168,7 +169,6 @@ export const showAlert = message => {
     duration: Snackbar.LENGTH_LONG,
   });
 };
-
 export const listSpace = h => {
   return <View style={{ height: h }} />;
 };

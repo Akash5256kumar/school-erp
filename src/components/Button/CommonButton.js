@@ -8,6 +8,8 @@ const CommonButton = (props) => {
     title,
     extStyle,
     buttonClick,
+    colors
+    
   } = props;
 
   return (

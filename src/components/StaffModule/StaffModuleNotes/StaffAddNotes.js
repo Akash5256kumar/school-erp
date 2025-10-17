@@ -30,7 +30,7 @@ const DatePickerField = ({ date, setDate }) => {
                     style={styles.dateButton}
                     onPress={() => setShowPicker(true)}
                 >
-                    <Text style={styles.dateButtonText}>Date Picker</Text>
+                    <Text style={styles.dateButtonText}>▼</Text>
                 </TouchableOpacity>
             </View>
             {showPicker && (

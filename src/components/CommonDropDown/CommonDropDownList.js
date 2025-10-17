@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { blackColor, font10, font15, font16, font20, resH, resW, whiteColor } from '../../Utils/Constant';
+import { blackColor, font10, font15, font16, font17, font18, font20, resH, resW, whiteColor } from '../../Utils/Constant';
 
 const complaintTypes = [
   { label: "Service", value: "service" },
@@ -13,42 +13,42 @@ export const CustomDropdown = ({
   data,
   selected,
   onSelect,
-  placeholder = ""
+  placeholder = "",
+  dropWidth,
+  inputWidth,
+  isOpen: controlledIsOpen,
+  toggleOpen: controlledToggleOpen,
 }) => {
-  const [open, setOpen] = useState(false);
+  // Use internal state only if parent does not control the dropdown
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
+  const toggleOpen = controlledToggleOpen !== undefined
+    ? controlledToggleOpen
+    : () => setInternalOpen(prev => !prev);
 
   return (
     <View style={styles.wrapper}>
-
       <TouchableOpacity
-        style={[
-          styles.inputStyle,
-          open && { borderColor: blackColor }
-        ]}
+        style={[styles.inputStyle, inputWidth, isOpen && { borderColor: blackColor }]}
         activeOpacity={0.7}
-        onPress={() => setOpen(!open)}
+        onPress={toggleOpen}
       >
-        <Text
-          style={[
-            styles.selectedText,
-            !selected && styles.placeholderText
-          ]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
+        <Text style={[styles.selectedText, !selected && styles.placeholderText]} numberOfLines={1} ellipsizeMode="tail">
           {selected ? selected.label : placeholder}
         </Text>
         <Text style={styles.arrow}>▼</Text>
       </TouchableOpacity>
-      {open && (
-        <ScrollView style={styles.dropdown} keyboardShouldPersistTaps="handled">
-          {data.map((item) => (
+
+      {isOpen && (
+        <ScrollView style={[styles.dropdown, dropWidth]} keyboardShouldPersistTaps="handled">
+          {data.map(item => (
             <TouchableOpacity
               key={item.value}
               style={styles.option}
               onPress={() => {
-                setOpen(false);
                 onSelect(item);
+                toggleOpen(); // close after selection
               }}
             >
               <Text style={styles.optionText}>{item.label}</Text>
@@ -59,6 +59,7 @@ export const CustomDropdown = ({
     </View>
   );
 };
+
 
 // export default function App() {
 //   const [selected, setSelected] = useState(null);
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   arrow: {
     color: blackColor,
     marginLeft: resW(1),
-    fontSize: font20,
+    fontSize: font17,
   },
   dropdown: {
     position: "absolute",
@@ -126,7 +127,6 @@ const styles = StyleSheet.create({
   option: {
     paddingVertical: resW(2),
     paddingHorizontal: resW(4),
-  
   },
   optionText: {
     color: "black",

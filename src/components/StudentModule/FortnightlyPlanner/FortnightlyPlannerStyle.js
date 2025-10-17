@@ -230,7 +230,7 @@ export default styles = StyleSheet.create({
     PdfHeaderArrowImage: {
         height: constant.resW(7), 
         width: constant.resW(7), 
-       marginTop: constant.resH(3),
+        marginTop: constant.resH(3),
         marginEnd: constant.resW(3),
         tintColor:constant.whiteColor
         // marginStart: 5

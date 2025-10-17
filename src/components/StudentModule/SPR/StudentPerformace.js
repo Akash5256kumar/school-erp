@@ -19,7 +19,6 @@ import * as constant from '../../../Utils/Constant';
 import * as myConst from '../../Baseurl';
 import { useSelector } from 'react-redux';
 import AsyncStorage from "@react-native-community/async-storage";
-
 import { PermissionsAndroid } from 'react-native';
 const StudentPerformance = () => {
   const navigation = useNavigation();

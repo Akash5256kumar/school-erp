@@ -4,10 +4,10 @@ import styles from './style';
 const baseColor = '#0747a6'
 import * as myConst from '../../Baseurl';
 import AsyncStorage from "@react-native-community/async-storage";
-
-
+import CommonHeader from '../../CommonHeader';
+import { Blue, whiteColor } from '../../../Utils/Constant';
+import * as constant from '../../../Utils/Constant';
 class StaffViewLeave extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -22,10 +22,7 @@ class StaffViewLeave extends Component {
             remEarnLeave: '',
             status: ''
         }
-
     }
-
-
     async componentDidMount() {
         const value = await AsyncStorage.getItem('@id')
         this.setState({
@@ -35,23 +32,16 @@ class StaffViewLeave extends Component {
         this.viewLeavesApi()
         this.leaveGettingApi()
     }
-
-
     componentWillMount() {
         BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
     }
-
     componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
     }
-
     handleBackPress = () => {
         this.props.navigation.navigate('StaffHome')
         return true;
     };
-
-
-
     viewLeavesApi() {
         let data = {
             method: 'POST',
@@ -86,8 +76,6 @@ class StaffViewLeave extends Component {
                 this.setState({ isLoading: false });
             })
     }
-
-
     leaveGettingApi() {
         let data = {
             method: 'POST',
@@ -104,14 +92,12 @@ class StaffViewLeave extends Component {
             .then((responseJson) => {
                 console.log('leavegetting-->', responseJson)
                 let response = responseJson.data
-
                 var casual_leave = response.casual_leave;
                 var annual_leave = response.annual_leave;
                 var sick_leave = response.sick_leave;
                 var remCasual = casual_leave - response.cousume_casual_leave;
                 var remAnnual = annual_leave - response.cousume_annual_leave;
                 var remSick = sick_leave - response.cousume_sick_leave;
-
                 this.setState({
                     casualLeave: casual_leave,
                     sickLeave: sick_leave,
@@ -127,19 +113,15 @@ class StaffViewLeave extends Component {
                 this.setState({ isLoading: false });
             })
     }
-
-
-    async navigate(item){
+    async navigate(item) {
         console.log('id', item.id)
         await AsyncStorage.setItem('@new_id', String(item.id))
         this.props.navigation.navigate('StaffLeaveDetail')
     }
-
-
     render() {
         return (
             <View style={styles.MainContainer}>
-                <View style={styles.HeaderBackground}>
+                {/* <View style={styles.HeaderBackground}>
                     <View style={styles.HeaderContainer}>
                         <TouchableOpacity onPress={() => this.props.navigation.navigate("StaffHome")}>
                             <Image style={styles.HeaderImage}
@@ -147,16 +129,22 @@ class StaffViewLeave extends Component {
                         </TouchableOpacity>
                         <Text style={styles.HeaderText}>Leaves</Text>
                         <View>
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 onPress={() => this.props.navigation.navigate('StaffAddLeave')}>
                                 <Image style={styles.HeaderPlusImage}
                                     source={require('../../../assests/images/plus.png')} />
-                            </TouchableOpacity>
-                        </View>
+                            </TouchableOpacity> */}
+                {/* </View>
                     </View>
 
-                </View>
-
+                </View>  */}
+                <CommonHeader
+                    title={"Leaves"}
+                    backgroundColor={Blue}
+                    textColor={whiteColor}
+                    IconColor={whiteColor}
+                    onLeftClick={() => this.props.navigation.navigate('StaffHome')}
+                />
                 <View style={styles.TabBackground}>
                     <View style={styles.RowCardStyle}>
 
@@ -226,6 +214,9 @@ class StaffViewLeave extends Component {
                     }
                     keyExtractor={(item, index) => index}
                 />
+                <TouchableOpacity style={styles.fabButton} onPress={() => this.props.navigation.navigate('StaffAddLeave')}>
+                    <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
+                </TouchableOpacity>
             </View>
         )
     }

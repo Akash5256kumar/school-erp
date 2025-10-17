@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Modal, ScrollView ,Image,TouchableWithoutFeedback} from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Modal, ScrollView, Image, TouchableWithoutFeedback, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CommonHeader from '../../CommonHeader';
 import LinearGradient from 'react-native-linear-gradient';
@@ -71,7 +71,7 @@ const complaintsData = [
   //   complaintText: 'Buses often arrive late, causing delay in reaching classes.',
   //   status: 'Approved',
   // },
-  
+
 ];
 
 const StudentComplaint = () => {
@@ -124,9 +124,9 @@ const StudentComplaint = () => {
     <LinearGradient colors={['white', 'white']} style={{ flex: 1 }}>
       <CommonHeader
         title={'Student Complaint'}
-                       backgroundColor={constant.Blue}
-                        textColor={constant.whiteColor}
-                        IconColor={constant.whiteColor}
+        backgroundColor={constant.Blue}
+        textColor={constant.whiteColor}
+        IconColor={constant.whiteColor}
         onLeftClick={() => {
           navigation.goBack();
         }}
@@ -135,62 +135,66 @@ const StudentComplaint = () => {
         data={complaintsData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: resH(2) ,marginTop:resH(1)}}
+        contentContainerStyle={{ paddingBottom: resH(2), marginTop: resH(1) }}
       />
       <TouchableOpacity
-    style={styles.fabButton}
-    activeOpacity={0.7}
-    onPress={() => navigation.navigate("AddComplaint")}
-  >
-    <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
-  </TouchableOpacity>
-<Modal
-  visible={modalVisible}
-  transparent
-  animationType="fade"
-  onRequestClose={() => setModalVisible(false)}
->
-  <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-    <View style={styles.modalBackground}>
-      <TouchableWithoutFeedback>
-        <View style={styles.modalContainer}>
-          {/* Scrollable content */}
-         <ScrollView 
-  showsVerticalScrollIndicator={true}
-  nestedScrollEnabled={true}   // ✅ important for smooth scroll inside modal
->
-  {selectedComplaint && (
-    <>
-      <View style={styles.headerRow}>
-        <Text style={[styles.studentInfo, { width: resW(50) }]}>
-          Name: {selectedComplaint.student}  
-          Class: {selectedComplaint.class}  
-          Section: {selectedComplaint.Section}
-        </Text>
-        <View style={styles.rightHeader}>
-          <Text style={styles.dateText}>{selectedComplaint.createdAt}</Text>
-          <View style={styles.statusWrapper}>
-            <Text style={[styles.status, getStatusStyle(selectedComplaint.status)]}>
-              {selectedComplaint.status}
-            </Text>
+        style={styles.fabButton}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate("AddComplaint")}
+      >
+        <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
+      </TouchableOpacity>
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)} // for Android back press
+      >
+        <Pressable
+          style={styles.modalBackground}
+          onPress={() => setModalVisible(false)} // tap outside closes modal
+        >
+          <View style={styles.modalContainer} pointerEvents="box-none">
+            <Pressable style={styles.modalBox}>
+              <ScrollView
+                showsVerticalScrollIndicator={true}
+                nestedScrollEnabled={true}
+                contentContainerStyle={{ paddingBottom: resH(3) }}
+              >
+                {selectedComplaint && (
+                  <>
+                    <View style={styles.headerRow}>
+                      <Text style={[styles.studentInfo, { width: resW(50) }]}>
+                        Name: {selectedComplaint.student}
+                        {" "}Class: {selectedComplaint.class}{" "}
+                        Section: {selectedComplaint.Section}
+                      </Text>
+                      <View style={styles.rightHeader}>
+                        <Text style={styles.dateText}>{selectedComplaint.createdAt}</Text>
+                        <View style={styles.statusWrapper}>
+                          <Text style={[styles.status, getStatusStyle(selectedComplaint.status)]}>
+                            {selectedComplaint.status}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <Text style={styles.complaintLabel}>Complaint Type</Text>
+                    <Text style={styles.complaintText}>{selectedComplaint.complaintType}</Text>
+
+                    <Text style={styles.complaintLabel}>Description</Text>
+                    <Text style={styles.complaintText}>{selectedComplaint.complaintText}</Text>
+                  </>
+                )}
+              </ScrollView>
+
+
+            </Pressable>
           </View>
-        </View>
-      </View>
+        </Pressable>
+      </Modal>
 
-      <Text style={styles.complaintLabel}>Complaint Type</Text>
-      <Text style={styles.complaintText}>{selectedComplaint.complaintType}</Text>
 
-      <Text style={styles.complaintLabel}>Description</Text>
-      <Text style={styles.complaintText}>{selectedComplaint.complaintText}</Text>
-    </>
-  )}
-</ScrollView>
-
-        </View>
-      </TouchableWithoutFeedback>
-    </View>
-  </TouchableWithoutFeedback>
-</Modal>
 
 
 
@@ -259,14 +263,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   modalContainer: {
-  width: '90%',
-  maxHeight: '60%', // 👈 restrict modal height
-  backgroundColor: 'white',
-  borderRadius: resW(2),
-  padding: resW(4),
-  elevation: 5,
-},
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalBox: {
+    width: '90%',
+    height: '60%',
+    backgroundColor: 'white',
+    borderRadius: resW(2),
+    padding: resW(4),
+    elevation: 5,
+    justifyContent: 'flex-start',
+    overflow: 'hidden',
+  },
+
   closeButton: {
     marginTop: resH(2),
     backgroundColor: BattleshipGrey,
@@ -275,30 +290,30 @@ const styles = StyleSheet.create({
     borderRadius: resW(2),
   },
   fabButton: {
-  position: 'absolute',
-  bottom: resH(8),   // distance from bottom
-  right: resW(4),    // distance from right
-  backgroundColor: SilverColor,
-  width: resW(15),
-  height: resW(15),
-  borderRadius: resW(7.5), // make it circular
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor:constant.Blue,
-  // elevation: 5, // shadow for Android
-  // shadowColor: '#000', // shadow for iOS
-  // shadowOpacity: 0.3,
-  // shadowOffset: { width: 0, height: 2 },
-  // shadowRadius: 3,
-  // borderColor:blackColor,
-  // borderWidth:2
-},
-fabIcon: {
-  width: resW(7),
-  height: resW(7),
-  tintColor: constant.whiteColor,
-  resizeMode: 'contain',
-},
+    position: 'absolute',
+    bottom: resH(8),   // distance from bottom
+    right: resW(4),    // distance from right
+    backgroundColor: SilverColor,
+    width: resW(15),
+    height: resW(15),
+    borderRadius: resW(7.5), // make it circular
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: constant.Blue,
+    // elevation: 5, // shadow for Android
+    // shadowColor: '#000', // shadow for iOS
+    // shadowOpacity: 0.3,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowRadius: 3,
+    // borderColor:blackColor,
+    // borderWidth:2
+  },
+  fabIcon: {
+    width: resW(7),
+    height: resW(7),
+    tintColor: constant.whiteColor,
+    resizeMode: 'contain',
+  },
 
 });
 

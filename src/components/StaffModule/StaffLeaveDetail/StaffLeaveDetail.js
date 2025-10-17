@@ -21,10 +21,7 @@ class StaffLeaveDetail extends Component {
             attachment: '',
             remark: ''
         }
-
     }
-
-
     async componentDidMount() {
         const value = await AsyncStorage.getItem('@new_id')
         this.setState({
@@ -33,8 +30,6 @@ class StaffLeaveDetail extends Component {
         console.log('id', value)
         this.leaveDetailApi()
     }
-
-
     leaveDetailApi() {
         let data = {
             method: 'POST',
@@ -58,8 +53,6 @@ class StaffLeaveDetail extends Component {
                 } else if (response.status === 2) {
                     this.setState({ status: 'Cancelled' })
                 }
-
-
                 if (response.server_ip != null) {
                     var serverip = response.server_ip + "/images/leaverelated/";
                     var file1 = serverip + response.file;
@@ -75,8 +68,6 @@ class StaffLeaveDetail extends Component {
                         attachment: file2
                     })
                 }
-
-
                 this.setState({
                     leaveType: response.leave_type,
                     userName: response.userdetail.name,
@@ -93,8 +84,6 @@ class StaffLeaveDetail extends Component {
                 this.setState({ isLoading: false });
             })
     }
-
-
     render() {
         return (
             <View style={styles.MainContainer}>
@@ -171,7 +160,6 @@ class StaffLeaveDetail extends Component {
                             <View><Text style={styles.TextRight}>{this.state.remark}</Text></View>
                         </View>
                     </View>
-
                 </ScrollView>
             </View>
         )

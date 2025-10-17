@@ -210,6 +210,10 @@ import StaffViewHomeWork from './src/components/StaffModule/StaffModuleHomework/
 import StaffAddMultiMedia from './src/components/StaffModule/StaffModuleMultiMedia/StaffAddMultiMedia';
 import StaffEditMultiMedia from './src/components/StaffModule/StaffModuleMultiMedia/StaffEditMultiMedia';
 import StaffViewMultiMedia from './src/components/StaffModule/StaffModuleMultiMedia/StaffViewMultiMedia';
+import EditStaffProfile from './src/components/StaffModule/StaffProfile/EditProfile';
+import StaffChangePassword from './src/components/StaffModule/StaffProfile/StaffChangePassword';
+import TeachingInfo from './src/components/StaffModule/StaffProfile/TeachingInfo';
+import StaffModuleAddSPR from './src/components/StaffModule/StaffModuleStudentPerformance/StaffModuleAddSPR';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -300,46 +304,54 @@ const App = () => {
         <Stack.Screen name="Notification" component={Notification} />
         <Stack.Screen name="Sibling" component={Sibling} />
         <Stack.Screen name="ViewSupportSystem" component={ViewSupportSystem} />
+
         <Stack.Screen
           name="ViewMoreSupportSystem"
           component={ViewMoreSupportSystem}
         />
-         <Stack.Screen
-        name='StaffAddPlanner'
-        component={StaffAddPlanner}/>
         <Stack.Screen
-        name='StaffAddNotes'
-        component={StaffAddNotes}/>
+          name='StaffAddPlanner'
+          component={StaffAddPlanner} />
+          <Stack.Screen name='StaffModuleAddSPR' component={StaffModuleAddSPR}/>
         <Stack.Screen
-        name='ViewStaffFornightlyPlanner'
-        component={ViewStaffFornightlyPlanner}/>
+          name='StaffAddNotes'
+          component={StaffAddNotes} />
         <Stack.Screen
-        name='StaffEditFornightlyPlanner'
-        component={StaffEditFornightlyPlanner}/>
+          name='ViewStaffFornightlyPlanner'
+          component={ViewStaffFornightlyPlanner} />
         <Stack.Screen
-        name='StaffViewNotes'
-        component={StaffViewNotes}/>
+          name='StaffEditFornightlyPlanner'
+          component={StaffEditFornightlyPlanner} />
         <Stack.Screen
-        name='StaffEditNotes'
-        component={StaffEditNotes}/>
+          name='StaffViewNotes'
+          component={StaffViewNotes} />
         <Stack.Screen
-        name='StaffAddHomeWork'
-        component={StaffAddHomeWork}/>
+          name='StaffEditNotes'
+          component={StaffEditNotes} />
         <Stack.Screen
-        name='StaffEditHomeWork'
-        component={StaffEditHomeWork}/>
+          name='StaffAddHomeWork'
+          component={StaffAddHomeWork} />
         <Stack.Screen
-        name='StaffViewHomeWork'
-        component={StaffViewHomeWork}/>
+          name='StaffEditHomeWork'
+          component={StaffEditHomeWork} />
         <Stack.Screen
-        name='StaffAddMultiMedia'
-        component={StaffAddMultiMedia}/>
+          name='StaffViewHomeWork'
+          component={StaffViewHomeWork} />
         <Stack.Screen
-        name='StaffEditMultiMedia'
-        component={StaffEditMultiMedia}/>
+          name='StaffAddMultiMedia'
+          component={StaffAddMultiMedia} />
         <Stack.Screen
-        name='StaffViewMultiMedia'
-        component={StaffViewMultiMedia }/>
+          name='StaffEditMultiMedia'
+          component={StaffEditMultiMedia} />
+        <Stack.Screen
+          name='StaffViewMultiMedia'
+          component={StaffViewMultiMedia} />
+      
+          <Stack.Screen
+          name='TeachingInfo'
+          component={TeachingInfo}/>
+        <Stack.Screen name='EditStaffProfile' component={EditStaffProfile} />
+        <Stack.Screen name='StaffChangePassword' component={StaffChangePassword}/>
         <Stack.Screen name="Transport" component={Transport} />
         <Stack.Screen name="FortnightlyPlanner" component={FortnightlyPlanner} />
         <Stack.Screen name="ProficiencyScreen" component={ProficiencyScreen} />
@@ -437,10 +449,10 @@ const App = () => {
           name="FortnightlyPlannerList"
           component={FortnightlyPlannerList}
         />
-       
-         <Stack.Screen
+
+        <Stack.Screen
           name="AddComplaint"
-          component={ AddComplaint}
+          component={AddComplaint}
         />
 
 

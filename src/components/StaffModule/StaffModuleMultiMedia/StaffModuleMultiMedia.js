@@ -235,7 +235,6 @@ statusButton: {
     borderRadius: resW(7.5),
     justifyContent: 'center',
     alignItems: 'center',
-  
   },
   fabIcon: {
     width: resW(7),

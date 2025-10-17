@@ -92,7 +92,7 @@ const FortnightlyPlanner = (props) => {
   const fn_ListClick=(item,index)=>{
     // fn_ReadMark(item,index)
      console.log("item",item)
-    navigation.navigate('FortnightlyPlannerList', {
+     navigation.navigate('FortnightlyPlannerList', {
             // otherParam: 'Assignment',
             subjectData : item
         })
@@ -191,8 +191,7 @@ const FortnightlyPlanner = (props) => {
               style={styles.noteAssignmentImage}
               source={fn_GetImage(item)}
             />
-            <Text numberOfLines={2} style={styles.noteDashboardTextStyle}>{item?.subject}</Text>
-         
+            <Text numberOfLines={2} style={styles.noteDashboardTextStyle}>{item?.subject}</Text> 
       </Pressable>
   );
 

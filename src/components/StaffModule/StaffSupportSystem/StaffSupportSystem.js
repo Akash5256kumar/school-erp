@@ -6,6 +6,8 @@ const baseColor = '#0747a6'
 import * as myConst from '../../Baseurl';
 import Snackbar from 'react-native-snackbar';
 import StaffViewSupportDetails from '../StaffSupportSolvedDetails/StaffSupportSolvedDetails';
+import CommonHeader from '../../CommonHeader';
+import { Blue, whiteColor } from '../../../Utils/Constant';
 
 
 class StaffSupportSystem extends Component {
@@ -132,7 +134,7 @@ class StaffSupportSystem extends Component {
     render() {
         return (
             <View style={styles.MainContainer}>
-                <View style={styles.HeaderBackground}>
+                {/* <View style={styles.HeaderBackground}>
                     <View style={styles.HeaderStyle}>
                         <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffHome')}>
                             <Image style={styles.HeaderArrowImage}
@@ -141,7 +143,13 @@ class StaffSupportSystem extends Component {
                         <Text style={styles.HeaderText}>Support System</Text>
                         <View></View>
                     </View>
-                </View>
+                </View> */}
+                <CommonHeader
+                title="Support System"
+                backgroundColor={Blue}
+                textColor={whiteColor}
+                IconColor={whiteColor}
+                onLeftClick={() => this.props.navigation.navigate('StaffHome')}/>
 
                 <View style={styles.TabBackground}>
                     <View style={styles.RowCardStyle}>
