@@ -1,325 +1,339 @@
-import React, { useState, useEffect } from 'react';
-import { Image, View, Text, TouchableOpacity, StyleSheet, Alert, Pressable, ScrollView } from "react-native";
-const baseColor = '#0747a6'; // Note: This variable is defined but not used in the styles.
-import AsyncStorage from "@react-native-community/async-storage";
+import React, {useMemo} from 'react';
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+
 import * as constant from '../Utils/Constant';
-import { useSelector } from 'react-redux';
+import {clearStudentSession} from '../auth/studentSessionController';
+import useStudentAuth from '../store/hooks/useStudentAuth';
 
-const SideBar = (props) => {
-    const { navigation } = props;
-    const userData = useSelector(state=>state.userSlice.userData)
-    // State management using useState hook
-    const [name, setName] = useState('');
-    const [std_roll, setStdRoll] = useState('');
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
-    // Replaces componentDidMount with useEffect
-    useEffect(() => {
-        // The 'focus' event listener runs whenever the screen comes into focus.
-        const unsubscribe = navigation.addListener('focus', async () => {
-            try {
-                const value = await AsyncStorage.getItem('@name');
-                const value1 = await AsyncStorage.getItem('@std_roll');
-                const datee = await AsyncStorage.getItem('@date');
-                const timee = await AsyncStorage.getItem('@time');
-                
-                console.log('value-->>', value);
-                console.log('value2-->', value1);
+const buildMenuItems = navigation => [
+  {label: 'Home', hint: 'Dashboard overview', onPress: () => navigation.navigate('StudentHome')},
+  {label: 'Event', hint: 'School activities', onPress: () => navigation.navigate('Event')},
+  {label: 'Holidays', hint: 'Holiday calendar', onPress: () => navigation.navigate('Holiday')},
+  {label: 'Transport', hint: 'Bus and route details', onPress: () => navigation.navigate('Transport')},
+  {
+    label: 'Syllabus',
+    hint: 'Course structure',
+    onPress: () => navigation.navigate('Syllabus', {otherParam: 'Syllabus'}),
+  },
+  {
+    label: 'Exam Schedule',
+    hint: 'Upcoming exams',
+    onPress: () => navigation.navigate('Syllabus', {otherParam: 'Exam Schedule'}),
+  },
+  {
+    label: 'Library',
+    hint: 'Books and resources',
+    onPress: () => navigation.navigate('Library', {otherParam: 'Books'}),
+  },
+  {label: 'Multimedia', hint: 'Learning videos', onPress: () => navigation.navigate('Multimedia')},
+  {label: 'Login devices', hint: 'Manage active devices', onPress: () => navigation.navigate('LoginDevice')},
+];
 
-                setName(value || '');
-                setStdRoll(value1 || '');
-                setDate(datee || '');
-                setTime(timee || '');
-            } catch (error) {
-                console.error("Failed to fetch data from AsyncStorage", error);
-            }
-        });
+const SideBar = props => {
+  const {navigation} = props;
+  const {userData} = useStudentAuth();
+  const [imageError, setImageError] = React.useState(false);
 
-        // Return a cleanup function to unsubscribe from the event when the component unmounts
-        return unsubscribe;
-    }, [navigation]); // Dependency array ensures this effect runs only when navigation prop changes
+  const menuItems = useMemo(() => buildMenuItems(navigation), [navigation]);
 
-    const handleLogout = () => {
-        Alert.alert(
-            'Log out',
-            'Do you want to logout?',
-            [
-                { text: 'Cancel', onPress: () => null, style: 'cancel' },
-                {
-                    text: 'Confirm', onPress: () => {
-                        AsyncStorage.clear();
-                        navigation.navigate('RoleSelectionScreen');
-                    }
-                },
-            ],
-            { cancelable: false }
-        );
-    };
-
-    return (
-        <LinearGradient colors={['#A902FE', '#5E3BF9', '#5E3BF9']} style={{ flex: 1 }} >
-            <View>
-                {/* <Pressable style={styles.bellIconView} onPress={() => navigation.navigate('Notification')}>
-                    <Image source={constant.Icons.bellIcon} style={styles.bellIcon} />
-                    <Pressable style={styles.drawerButton2}>
-                    </Pressable>
-                </Pressable> */}
-                <View style={styles.ImageStyleView}>
-                    <TouchableOpacity
-                        style={styles.imageButton}
-                        onPress={() => navigation.navigate('Profile')}>
-                        <Image style={styles.ProfileImage}
-                            source={userData?.studentimage && userData?.studentimage === '' ?
-                                  require('../assests/images/businessman.png')
-                                  :
-                                  {uri:"http://139.59.90.236:86/images/student_image/STUDENT/"+userData?.studentimage}
-                                } />
-                    </TouchableOpacity>
-                    <Text style={styles.TextStyle}>{userData?.Student_name}</Text>
-                    <Text style={styles.TextStyle2}>{userData?.std_roll}</Text>
-                    <Text style={styles.TextStyle2}>{userData?.Student_class} Section-{userData?.Student_section}</Text>
-
-                </View>
-                {/* <View style={styles.LoginDetails}>
-                    <Text style={styles.LastLoginText}>Last Login : </Text>
-                    <Text style={styles.DateTimeText}>{date} {time}</Text>
-                </View> */}
-            </View>
-            <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
-                <View style={styles.DrawerBackground}>
-                    <View style={styles.Sideview}>
-
-                        <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => navigation.navigate('Home')}
-                        >
-                            {/* <Image style={styles.DrawerImage}
-                                source={constant.Icons.drawerHome} /> */}
-                            <Text style={styles.sideText}>Home</Text>
-                        </TouchableOpacity>
-
-                        {/* <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => navigation.navigate('Sibling')}
-                        >
-                            {/* <Image style={styles.DrawerImage}
-                                source={constant.Icons.sibling} /> */}
-                            {/* <Text style={styles.sideText}>Siblings</Text> */}
-                        {/* </TouchableOpacity>  */}
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Event')}>
-                            <Text style={styles.sideText}>Event</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Holiday')}>
-                            <Text style={styles.sideText}>Holidays</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Transport')}>
-                            <Text style={styles.sideText}>Transport</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Syllabus', { otherParam: 'Syllabus' })}>
-                            <Text style={styles.sideText}>Syllabus</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Syllabus', { otherParam: 'Exam Schedule' })}>
-                            <Text style={styles.sideText}>Exam Schedule</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Library', { otherParam: 'Books' })}>
-                            <Text style={styles.sideText}>Library</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Notes', { otherParam: 'Notes' })}>
-                            <Text style={styles.sideText}>Notes</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle} onPress={() => navigation.navigate('Multimedia')}>
-                            <Text style={styles.sideText}>Multimedia</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => navigation.navigate('RateUs')}
-                        >
-                            {/* <Image style={styles.DrawerImage}
-                                source={constant.Icons.rating} /> */}
-                            <Text style={styles.sideText}>Rate Us</Text>
-                        </TouchableOpacity>
-
-                        {/* <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => navigation.navigate('ContactUs')}
-                        >
-                            <Image style={styles.DrawerImage}
-                                source={constant.Icons.drawerContact} />
-                            <Text style={styles.sideText}>Contact Us</Text>
-                        </TouchableOpacity> */}
-
-                        <TouchableOpacity style={styles.touchStyle}
-                            onPress={() => navigation.navigate("LoginDevice")}
-                        >
-                            {/* <Image style={styles.DrawerImage}
-                                source={constant.Icons.loginDevice} /> */}
-                            <Text style={styles.sideText}>Login devices</Text>
-                        </TouchableOpacity>
-
-                        <Pressable style={styles.logoutButton} onPress={handleLogout}>
-                            <Text style={styles.logoutText}>Logout</Text>
-                            <Image style={styles.logoutImage}
-                                source={constant.Icons.logout} />
-                        </Pressable>
-                    </View>
-                </View>
-            </ScrollView>
-        </LinearGradient>
+  const handleLogout = () => {
+    Alert.alert(
+      'Log out',
+      'Do you want to logout?',
+      [
+        {text: 'Cancel', onPress: () => null, style: 'cancel'},
+        {
+          text: 'Confirm',
+          onPress: async () => {
+            await clearStudentSession();
+            navigation.reset({index: 0, routes: [{name: 'RoleSelectionScreen'}]});
+          },
+        },
+      ],
+      {cancelable: false},
     );
+  };
+
+  const profileSource = !imageError && userData?.studentimage
+    ? {
+        uri:
+          'http://139.59.90.236:86/images/student_image/STUDENT/' +
+          userData.studentimage,
+      }
+    : require('../assests/images/businessman.png');
+
+  const studentName = userData?.Student_name || 'Student';
+  const studentRoll = userData?.std_roll || '--';
+  const studentClass = userData?.Student_class || '--';
+  const studentSection = userData?.Student_section || '--';
+
+  return (
+    <LinearGradient
+      colors={['#C915FF', '#7E2DF1', '#4E2BD8']}
+      end={{x: 1, y: 1}}
+      start={{x: 0, y: 0}}
+      style={styles.screen}>
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.headerCard}>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('Profile')}
+            style={styles.avatarShell}>
+            <Image
+              style={styles.profileImage}
+              source={profileSource}
+              onError={() => setImageError(true)}
+            />
+          </TouchableOpacity>
+
+          <Text numberOfLines={2} style={styles.studentName}>
+            {studentName}
+          </Text>
+
+          <View style={styles.metaRow}>
+            <View style={styles.metaPill}>
+              <Text style={styles.metaLabel}>Roll No.</Text>
+              <Text style={styles.metaValue}>{studentRoll}</Text>
+            </View>
+            <View style={styles.metaPill}>
+              <Text style={styles.metaLabel}>Class</Text>
+              <Text style={styles.metaValue}>
+                {studentClass} • {studentSection}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.menuCard}>
+          <Text style={styles.menuTitle}>Quick access</Text>
+          <Text style={styles.menuSubtitle}>
+            Move through your student features with one tap.
+          </Text>
+
+          <View style={styles.menuList}>
+            {menuItems.map(item => (
+              <Pressable
+                key={item.label}
+                onPress={item.onPress}
+                style={({pressed}) => [
+                  styles.menuItem,
+                  pressed && styles.menuItemPressed,
+                ]}>
+                <View style={styles.menuAccent}>
+                  <Text style={styles.menuAccentText}>
+                    {item.label.slice(0, 1)}
+                  </Text>
+                </View>
+
+                <View style={styles.menuTextBlock}>
+                  <Text style={styles.menuItemLabel}>{item.label}</Text>
+                  <Text style={styles.menuItemHint}>{item.hint}</Text>
+                </View>
+
+                <Text style={styles.menuArrow}>›</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <Pressable onPress={handleLogout} style={styles.logoutButton}>
+          <View>
+            <Text style={styles.logoutTitle}>Logout</Text>
+            <Text style={styles.logoutSubtitle}>Sign out from this device</Text>
+          </View>
+          <View style={styles.logoutIconWrap}>
+            <Image style={styles.logoutImage} source={constant.Icons.logout} />
+          </View>
+        </Pressable>
+      </ScrollView>
+    </LinearGradient>
+  );
 };
 
 const styles = StyleSheet.create({
-    touchStyle: {
-        flexDirection: 'row',
-        alignItems:'center',
-        paddingVertical:'3%',
-        // borderBottomWidth:1,
-        borderBottomColor:constant.whiteColor
-        // backgroundColor:'red'
-    },
-    Sideview: {
-        paddingHorizontal: constant.resW(5),
-        justifyContent: 'space-around',
-        marginTop:'4%'
-    },
-    sideText: {
-        // marginLeft: '5%',
-        fontSize: constant.font20,
-        color: constant.whiteColor,
-        fontFamily:constant.typeRegular
-    },
-    ImageStyleView: {
-        // backgroundColor: baseColor,
-        alignItems: 'center'
-    },
-    ProfileImage: {
-        height:constant.resW(23),
-        width:constant.resW(23),
-        borderRadius:constant.resW(40),
-    },
-    TextStyle: {
-        color:'#FFD14A',
-        fontSize: constant.font22,
-        fontFamily:constant.typeSemiBold,
-        alignSelf:'center'
-    },
-    TextStyle2: {
-        color:constant.whiteColor,
-        fontSize: constant.font16,
-        fontFamily:constant.typeMedium,
-        alignSelf:'center'
-    },
-    LastLoginStyle: {
-        display: 'flex',
-        flexDirection: 'row',
-    },
-    LastLoginText: {
-        color: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignSelf: 'center',
-        fontSize: constant.font10,
-        fontFamily:constant.typeRegular
-    },
-    LoginDetails: {
-        flexDirection: 'row',
-        backgroundColor:'#ffffff30',
-        alignItems:'center',
-        justifyContent:'center',
-        alignSelf:'center',
-        paddingHorizontal:'4.5%',
-        borderRadius:20,
-        paddingVertical:'1.5%',
-        marginTop:'3%'
-    },
-    DateTimeText: {
-        color: constant.whiteColor,
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignSelf: 'center',
-        marginTop: 2,
-        fontSize: constant.font10,
-        fontFamily:constant.typeRegular
-    },
-    DrawerImage: {
-        height: constant.resW(7),
-        width: constant.resW(7)
-    },
-    DrawerBackground: {
-        // height: '100%'
-    },
-    bellIcon:{
-        height:constant.resW(7),
-        width:constant.resW(7),
-    },
-    bellIconView:{
-        height:constant.resW(10),
-        width:constant.resW(10),
-        backgroundColor:'#ffffff89',
-        borderRadius:constant.resW(30),
-        alignItems:'center',
-        justifyContent:'center',
-        marginTop:'5%',
-        alignSelf:'flex-end',
-        marginRight:'8%'
-    },
-    detailView:{
-        flexDirection:'row',
-        justifyContent:'space-between',
-        flex:1,
-    },
-    drawerButton:{
-        position:'absolute',
-        top:0,
-        left:0
-    },
-    drawerButton2:{
-        position:'absolute',
-        top:-4,
-        right:-4,
-        height:constant.resW(4),
-        width:constant.resW(4),
-        borderRadius:constant.resW(10),
-        backgroundColor:'#FFD14A'
-    },
-    imageButton:{
-        height:constant.resW(29),
-        width:constant.resW(29),
-        backgroundColor:'#ffffff40',
-        borderRadius:constant.resW(40),
-        justifyContent:'center',
-        alignItems:'center',
-        marginTop:'4%',
-        marginBottom:'3%'
-    },
-    logoutButton:{
-        backgroundColor:'#ffffff40',
-        borderRadius:10,
-        flexDirection:'row',
-        alignItems:'center',
-        justifyContent:'center',
-        alignSelf:'center',
-        paddingVertical:'4%',
-        paddingHorizontal:'12%',
-        borderRadius:constant.resW(40),
-        marginTop:'10%',
-        marginBottom:constant.resW(25)
-    },
-    logoutImage:{
-        height:constant.resW(6.5),
-        width:constant.resW(6.5),
-        marginLeft:'3%'
-    },
-    logoutText:{
-        color:constant.whiteColor,
-        fontSize: constant.font15,
-        fontFamily:constant.typeRegular,
-    },
+  screen: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: constant.resW(24),
+  },
+  headerCard: {
+    alignItems: 'center',
+    marginHorizontal: constant.resW(4),
+    marginTop: constant.resW(5),
+    paddingHorizontal: constant.resW(4),
+    paddingVertical: constant.resW(5),
+  },
+  avatarShell: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderColor: 'rgba(255,255,255,0.22)',
+    borderRadius: constant.resW(20),
+    borderWidth: 1.5,
+    height: constant.resW(29),
+    justifyContent: 'center',
+    marginBottom: constant.resW(3),
+    width: constant.resW(29),
+  },
+  profileImage: {
+    borderRadius: constant.resW(13.5),
+    height: constant.resW(24),
+    width: constant.resW(24),
+  },
+  studentName: {
+    color: '#FFF2A8',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font20,
+    lineHeight: constant.resW(7.2),
+    textAlign: 'center',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: constant.resW(3),
+    width: '100%',
+  },
+  metaPill: {
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    borderColor: 'rgba(255,255,255,0.18)',
+    borderRadius: constant.resW(3),
+    borderWidth: 1,
+    flex: 0.48,
+    paddingHorizontal: constant.resW(3),
+    paddingVertical: constant.resW(2.4),
+  },
+  metaLabel: {
+    color: 'rgba(255,255,255,0.7)',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font10,
+    textTransform: 'uppercase',
+  },
+  metaValue: {
+    color: constant.whiteColor,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font13,
+    marginTop: constant.resW(0.8),
+  },
+  menuCard: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.14)',
+    borderRadius: constant.resW(5),
+    borderWidth: 1,
+    marginHorizontal: constant.resW(4),
+    paddingHorizontal: constant.resW(3),
+    paddingVertical: constant.resW(3.5),
+  },
+  menuTitle: {
+    color: constant.whiteColor,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font17,
+  },
+  menuSubtitle: {
+    color: 'rgba(255,255,255,0.72)',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font11,
+    lineHeight: constant.resW(4.4),
+    marginTop: constant.resW(1),
+  },
+  menuList: {
+    marginTop: constant.resW(3),
+  },
+  menuItem: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: constant.resW(3),
+    borderWidth: 1,
+    flexDirection: 'row',
+    marginBottom: constant.resW(2.4),
+    paddingHorizontal: constant.resW(2.8),
+    paddingVertical: constant.resW(2.5),
+  },
+  menuItemPressed: {
+    backgroundColor: 'rgba(255,255,255,0.16)',
+  },
+  menuAccent: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: constant.resW(3),
+    height: constant.resW(10),
+    justifyContent: 'center',
+    width: constant.resW(10),
+  },
+  menuAccentText: {
+    color: '#6C2BF1',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font15,
+  },
+  menuTextBlock: {
+    flex: 1,
+    marginLeft: constant.resW(3),
+  },
+  menuItemLabel: {
+    color: constant.whiteColor,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font14,
+  },
+  menuItemHint: {
+    color: 'rgba(255,255,255,0.68)',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font10,
+    marginTop: constant.resW(0.6),
+  },
+  menuArrow: {
+    color: 'rgba(255,255,255,0.7)',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font18,
+    marginLeft: constant.resW(2),
+  },
+  logoutButton: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: constant.resW(4),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: constant.resW(4),
+    marginTop: constant.resW(4),
+    paddingHorizontal: constant.resW(4),
+    paddingVertical: constant.resW(3),
+  },
+  logoutTitle: {
+    color: '#26134D',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font15,
+  },
+  logoutSubtitle: {
+    color: '#766A8D',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font10,
+    marginTop: constant.resW(0.6),
+  },
+  logoutIconWrap: {
+    alignItems: 'center',
+    backgroundColor: '#F4EFFF',
+    borderRadius: constant.resW(3),
+    height: constant.resW(10),
+    justifyContent: 'center',
+    width: constant.resW(10),
+  },
+  logoutImage: {
+    height: constant.resW(5.8),
+    tintColor: '#6C2BF1',
+    width: constant.resW(5.8),
+  },
 });
 
 export default SideBar;

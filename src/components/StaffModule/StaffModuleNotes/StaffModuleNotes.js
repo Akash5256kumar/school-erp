@@ -1,244 +1,185 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
-import CommonHeader from '../../CommonHeader';
-import {
-  blackColor,
-  font12,
-  font14,
-  font15_5,
-  font16,
-  resH,
-  resW,
-  SilverColor,
-  whiteColor,
-  Blue
-} from '../../../Utils/Constant';
-import * as constant from '../../../Utils/Constant';
+import React, { useCallback, useMemo, useState } from "react";
+import { FlatList, useWindowDimensions } from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
-const dummyData = [
-  {
-    id: '1',
-    Date: "2/09/2025",
-    subject: 'Mathematics',
-    class: '10',
-    Topic: "Algebra Basics",
-    section: 'A',
-    fromDate: '01 Oct 2025',
-    toDate: '15 Oct 2025',
-  },
-  {
-    id: '2',
-    Date: "2/09/2025",
-    subject: 'Science',
-    class: '9',
-    Topic: "Motion",
-    section: 'B',
-    fromDate: '05 Oct 2025',
-    toDate: '20 Oct 2025',
-  },
-  {
-    id: '3',
-    Date: "2/09/2025",
-    subject: 'English',
-    class: '8',
-    Topic: "Poetry Analysis",
-    section: 'C',
-    fromDate: '10 Oct 2025',
-    toDate: '25 Oct 2025',
-  },
-  {
-    id: '4',
-    Date: "2/09/2025",
-    subject: 'History',
-    class: '7',
-    Topic: "Ancient Civilizations",
-    section: 'A',
-    fromDate: '02 Oct 2025',
-    toDate: '17 Oct 2025',
-  },
-  {
-    id: '5',
-    Date: "2/09/2025",
-    subject: 'Geography',
-    class: '6',
-    Topic: "World Maps",
-    section: 'D',
-    fromDate: '03 Oct 2025',
-    toDate: '18 Oct 2025',
-  },
-];
+import Loader from "../../Loader";
+import * as constant from "../../../Utils/Constant";
+import { apiRequest, uploadFile } from "../../../Utils";
+import usePullToRefresh from "../../../hooks/usePullToRefresh";
+import StaffContentScaffold from "../StaffContentShared/StaffContentScaffold";
+import {
+  StaffContentEmptyState,
+  StaffContentFab,
+  StaffContentListCard,
+} from "../StaffContentShared/StaffContentPrimitives";
+import {
+  buildNotesTitle,
+  getPublishDateValue,
+  updateStatus,
+} from "../StaffContentShared/staffContentHelpers";
+import { STAFF_CONTENT_TEXT } from "../StaffContentShared/staffContentConfig";
+import createStaffContentTheme from "../StaffContentShared/staffContentTheme";
 
+const MODULE_TEXT = STAFF_CONTENT_TEXT.notes;
 
 const StaffModuleNotes = () => {
   const navigation = useNavigation();
+  const userData = useSelector((state) => state.userSlice.userData);
+  const { height, width } = useWindowDimensions();
+  const theme = createStaffContentTheme({ height, width, variant: "notes" });
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [publishingId, setPublishingId] = useState(null);
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('StaffViewNotes', { note: item })}>
-      <Text style={[styles.studentInfo, { textAlign: "right", fontSize: font12, color: constant.grayColor }]}>
-        {item.Date}
-      </Text>
-      <Text style={styles.studentInfo}>
-        Subject {item.subject},Topic {item.Topic}, Class {item.class}, Section {item.section}
-      </Text>
+  const getNotes = useCallback(
+    async (showLoader = true) => {
+      try {
+        if (showLoader) {
+          setLoading(true);
+        }
+        const res = await apiRequest(
+          `teacher-notes?staff_id=${userData?.staff_info_id}`,
+          "GET"
+        );
 
-      {/* Row for Date + Buttons */}
-      <View style={styles.rowBetween}>
-        <View>
-          <Text style={styles.complaintLabel}>Date of Publish</Text>
-          <Text style={styles.dateText}>
-            {item.fromDate}
-          </Text>
-        </View>
-
-        <View style={styles.rightHeader}>
-          {/* Published button */}
-          <TouchableOpacity
-            style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
-          >
-            <Text style={styles.statusText}>Published</Text>
-          </TouchableOpacity>
-
-          {/* Delete button */}
-          <TouchableOpacity
-            style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
-          >
-            <Text style={styles.statusText}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
+        if (res?.status) {
+          setNotes(res?.notes?.flat() || []);
+        }
+      } catch (error) {
+        console.log("Notes API Error", error);
+      } finally {
+        if (showLoader) {
+          setLoading(false);
+        }
+      }
+    },
+    [userData?.staff_info_id]
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      getNotes();
+    }, [getNotes])
+  );
+
+  const { onRefresh, refreshing } = usePullToRefresh(() => getNotes(false));
+
+  const onPublish = useCallback(async (item) => {
+    if (!item?.id || publishingId === item.id) return;
+    try {
+      setPublishingId(item.id);
+      await updateStatus(item.id, "Notes", 1);
+      setNotes((prev) =>
+        prev.map((note) =>
+          note.id === item.id ? { ...note, isActive: 1 } : note
+        )
+      );
+      constant.showAlert("Published successfully");
+    } catch (error) {
+      console.log("Publish Error:", error);
+      constant.showAlert(
+        error?.userMessage || "Failed to update status. Please try again."
+      );
+    } finally {
+      setPublishingId(null);
+    }
+  }, [publishingId]);
+
+  const onDelete = useCallback(async (item) => {
+    try {
+      setLoading(true);
+      await updateStatus(item.id, "Notes", 0, "delete");
+      setNotes((prev) => prev.filter((note) => note.id !== item.id));
+      constant.showAlert("Note deleted successfully");
+    } catch (error) {
+      console.log("Delete Error:", error);
+      constant.showAlert(
+        error?.userMessage || "Failed to delete. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const contentStyle = useMemo(
+    () => ({
+      flexGrow: 1,
+      paddingBottom: theme.spacing.listBottom,
+      paddingTop: theme.spacing.screenTop,
+    }),
+    [theme.spacing.listBottom, theme.spacing.screenTop]
+  );
 
   return (
-    <LinearGradient colors={[whiteColor, whiteColor]} style={{ flex: 1 }}>
-      <CommonHeader
-        title={'Notes'}
-        backgroundColor={Blue}
-        textColor={whiteColor}
-        IconColor={whiteColor}
-        onLeftClick={() => navigation.goBack()}
-      />
-      <FlatList
-        data={dummyData}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={{ paddingBottom: resH(18), marginTop: resH(1) }}
-        showsVerticalScrollIndicator={false}
-      />
-
-      <TouchableOpacity style={styles.fabButton} onPress={() => navigation.navigate("StaffAddNotes")}>
-        <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
-      </TouchableOpacity>
-    </LinearGradient>
+    <StaffContentScaffold
+      onBackPress={() => navigation.goBack()}
+      theme={theme}
+      title={MODULE_TEXT.listTitle}
+    >
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <FlatList
+            contentContainerStyle={contentStyle}
+            data={notes}
+            keyExtractor={(item, index) =>
+              `${String(item?.id ?? "note")}-${index}`
+            }
+            ListEmptyComponent={
+              <StaffContentEmptyState
+                actionLabel={MODULE_TEXT.emptyAction}
+                description={MODULE_TEXT.emptyDescription}
+                onActionPress={() => navigation.navigate("StaffAddNotes")}
+                theme={theme}
+                title={MODULE_TEXT.emptyTitle}
+              />
+            }
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            renderItem={({ item }) => (
+              <StaffContentListCard
+                actions={[
+                  {
+                    disabled: item?.isActive === 1 || publishingId === item.id,
+                    label:
+                      publishingId === item.id
+                        ? "Publishing..."
+                        : item?.isActive === 0
+                        ? STAFF_CONTENT_TEXT.common.publish
+                        : STAFF_CONTENT_TEXT.common.published,
+                    onPress: () => onPublish(item),
+                    tone: item?.isActive === 0 ? "publish" : "published",
+                  },
+                  {
+                    label: STAFF_CONTENT_TEXT.common.delete,
+                    onPress: () => onDelete(item),
+                    tone: "delete",
+                  },
+                ]}
+                actionsLayout="below"
+                metaLabel={MODULE_TEXT.labels.dateOfPublish}
+                metaValue={getPublishDateValue(item)}
+                onPress={() =>
+                  navigation.navigate("StaffViewNotes", { notes: item })
+                }
+                theme={theme}
+                title={buildNotesTitle(item)}
+              />
+            )}
+            showsVerticalScrollIndicator={false}
+          />
+          {notes.length > 0 ? (
+            <StaffContentFab
+              onPress={() => navigation.navigate("StaffAddNotes")}
+              theme={theme}
+            />
+          ) : null}
+        </>
+      )}
+    </StaffContentScaffold>
   );
 };
 
 export default StaffModuleNotes;
-
-const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: resW(4),
-    marginVertical: resH(0.5),
-    padding: resW(4),
-    borderRadius: resW(2),
-    backgroundColor: SilverColor,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  studentInfo: {
-    fontSize: font15_5,
-    fontWeight: 'bold',
-    color: blackColor,
-    width: resH(55),
-  },
-  dateText: {
-    fontSize: font12,
-    color: constant.grayColor,
-  },
-  complaintLabel: {
-    fontSize: font16,
-    marginTop: resH(1),
-    color: blackColor,
-    fontWeight: '700',
-  },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: resH(1),
-  },
-  rightHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusButton: {
-    borderRadius: resW(2),
-    paddingVertical: resH(0.8),
-    paddingHorizontal: resW(3),
-    marginLeft: resW(2),
-  },
-
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap', // allows wrapping on smaller screens
-  },
-
-  studentInfo: {
-    fontSize: font15_5,
-    fontWeight: 'bold',
-    color: blackColor,
-    flex: 1, // allow flexible width
-    flexWrap: 'wrap', // text wraps instead of forcing layout to break
-    marginRight: resW(2),
-  },
-
-  statusButton: {
-    borderRadius: resW(2),
-    paddingVertical: resH(0.8),
-    paddingHorizontal: resW(3),
-    marginLeft: resW(2),    // 👈 space between buttons
-  },
-
-  statusText: {
-    fontSize: font12,
-    fontWeight: 'bold',
-    color: blackColor,         // 👈 white text on colored button
-    textAlign: 'center',
-  },
-
-  fabButton: {
-    position: 'absolute',
-    bottom: resH(8),
-    right: resW(4),
-    backgroundColor: Blue,
-    width: resW(15),
-    height: resW(15),
-    borderRadius: resW(7.5),
-    justifyContent: 'center',
-    alignItems: 'center',
-
-  },
-  fabIcon: {
-    width: resW(7),
-    height: resW(7),
-    tintColor: whiteColor,
-    resizeMode: 'contain',
-  },
-});

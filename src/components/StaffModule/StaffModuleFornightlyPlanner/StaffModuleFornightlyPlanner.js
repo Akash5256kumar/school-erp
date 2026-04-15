@@ -1,233 +1,184 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
-import CommonHeader from '../../CommonHeader';
+import React, { useCallback, useMemo, useState } from "react";
+import { FlatList, useWindowDimensions } from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
+import Loader from "../../Loader";
+import { useAppToast } from "../../common/AppToast";
+import * as constant from "../../../Utils/Constant";
+import { apiRequest, uploadFile } from "../../../Utils";
+import StaffContentScaffold from "../StaffContentShared/StaffContentScaffold";
 import {
-  blackColor,
-  font12,
-  font14,
-  font15_5,
-  font16,
-  resH,
-  resW,
-  SilverColor,
-  whiteColor,
-  Blue
-} from '../../../Utils/Constant';
-import * as constant from '../../../Utils/Constant';
+  StaffContentEmptyState,
+  StaffContentFab,
+  StaffContentListCard,
+} from "../StaffContentShared/StaffContentPrimitives";
+import {
+  buildPlannerTitle,
+  updateStatus,
+} from "../StaffContentShared/staffContentHelpers";
+import { STAFF_CONTENT_TEXT } from "../StaffContentShared/staffContentConfig";
+import createStaffContentTheme from "../StaffContentShared/staffContentTheme";
 
-const dummyData = [
-  {
-    id: '1',
-    subject: 'Mathematics',
-    class: '10',
-    section: 'A',
-    fromDate: '01 Oct 2025',
-    toDate: '15 Oct 2025',
-  },
-  {
-    id: '2',
-    subject: 'Science',
-    class: '9',
-    section: 'B',
-    fromDate: '05 Oct 2025',
-    toDate: '20 Oct 2025',
-  },
-  {
-    id: '3',
-    subject: 'English',
-    class: '8',
-    section: 'C',
-    fromDate: '10 Oct 2025',
-    toDate: '25 Oct 2025',
-  },
-  {
-    id: '4',
-    subject: 'History',
-    class: '7',
-    section: 'A',
-    fromDate: '02 Oct 2025',
-    toDate: '17 Oct 2025',
-  },
-  {
-    id: '5',
-    subject: 'Geography',
-    class: '6',
-    section: 'D',
-    fromDate: '03 Oct 2025',
-    toDate: '18 Oct 2025',
-  },
-];
+const MODULE_TEXT = STAFF_CONTENT_TEXT.planner;
 
 const StaffModuleFornightlyPlanner = () => {
   const navigation = useNavigation();
+  const { height, width } = useWindowDimensions();
+  const { showSuccessToast } = useAppToast();
+  const theme = createStaffContentTheme({ height, width, variant: "planner" });
+  const userData = useSelector((state) => state.userSlice.userData);
+  const [planners, setPlanners] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [publishingId, setPublishingId] = useState(null);
 
- const renderItem = ({ item }) => (
-  <TouchableOpacity
-  style={styles.card}
-  onPress={() => navigation.navigate('ViewStaffFornightlyPlanner', { planner: item })}
->
-    <Text style={styles.studentInfo}>
-      {item.subject} - Class {item.class}, Section {item.section}
-    </Text>
+  const getFortnightlyPlanner = useCallback(async () => {
+    if (!userData?.staff_info_id) {
+      setPlanners([]);
+      return;
+    }
 
-    {/* Row for Date + Buttons */}
-    <View style={styles.rowBetween}>
-      <View>
-        <Text style={styles.complaintLabel}>Date of Publish</Text>
-        <Text style={styles.dateText}>
-          {item.fromDate} - {item.toDate}
-        </Text>
-      </View>
+    try {
+      setLoading(true);
+      const res = await apiRequest(
+        `teacher-fortnightly-planner?teacher_id=${userData?.staff_info_id}`,
+        "GET"
+      );
 
-      <View style={styles.rightHeader}>
-        {/* Published button */}
-        <TouchableOpacity
-          style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
-        >
-          <Text style={styles.statusText}>Published</Text>
-        </TouchableOpacity>
+      if (res?.status) {
+        setPlanners(res?.fortnightly_planners?.flat() || []);
+      }
+    } catch (error) {
+      console.log("Planner API Error", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userData?.staff_info_id]);
 
-        {/* Delete button */}
-        <TouchableOpacity
-          style={[styles.statusButton, { backgroundColor: constant.BattleshipGrey }]}
-        >
-          <Text style={styles.statusText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+  useFocusEffect(
+    useCallback(() => {
+      getFortnightlyPlanner();
+    }, [getFortnightlyPlanner])
+  );
 
+  const onPublish = useCallback(async (item) => {
+    if (!item?.id || publishingId === item.id) return;
+    try {
+      setPublishingId(item.id);
+      await updateStatus(item.id, "Fortnightly", 1);
+      setPlanners((prev) =>
+        prev.map((planner) =>
+          planner.id === item.id ? { ...planner, isActive: 1 } : planner
+        )
+      );
+      showSuccessToast({
+        message: "The planner is now published successfully.",
+        title: "Planner Published",
+      });
+    } catch (error) {
+      console.log("Publish Error:", error);
+      constant.showAlert(
+        error?.userMessage || "Failed to update status. Please try again."
+      );
+    } finally {
+      setPublishingId(null);
+    }
+  }, [publishingId, showSuccessToast]);
+
+  const onDelete = useCallback(async (item) => {
+    try {
+      await updateStatus(item.id, "Fortnightly", 0, "delete");
+      setPlanners((prev) => prev.filter((planner) => planner.id !== item.id));
+      showSuccessToast({
+        message: "The planner has been deleted successfully.",
+        title: "Planner Deleted",
+      });
+    } catch (error) {
+      console.log("Delete Error:", error);
+      constant.showAlert(
+        error?.userMessage || "Failed to delete. Please try again."
+      );
+    }
+  }, [showSuccessToast]);
+
+  const contentStyle = useMemo(
+    () => ({
+      flexGrow: 1,
+      paddingBottom: theme.spacing.listBottom,
+      paddingTop: theme.spacing.screenTop,
+    }),
+    [theme.spacing.listBottom, theme.spacing.screenTop]
+  );
 
   return (
-    <LinearGradient colors={[whiteColor, whiteColor]} style={{ flex: 1 }}>
-      <CommonHeader
-                     backgroundColor={Blue}
-                textColor={whiteColor}
-                IconColor={whiteColor}
-        title={'Fornightly Planner'}
-        onLeftClick={() => navigation.goBack()}
-      />
-
-      <FlatList
-        data={dummyData}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={{ paddingBottom: resH(18),marginTop:resH(1) }}
-        showsVerticalScrollIndicator={false}
-      />
-
-      <TouchableOpacity style={styles.fabButton} onPress={()=>navigation.navigate("StaffAddPlanner")}>
-        <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
-      </TouchableOpacity>
-    </LinearGradient>
+    <StaffContentScaffold
+      onBackPress={() => navigation.goBack()}
+      theme={theme}
+      title={MODULE_TEXT.listTitle}
+    >
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <FlatList
+            contentContainerStyle={contentStyle}
+            data={planners}
+            keyExtractor={(item, index) =>
+              `${String(item?.id ?? "planner")}-${index}`
+            }
+            ListEmptyComponent={
+              <StaffContentEmptyState
+                actionLabel={MODULE_TEXT.emptyAction}
+                description={MODULE_TEXT.emptyDescription}
+                onActionPress={() => navigation.navigate("StaffAddPlanner")}
+                theme={theme}
+                title={MODULE_TEXT.emptyTitle}
+              />
+            }
+            renderItem={({ item }) => (
+              <StaffContentListCard
+                actions={[
+                  {
+                    disabled: item?.isActive === 1 || publishingId === item.id,
+                    label:
+                      publishingId === item.id
+                        ? "Publishing..."
+                        : item?.isActive === 0
+                        ? STAFF_CONTENT_TEXT.common.publish
+                        : STAFF_CONTENT_TEXT.common.published,
+                    onPress: () => onPublish(item),
+                    tone: item?.isActive === 0 ? "publish" : "published",
+                  },
+                  {
+                    label: STAFF_CONTENT_TEXT.common.delete,
+                    onPress: () => onDelete(item),
+                    tone: "delete",
+                  },
+                ]}
+                actionsLayout="below"
+                metaLabel={MODULE_TEXT.labels.dateOfPublish}
+                metaValue={`${item.from_date} - ${item.to_date}`}
+                onPress={() =>
+                  navigation.navigate("ViewStaffFornightlyPlanner", {
+                    planner: item,
+                  })
+                }
+                theme={theme}
+                title={buildPlannerTitle(item)}
+              />
+            )}
+            showsVerticalScrollIndicator={false}
+          />
+          {planners.length > 0 ? (
+            <StaffContentFab
+              onPress={() => navigation.navigate("StaffAddPlanner")}
+              theme={theme}
+            />
+          ) : null}
+        </>
+      )}
+    </StaffContentScaffold>
   );
 };
 
 export default StaffModuleFornightlyPlanner;
-
-const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: resW(4),
-    marginVertical: resH(0.5),
-    padding: resW(4),
-    borderRadius: resW(2),
-    backgroundColor: SilverColor,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  studentInfo: {
-    fontSize: font15_5,
-    fontWeight: 'bold',
-    color: blackColor,
-    width: resH(55),
-  },
-  dateText: {
-    fontSize: font12,
-    color: '#777',
-  },
-  complaintLabel: {
-    fontSize: font16,
-    marginTop: resH(1),
-    color: blackColor,
-    fontWeight: '700',
-  },
-rowBetween: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginTop: resH(1),
-},
-rightHeader: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
-statusButton: {
-  borderRadius: resW(2),
-  paddingVertical: resH(0.8),
-  paddingHorizontal: resW(3),
-  marginLeft: resW(2),
-},
-
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap', // allows wrapping on smaller screens
-  },
-
-  studentInfo: {
-    fontSize: font15_5,
-    fontWeight: 'bold',
-    color: blackColor,
-    flex: 1, // allow flexible width
-    flexWrap: 'wrap', // text wraps instead of forcing layout to break
-    marginRight: resW(2),
-  },
-
-  statusButton: {
-    borderRadius: resW(2),
-    paddingVertical: resH(0.8),
-    paddingHorizontal: resW(3),
-    marginLeft: resW(2),    // 👈 space between buttons
-  },
-
-  statusText: {
-    fontSize: font12,
-    fontWeight: 'bold',
-    color: blackColor,         // 👈 white text on colored button
-    textAlign: 'center',
-  },
-
-  fabButton: {
-    position: 'absolute',
-    bottom: resH(8),
-    right: resW(4),
-    backgroundColor: Blue,
-    width: resW(15),
-    height: resW(15),
-    borderRadius: resW(7.5),
-    justifyContent: 'center',
-    alignItems: 'center',
-   
-  },
-  fabIcon: {
-    width: resW(7),
-    height: resW(7),
-    tintColor: whiteColor,
-    resizeMode: 'contain',
-  },
-});

@@ -1,116 +1,64 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import React from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import CommonHeader from '../../CommonHeader';
-import CommonButton from '../../Button/CommonButton';
+import {ScrollView, useWindowDimensions} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+
+import StaffContentScaffold from '../StaffContentShared/StaffContentScaffold';
 import {
-  blackColor,
-  whiteColor,
-  font16,
-  font14,
-  SilverColor,
-  resH,
-  resW,
-  Blue
-} from '../../../Utils/Constant';
+  StaffContentDetailCard,
+  StaffContentPrimaryButton,
+} from '../StaffContentShared/StaffContentPrimitives';
+import {
+  getClassValue,
+  getPublishDateValue,
+  getSectionValue,
+  getSubjectValue,
+  getTopicValue,
+} from '../StaffContentShared/staffContentHelpers';
+import {STAFF_CONTENT_TEXT} from '../StaffContentShared/staffContentConfig';
+import createStaffContentTheme from '../StaffContentShared/staffContentTheme';
+
+const MODULE_TEXT = STAFF_CONTENT_TEXT.notes;
 
 const StaffViewNotes = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { note } = route.params; // ✅ Receive passed note item
+  const {height, width} = useWindowDimensions();
+  const theme = createStaffContentTheme({height, width, variant: 'notes'});
+  const {notes} = route.params;
+
+  const rows = [
+    {label: `${MODULE_TEXT.labels.dateOfPublish}:`, value: getPublishDateValue(notes)},
+    {label: `${MODULE_TEXT.labels.subject}:`, value: getSubjectValue(notes)},
+    {label: `${MODULE_TEXT.labels.topic}:`, value: getTopicValue(notes)},
+    {label: `${MODULE_TEXT.labels.class}:`, value: getClassValue(notes)},
+    {label: `${MODULE_TEXT.labels.section}:`, value: getSectionValue(notes)},
+    {label: `${MODULE_TEXT.labels.fromDate}:`, value: getPublishDateValue(notes)},
+  ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: whiteColor }}>
-      <CommonHeader
-        title={'View Notes'}
-                       backgroundColor={Blue}
-                textColor={whiteColor}
-                IconColor={whiteColor}
-        onLeftClick={() => navigation.goBack()}
-      />
-
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* --- Table-like structure --- */}
-        <View style={styles.tableContainer}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Date of Publish:</Text>
-            <Text style={styles.value}>{note.Date}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Subject:</Text>
-            <Text style={styles.value}>{note.subject}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Topic:</Text>
-            <Text style={styles.value}>{note.Topic}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Class:</Text>
-            <Text style={styles.value}>{note.class}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Section:</Text>
-            <Text style={styles.value}>{note.section}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>From Date:</Text>
-            <Text style={styles.value}>{note.fromDate}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>To Date:</Text>
-            <Text style={styles.value}>{note.toDate}</Text>
-          </View>
-        </View>
-
-        {/* --- Edit Button --- */}
-        <CommonButton
-          title={'Edit'}
-          buttonClick={() => 
-            navigation.navigate('StaffEditNotes')
-          }
+    <StaffContentScaffold
+      onBackPress={() => navigation.goBack()}
+      theme={theme}
+      title={MODULE_TEXT.viewTitle}>
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={{
+          paddingBottom: theme.spacing.footerSafeBottom,
+          paddingTop: theme.spacing.screenTop,
+        }}
+        showsVerticalScrollIndicator={false}>
+        <StaffContentDetailCard rows={rows} theme={theme} />
+        <StaffContentPrimaryButton
+          onPress={() => navigation.navigate('StaffEditNotes', {notes})}
+          style={{
+            marginTop: theme.spacing.buttonTop,
+          }}
+          theme={theme}
+          title={STAFF_CONTENT_TEXT.common.edit}
         />
       </ScrollView>
-    </View>
+    </StaffContentScaffold>
   );
 };
 
 export default StaffViewNotes;
-
-const styles = StyleSheet.create({
-  container: {
-    padding: resW(4),
-    paddingBottom: resH(6),
-  },
-  tableContainer: {
-    borderWidth: 1,
-    borderColor: SilverColor,
-    borderRadius: resW(2),
-    backgroundColor: SilverColor,
-    padding: resW(3),
-    marginVertical: resH(2),
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  
-    paddingVertical: resH(1),
-  },
-  label: {
-    fontSize: font16,
-    fontWeight: '700',
-    color: blackColor,
-    width: '45%',
-  },
-  value: {
-    fontSize: font14,
-    color: blackColor,
-    textAlign: 'right',
-    width: '50%',
-  },
-});

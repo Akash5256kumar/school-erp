@@ -1,78 +1,63 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import CommonHeader from '../../CommonHeader';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import CommonButton from '../../Button/CommonButton';
-import { resH, resW, font14, font16, blackColor, SilverColor, whiteColor,Blue } from '../../../Utils/Constant';
+import {ScrollView, useWindowDimensions} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+
+import StaffContentScaffold from '../StaffContentShared/StaffContentScaffold';
+import {
+  StaffContentDetailCard,
+  StaffContentPrimaryButton,
+} from '../StaffContentShared/StaffContentPrimitives';
+import {
+  getClassValue,
+  getSectionValue,
+  getSubjectValue,
+} from '../StaffContentShared/staffContentHelpers';
+import {STAFF_CONTENT_TEXT} from '../StaffContentShared/staffContentConfig';
+import createStaffContentTheme from '../StaffContentShared/staffContentTheme';
+
+const MODULE_TEXT = STAFF_CONTENT_TEXT.planner;
 
 const ViewStaffFornightlyPlanner = () => {
-    const navigation = useNavigation();
-    const route = useRoute();
-    const { planner } = route.params; // receive passed item
+  const navigation = useNavigation();
+  const route = useRoute();
+  const {height, width} = useWindowDimensions();
+  const theme = createStaffContentTheme({height, width, variant: 'planner'});
+  const {planner} = route.params;
 
-    return (
-        <>
-            <View style={{backgroundColor:whiteColor}}>
-                <CommonHeader
-                               backgroundColor={Blue}
-                textColor={whiteColor}
-                IconColor={whiteColor}
-                    title={'View Planner'}
-                    onLeftClick={() => navigation.goBack()} />
-            </View>
-            <View style={{ flex: 1, backgroundColor: whiteColor, padding: resW(4) }}>
+  const rows = [
+    {label: `${MODULE_TEXT.labels.subject}:`, value: getSubjectValue(planner)},
+    {label: `${MODULE_TEXT.labels.class}:`, value: getClassValue(planner)},
+    {label: `${MODULE_TEXT.labels.section}:`, value: getSectionValue(planner)},
+    {label: `${MODULE_TEXT.labels.fromDate}:`, value: planner.from_date || 'NA'},
+    {label: `${MODULE_TEXT.labels.toDate}:`, value: planner.to_date || 'NA'},
+  ];
 
-
-                <View style={styles.tableContainer}>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Subject:</Text>
-                        <Text style={styles.value}>{planner.subject}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Class:</Text>
-                        <Text style={styles.value}>{planner.class}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Section:</Text>
-                        <Text style={styles.value}>{planner.section}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>From Date:</Text>
-                        <Text style={styles.value}>{planner.fromDate}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>To Date:</Text>
-                        <Text style={styles.value}>{planner.toDate}</Text>
-                    </View>
-                </View>
-
-              <CommonButton title="Edit" 
-  buttonClick={()=>navigation.navigate('StaffEditFornightlyPlanner')}/>
-            </View></>
-    );
+  return (
+    <StaffContentScaffold
+      onBackPress={() => navigation.goBack()}
+      theme={theme}
+      title={MODULE_TEXT.viewTitle}>
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={{
+          paddingBottom: theme.spacing.footerSafeBottom,
+          paddingTop: theme.spacing.screenTop,
+        }}
+        showsVerticalScrollIndicator={false}>
+        <StaffContentDetailCard rows={rows} theme={theme} />
+        <StaffContentPrimaryButton
+          onPress={() =>
+            navigation.navigate('StaffEditFornightlyPlanner', {planner})
+          }
+          style={{
+            marginTop: theme.spacing.buttonTop,
+          }}
+          theme={theme}
+          title={STAFF_CONTENT_TEXT.common.edit}
+        />
+      </ScrollView>
+    </StaffContentScaffold>
+  );
 };
 
 export default ViewStaffFornightlyPlanner;
-
-const styles = StyleSheet.create({
-    tableContainer: {
-        marginVertical: resH(2),
-        padding: resW(2),
-        backgroundColor: SilverColor,
-        borderRadius: resW(2),
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginVertical: resH(1),
-    },
-    label: {
-        fontSize: font16,
-        fontWeight: '700',
-        color: blackColor,
-    },
-    value: {
-        fontSize: font14,
-        color: blackColor,
-    },
-});

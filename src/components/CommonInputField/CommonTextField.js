@@ -1,11 +1,8 @@
-import React from 'react';
-import { View, TextInput, StyleSheet, Image } from 'react-native';
-import {
-  blackColor,
-  font14,
-  resH,
-  resW,
-} from '../../Utils/Constant';
+import React from "react";
+import { StyleSheet } from "react-native";
+
+import { spacing } from "../../constants";
+import AppInput from "../common/AppInput";
 
 const CustomInputField = ({
   label,
@@ -19,53 +16,23 @@ const CustomInputField = ({
   iconStyle, // 👈 optional custom style for image
 }) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.inputWrapper}>
-        {leftIcon && (
-          <Image
-            source={leftIcon}
-            style={[styles.icon, iconStyle]}
-            resizeMode="contain"
-          />
-        )}
-
-        <TextInput
-          style={[styles.input, inputStyle]}
-          placeholder={placeholder}
-          value={value}
-          multiline={multiline}
-          onChangeText={onChangeText}
-          keyboardType={keyboardType || 'default'}
-          placeholderTextColor="grey"
-        />
-      </View>
-    </View>
+    <AppInput
+      containerStyle={styles.container}
+      inputStyle={inputStyle}
+      keyboardType={keyboardType || "default"}
+      label={label}
+      leftIcon={leftIcon}
+      multiline={multiline}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      value={value}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: resH(1),
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 0.1,
-    borderColor: blackColor,
-    borderRadius: 2,
-    backgroundColor: '#fff',
-    paddingHorizontal: resW(2),
-  },
-  icon: {
-    width: resW(5.5),
-    height: resW(5.5),
-    marginRight: resW(2),
-    tintColor: 'grey', // optional: tint for consistency
-  },
-  input: {
-    flex: 1,
-    fontSize: font14,
-    color: blackColor,
+    marginVertical: spacing.sm,
   },
 });
 

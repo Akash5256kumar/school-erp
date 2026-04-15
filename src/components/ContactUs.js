@@ -5,11 +5,10 @@ const baseColor = '#0747a6'; // Assuming this is needed from the original code
 import * as myConst from './Baseurl'; // Assuming this is needed from the original code
 import Snackbar from 'react-native-snackbar';
 import Header from './Header/Header'; // Assuming Header component is in './Header/Header'
-import { useSelector } from 'react-redux';
+import useStudentAuth from '../store/hooks/useStudentAuth';
 
 const ContactUs = ({ navigation }) => {
-    const userData = useSelector(state=>state.userSlice.userData)
-    const usertoken = useSelector(state=>state.userSlice.token)
+    const { token: usertoken } = useStudentAuth();
     const [loading, setLoading] = useState(false);
     const [userId, setUserId] = useState('');
     const [mobileNo, setMobileNo] = useState('');

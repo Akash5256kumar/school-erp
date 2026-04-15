@@ -1,80 +1,174 @@
-import React from 'react';
-import { Image, Pressable, Text, TextInput, View, StyleSheet, StatusBar, Platform } from 'react-native';
-import * as constant from '../Utils/Constant'
-const CommonHeader = (props) => {
-  const {
-    title,
-    extStyle,
-    onLeftClick,
-    backgroundColor,
-    IconColor,
-    textColor,
-    imageSource,
-    onPressData
-  } = props;
+import React from "react";
+import {
+  Image,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import LinearGradient from "react-native-linear-gradient";
+import {
+  appBarTheme,
+  colors,
+  componentSizes,
+  spacing,
+  typography,
+} from "../constants";
+import * as constant from "../Utils/Constant";
 
-  return (
-    <View style={[styles.mainView, extStyle, { backgroundColor: backgroundColor }]}>
-      {/* <StatusBar translucent backgroundColor={'transparent'} barStyle={'dark-content'}/> */}
-      <Pressable style={styles.leftMainView} onPress={() => onLeftClick()}>
-        <Image source={constant.Icons.backArrowIcon} resizeMode='contain' style={[styles.backIcon, IconColor ? { tintColor: IconColor } : null
-        ]} />
+const CommonHeader = ({
+  title = "",
+  extStyle = {},
+  onLeftClick = () => {},
+  backgroundColor = "",
+  IconColor = "",
+  textColor = "",
+  imageSource,
+  onPressData,
+  compact = false,
+  iconStyle = {},
+  titleStyle = {},
+  gradientColors = null,
+}) => {
+  const headerBackgroundStyle = backgroundColor
+    ? { backgroundColor }
+    : styles.defaultBackground;
+  const iconTintStyle = IconColor ? { tintColor: IconColor } : null;
+  const titleColorStyle = textColor ? { color: textColor } : null;
+
+  const content = (
+    <>
+      <Pressable
+        accessibilityRole="button"
+        style={styles.leftMainView}
+        onPress={() => onLeftClick()}
+      >
+        <Image
+          resizeMode="contain"
+          source={constant.Icons.backArrowIcon}
+          style={[
+            styles.backIcon,
+            compact ? styles.compactBackIcon : null,
+            iconStyle,
+            iconTintStyle,
+          ]}
+        />
       </Pressable>
       <View style={styles.midMainView}>
-        <Text style={[styles.titleStyle, textColor ? { color: textColor } : null]}>{title}</Text>
+        <Text
+          style={[
+            styles.titleStyle,
+            compact ? styles.compactTitleStyle : null,
+            titleStyle,
+            titleColorStyle,
+            styles.enforcedTitleMetrics,
+          ]}
+        >
+          {title}
+        </Text>
       </View>
 
       <View style={styles.rightMainView}>
-{imageSource&&
-          <><Pressable onPress={onPressData}><Image source={imageSource} style={{ width: constant.resW(7), height: constant.resW(7), tintColor: constant.whiteColor }} /></Pressable></>}
+        {imageSource ? (
+          <Pressable accessibilityRole="button" onPress={onPressData}>
+            <Image source={imageSource} style={styles.actionIcon} />
+          </Pressable>
+        ) : null}
       </View>
+    </>
+  );
+
+  if (gradientColors?.length) {
+    return (
+      <LinearGradient
+        colors={gradientColors}
+        end={{ x: 1, y: 0 }}
+        start={{ x: 0, y: 0 }}
+        style={[
+          styles.mainView,
+          compact ? styles.compactMainView : null,
+          extStyle,
+        ]}
+      >
+        {content}
+      </LinearGradient>
+    );
+  }
+
+  return (
+    <View
+      style={[
+        styles.mainView,
+        compact ? styles.compactMainView : null,
+        extStyle,
+        headerBackgroundStyle,
+      ]}
+    >
+      {content}
     </View>
   );
 };
 
-CommonHeader.defaultProps = {
-  onLeftClick: function () { },
-  title: '',
-  extStyle: {},
-  backgroundColor: '',
-  textColor: '',
-  IconColor: ''
-};
-
-
 export default CommonHeader;
 const styles = StyleSheet.create({
+  defaultBackground: {
+    backgroundColor: colors.primaryDark,
+  },
   mainView: {
-    height: constant.resW(15),
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Platform.OS === 'ios' ? constant.resW(10) : constant.resW(0),
+    height: appBarTheme.layout.height,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingTop:
+      Platform.OS === "ios" ? componentSizes.appBarCompactTopInset : spacing.sm,
+  },
+  compactMainView: {
+    height: appBarTheme.layout.height,
   },
   leftMainView: {
-    flex: 0.15,
-    paddingLeft: '4%',
-    height: '100%',
-    justifyContent: 'center',
+    width: componentSizes.iconLg * 2,
+    height: "100%",
+    justifyContent: "center",
   },
   backIcon: {
-    height: constant.resW(8),
-    width: constant.resW(8),
-    marginTop: '5%'
+    height: appBarTheme.iconSize.back,
+    width: appBarTheme.iconSize.back,
+    marginTop: 0,
+  },
+  compactBackIcon: {
+    height: appBarTheme.iconSize.back,
+    width: appBarTheme.iconSize.back,
+    marginTop: 0,
   },
   midMainView: {
     flex: 1,
-    height: '100%',
-    justifyContent: 'center',
+    height: "100%",
+    justifyContent: "center",
+    paddingHorizontal: spacing.xs,
   },
   rightMainView: {
-    flex: 0.2,
-    height: '100%',
-    justifyContent: 'center'
+    width: componentSizes.iconLg * 2,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "flex-end",
   },
   titleStyle: {
-    fontSize: constant.font22,
+    fontSize: appBarTheme.typography.title,
     color: constant.baseTextColor,
-    fontFamily: constant.typeSemiBold,
-  }
-
-})
+    fontFamily: appBarTheme.fontFamily.title,
+    fontWeight: typography.weights.bold,
+  },
+  compactTitleStyle: {
+    fontSize: appBarTheme.typography.title,
+  },
+  enforcedTitleMetrics: {
+    fontFamily: appBarTheme.fontFamily.title,
+    fontSize: appBarTheme.typography.title,
+  },
+  actionIcon: {
+    width: componentSizes.iconLg,
+    height: componentSizes.iconLg,
+    tintColor: constant.whiteColor,
+  },
+});

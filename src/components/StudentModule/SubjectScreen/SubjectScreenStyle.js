@@ -1,68 +1,127 @@
-import React from 'react';
-import { StyleSheet , Dimensions, Platform} from 'react-native';
-const baseColor = '#0747a6'
-import * as constant from '../../../Utils/Constant'
+import {StyleSheet} from 'react-native';
+import * as constant from '../../../Utils/Constant';
 
-export default styles = StyleSheet.create({
-
-    MainContainer: {
-        width: '100%',
-        height: '100%',
-    },
-    listContainer:{
-    marginHorizontal:constant.resW(5),
-    marginTop:constant.resW(2)
-    },
-    listColumn:{
-    gap:constant.resW(3)
-    },
-    CardView: {
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 2,
-        borderRadius: 8,
-        alignItems:'center',
-        justifyContent:'center',
-        // height:constant.resW(30),
-        width:constant.resW(27.8),
-        paddingVertical:constant.resW(3)
-    
-    },
-    AssignmentImage: {
-        height: constant.resW(14),
-        width: constant.resW(14),
-    },
-    DashboardTextStyle:{
-        fontSize: constant.font16,
-        color: 'black',
-        fontFamily:constant.typeSemiBold,
-        marginTop:constant.resW(1.5),
-    },
-    activeDot:{
-        // height: constant.resW(2),
-        // width: constant.resW(2),
-        // position:'absolute',
-        // top:constant.resW(2),
-        // right:constant.resW(2),
-        // backgroundColor:'green',
-        // borderRadius:constant.resW(20),
-        fontSize: constant.font12,
-        color: 'white',
-        fontFamily:constant.typeSemiBold,
-    },
-    dotStyle:{
-       height: constant.resW(5),
-        width: constant.resW(5),
-        position:'absolute',
-        top:constant.resW(1),
-        right:constant.resW(1),
-        backgroundColor:'green',
-        borderRadius:constant.resW(20),
-        alignItems:'center',
-        justifyContent:'center'
-     
-    }
-})
+export default StyleSheet.create({
+  MainContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  listContainer: {
+    paddingBottom: constant.resW(12),
+    paddingHorizontal: constant.resW(4),
+    paddingTop: constant.resW(4),
+  },
+  listColumn: {
+    justifyContent: 'space-between',
+  },
+  heroCard: {
+    backgroundColor: '#F8FAFF',
+    borderColor: '#E2E8F4',
+    borderRadius: constant.resW(3),
+    borderWidth: 1,
+    marginBottom: constant.resW(4),
+    paddingHorizontal: constant.resW(4),
+    paddingVertical: constant.resW(4),
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  heroTitle: {
+    color: constant.blackColor,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font18,
+  },
+  heroSubtitle: {
+    color: constant.baseTextColor,
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font12,
+    lineHeight: constant.resW(4.8),
+    marginTop: constant.resW(1),
+  },
+  cardView: {
+    borderRadius: constant.resW(3),
+    overflow: 'hidden',
+    width: '48.5%',
+  },
+  cardGradient: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E2E8F4',
+    borderRadius: constant.resW(3),
+    borderWidth: 1,
+    minHeight: constant.resW(42),
+    paddingHorizontal: constant.resW(3),
+    paddingTop: constant.resW(3.2),
+    paddingBottom: constant.resW(2.8),
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  cardAccent: {
+    borderRadius: constant.resW(1),
+    height: constant.resW(1),
+    marginBottom: constant.resW(2.6),
+    width: constant.resW(12),
+  },
+  cardTopRow: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  iconWrap: {
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    borderRadius: constant.resW(4),
+    height: constant.resW(18),
+    justifyContent: 'center',
+    width: constant.resW(18),
+  },
+  assignmentImage: {
+    height: constant.resW(12.5),
+    width: constant.resW(12.5),
+  },
+  badge: {
+    alignItems: 'center',
+    borderRadius: constant.resW(5),
+    justifyContent: 'center',
+    paddingHorizontal: constant.resW(2.2),
+    paddingVertical: constant.resW(0.8),
+  },
+  badgeText: {
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font10,
+  },
+  cardBody: {
+    marginTop: constant.resW(3),
+  },
+  cardTitle: {
+    color: constant.blackColor,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font16,
+    lineHeight: constant.resW(6),
+  },
+  cardSubtitle: {
+    color: constant.baseTextColor,
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font11,
+    lineHeight: constant.resW(4.4),
+    marginTop: constant.resW(1),
+  },
+  cardFooter: {
+    marginTop: constant.resW(3),
+  },
+  cardFooterText: {
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font12,
+  },
+  loaderOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.72)',
+    justifyContent: 'center',
+  },
+});

@@ -51,7 +51,9 @@ const SelectDropList = (props) => {
             dropdownIconPosition="right"  // ✅ force icon on right
             buttonTextAfterSelection={(selectedItem) => selectedItem}
             rowTextForSelection={(item) => item}
-            rowTextStyle={styles.dropdownRowText}
+            dropdownStyle={[styles.dropdownStyle, props.dropdownExt]}
+            rowStyle={[styles.rowStyle, props.rowExt]}
+            rowTextStyle={[styles.dropdownRowText, props.rowTextExt]}
         />
     );
 };
@@ -73,9 +75,25 @@ const styles = StyleSheet.create({
         fontSize: resW(3),
         textAlign: 'left',
     },
+    dropdownStyle: {
+        borderRadius: 16,
+        backgroundColor: '#FFFFFF',
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        marginTop: 4, // create a small gap
+    },
+    rowStyle: {
+        borderBottomColor: '#F1F5F9',
+        height: 50,
+    },
     dropdownRowText: {
-        fontSize: resW(3.3),
-        color: '#000',
+        fontSize: resW(3.5),
+        color: '#1E1B4B',
+        textAlign: 'left',
+        paddingHorizontal: 16,
     },
     iconStyle: {
         width: resW(3.5),

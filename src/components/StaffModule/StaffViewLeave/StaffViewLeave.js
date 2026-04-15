@@ -1,226 +1,210 @@
-import React, { Component } from 'react';
-import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler, FlatList } from 'react-native';
-import styles from './style';
-const baseColor = '#0747a6'
-import * as myConst from '../../Baseurl';
+import React, { useCallback, useEffect, useState } from "react";
+import { BackHandler, FlatList, View, useWindowDimensions } from "react-native";
+import LinearGradient from "react-native-linear-gradient";
 import AsyncStorage from "@react-native-community/async-storage";
-import CommonHeader from '../../CommonHeader';
-import { Blue, whiteColor } from '../../../Utils/Constant';
-import * as constant from '../../../Utils/Constant';
-class StaffViewLeave extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false,
-            dataSource: [],
-            user_id: '',
-            casualLeave: '',
-            sickLeave: '',
-            earnLeave: '',
-            remCasualLeave: '',
-            remSickLeave: '',
-            remEarnLeave: '',
-            status: ''
-        }
-    }
-    async componentDidMount() {
-        const value = await AsyncStorage.getItem('@id')
-        this.setState({
-            user_id: value
-        })
-        console.log('id', this.state.user_id)
-        this.viewLeavesApi()
-        this.leaveGettingApi()
-    }
-    componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    }
-    handleBackPress = () => {
-        this.props.navigation.navigate('StaffHome')
-        return true;
-    };
-    viewLeavesApi() {
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "user_id": this.state.user_id
-            })
-        }
-        fetch(myConst.BASEURL + 'viewleaves', data)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log('viewLeaves-->', responseJson)
-                let response = responseJson.data
-                for (let i = 0; i < response.length; i++) {
-                    if (response[i].status === 0) {
-                        this.setState({ status: 'Pending' })
-                    } else if (response[i].status === 1) {
-                        this.setState({ status: 'Approved' })
-                    } else if (response[i].status === 2) {
-                        this.setState({ status: 'Cancelled' })
-                    }
-                }
-                this.setState({
-                    dataSource: response,
-                })
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
-    }
-    leaveGettingApi() {
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "id": this.state.user_id
-            })
-        }
-        fetch(myConst.BASEURL + 'leavegetting', data)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log('leavegetting-->', responseJson)
-                let response = responseJson.data
-                var casual_leave = response.casual_leave;
-                var annual_leave = response.annual_leave;
-                var sick_leave = response.sick_leave;
-                var remCasual = casual_leave - response.cousume_casual_leave;
-                var remAnnual = annual_leave - response.cousume_annual_leave;
-                var remSick = sick_leave - response.cousume_sick_leave;
-                this.setState({
-                    casualLeave: casual_leave,
-                    sickLeave: sick_leave,
-                    earnLeave: annual_leave,
-                    remCasualLeave: remCasual,
-                    remEarnLeave: remAnnual,
-                    remSickLeave: remSick
-                })
+import { useFocusEffect } from "@react-navigation/native";
 
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
-    }
-    async navigate(item) {
-        console.log('id', item.id)
-        await AsyncStorage.setItem('@new_id', String(item.id))
-        this.props.navigation.navigate('StaffLeaveDetail')
-    }
-    render() {
-        return (
-            <View style={styles.MainContainer}>
-                {/* <View style={styles.HeaderBackground}>
-                    <View style={styles.HeaderContainer}>
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate("StaffHome")}>
-                            <Image style={styles.HeaderImage}
-                                source={require('../../../assests/images/leftarrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.HeaderText}>Leaves</Text>
-                        <View>
-                            {/* <TouchableOpacity
-                                onPress={() => this.props.navigation.navigate('StaffAddLeave')}>
-                                <Image style={styles.HeaderPlusImage}
-                                    source={require('../../../assests/images/plus.png')} />
-                            </TouchableOpacity> */}
-                {/* </View>
-                    </View>
+import staffApiClient from "../../../api/staffClient";
+import { LEAVE_COPY } from "../../../constants/libraryLeaveCopy";
+import { createLibraryLeaveTheme } from "../../../constants/libraryLeaveTheme";
+import usePullToRefresh from "../../../hooks/usePullToRefresh";
+import {
+  EmptyMessage,
+  FloatingActionButton,
+  LeaveBalanceCard,
+  LeaveRequestCard,
+  ModuleHeader,
+} from "../../common/LibraryLeavePrimitives";
 
-                </View>  */}
-                <CommonHeader
-                    title={"Leaves"}
-                    backgroundColor={Blue}
-                    textColor={whiteColor}
-                    IconColor={whiteColor}
-                    onLeftClick={() => this.props.navigation.navigate('StaffHome')}
+const getStatusLabel = (status) => {
+  if (status === 1) {
+    return LEAVE_COPY.status.approved;
+  }
+
+  if (status === 2) {
+    return LEAVE_COPY.status.cancelled;
+  }
+
+  return LEAVE_COPY.status.pending;
+};
+
+const StaffViewLeave = ({ navigation }) => {
+  const { width, height } = useWindowDimensions();
+  const theme = createLibraryLeaveTheme({ width, height });
+  const [dataSource, setDataSource] = useState([]);
+  const [leaveSummary, setLeaveSummary] = useState({
+    casualLeave: 0,
+    sickLeave: 0,
+    earnLeave: 0,
+    remCasualLeave: 0,
+    remSickLeave: 0,
+    remEarnLeave: 0,
+  });
+
+  const navigateToHomeTab = useCallback(() => {
+    navigation.navigate("StaffModuleBottomTabs", {
+      screen: "StaffHome",
+    });
+  }, [navigation]);
+
+  const handleBackPress = useCallback(() => {
+    navigateToHomeTab();
+    return true;
+  }, [navigateToHomeTab]);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackPress
+    );
+
+    return () => subscription.remove();
+  }, [handleBackPress]);
+
+  const viewLeavesApi = useCallback(async (userId) => {
+    const responseJson = await staffApiClient.post("viewleaves", { user_id: userId });
+    setDataSource(responseJson?.data || []);
+  }, []);
+
+  const leaveGettingApi = useCallback(async (userId) => {
+    const responseJson = await staffApiClient.post("leavegetting", { id: userId });
+    const summary = responseJson?.data || {};
+    const casualLeave = Number(summary?.casual_leave || 0);
+    const earnLeave = Number(summary?.annual_leave || 0);
+    const sickLeave = Number(summary?.sick_leave || 0);
+
+    setLeaveSummary({
+      casualLeave,
+      earnLeave,
+      sickLeave,
+      remCasualLeave: casualLeave - Number(summary?.cousume_casual_leave || 0),
+      remEarnLeave: earnLeave - Number(summary?.cousume_annual_leave || 0),
+      remSickLeave: sickLeave - Number(summary?.cousume_sick_leave || 0),
+    });
+  }, []);
+
+  const loadLeaves = useCallback(async () => {
+    try {
+      const userId = await AsyncStorage.getItem("@id");
+
+      if (!userId) {
+        setDataSource([]);
+        return;
+      }
+
+      await Promise.all([viewLeavesApi(userId), leaveGettingApi(userId)]);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [leaveGettingApi, viewLeavesApi]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadLeaves();
+    }, [loadLeaves])
+  );
+
+  const { onRefresh, refreshing } = usePullToRefresh(loadLeaves);
+
+  const summaryCards = [
+    {
+      key: "casual",
+      accentColor: theme.palette.primaryBlue,
+      label: `${LEAVE_COPY.summaryLabels.casual} ${LEAVE_COPY.summaryLabels.suffix}`,
+      remaining: leaveSummary.remCasualLeave,
+    },
+    {
+      key: "earn",
+      accentColor: theme.palette.primaryGreen,
+      label: `${LEAVE_COPY.summaryLabels.earn} ${LEAVE_COPY.summaryLabels.suffix}`,
+      remaining: leaveSummary.remEarnLeave,
+    },
+    {
+      key: "sick",
+      accentColor: theme.palette.primaryRed,
+      label: `${LEAVE_COPY.summaryLabels.sick} ${LEAVE_COPY.summaryLabels.suffix}`,
+      remaining: leaveSummary.remSickLeave,
+    },
+  ];
+
+  return (
+    <View style={{ backgroundColor: theme.palette.pageBase, flex: 1 }}>
+      <ModuleHeader
+        onBackPress={navigateToHomeTab}
+        theme={theme}
+        title={LEAVE_COPY.listTitle}
+      />
+
+      <LinearGradient colors={theme.palette.pageGradient} style={{ flex: 1 }}>
+        <FlatList
+          ListHeaderComponent={
+            <View
+              style={{
+                columnGap: theme.spacing.statGap,
+                flexDirection: "row",
+                paddingBottom: theme.spacing.leaveListTop,
+                paddingHorizontal: theme.spacing.screenHorizontal,
+                paddingTop: theme.spacing.leaveSummaryTop,
+              }}
+            >
+              {summaryCards.map((card) => (
+                <LeaveBalanceCard
+                  accentColor={card.accentColor}
+                  key={card.key}
+                  label={card.label}
+                  remaining={card.remaining}
+                  theme={theme}
                 />
-                <View style={styles.TabBackground}>
-                    <View style={styles.RowCardStyle}>
-
-                        <View style={styles.TabCardView}>
-                            <Text style={styles.CardviewText}>{this.state.remCasualLeave}</Text>
-                            <Text style={styles.CardviewText}>Casual</Text>
-                            <Text style={styles.CardviewText}>{this.state.casualLeave} Leaves</Text>
-                        </View>
-
-                        <View style={styles.TabCardView}>
-                            <Text style={styles.CardviewText}>{this.state.remEarnLeave}</Text>
-                            <Text style={styles.CardviewText}>Earn</Text>
-                            <Text style={styles.CardviewText}>{this.state.earnLeave} Leaves</Text>
-                        </View>
-
-                        <View style={styles.TabCardView}>
-                            <Text style={styles.CardviewText}>{this.state.remSickLeave}</Text>
-                            <Text style={styles.CardviewText}>Sick</Text>
-                            <Text style={styles.CardviewText}>{this.state.sickLeave} Leaves</Text>
-                        </View>
-                    </View>
-
-                </View>
-
-                <FlatList
-                    data={this.state.dataSource}
-
-                    renderItem={({ item, index }) =>
-                        <View style={styles.FlatStyle}>
-                            <View style={styles.CardView}>
-
-                                <View style={styles.CardviewStyle}>
-                                    <View style={styles.TextViewStyle}>
-                                        <Text style={styles.TextStyle}>{item.subject}</Text>
-                                        <View style={styles.CircleShapeView}>
-                                            <Text style={styles.StatusText}>{this.state.status}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-
-                                <View>
-                                    <View style={styles.CardviewStyle}>
-                                        <Text style={styles.TextDateHeadingStyle}>Start Date - </Text>
-                                        <Text style={styles.TextDate}>{item.start_date}</Text>
-                                    </View>
-                                    <View style={styles.CardviewStyle}>
-                                        <Text style={styles.TextDateHeadingStyle}>End Date - </Text>
-                                        <Text style={styles.TextDate}>{item.end_date}</Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.CardviewStyle}>
-                                    <View style={styles.TextViewStyle}>
-                                        <Text style={styles.TextLeaveType}>{item.leave_type}</Text>
-                                        <View style={styles.BackgroundView}>
-                                            <TouchableOpacity
-                                                onPress={() => this.navigate(item)}>
-                                                <Image style={styles.AssignmentDownloadImage}
-                                                    source={require("../../../assests/images/right_arrow.png")} />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                </View>
-
-                            </View>
-                        </View>
-                    }
-                    keyExtractor={(item, index) => index}
-                />
-                <TouchableOpacity style={styles.fabButton} onPress={() => this.props.navigation.navigate('StaffAddLeave')}>
-                    <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
-                </TouchableOpacity>
+              ))}
             </View>
-        )
-    }
+          }
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom:
+              theme.spacing.listBottom +
+              theme.spacing.floatingBottomOffset +
+              theme.sizes.floatingButton,
+          }}
+          data={dataSource}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: theme.spacing.cardGap }} />
+          )}
+          keyExtractor={(item, index) => String(item?.id || index)}
+          ListEmptyComponent={() => (
+            <EmptyMessage message={LEAVE_COPY.emptyList} theme={theme} />
+          )}
+          onRefresh={onRefresh}
+          refreshing={refreshing}
+          renderItem={({ item }) => (
+            <View style={{ paddingHorizontal: theme.spacing.screenHorizontal }}>
+              <LeaveRequestCard
+                endDate={item?.end_date || ""}
+                leaveType={item?.leave_type || ""}
+                onPress={async () => {
+                  await AsyncStorage.setItem("@new_id", String(item?.id));
+                  navigation.navigate("StaffLeaveDetail", {
+                    leaveDetails: item,
+                  });
+                }}
+                startDate={item?.start_date || ""}
+                status={getStatusLabel(item?.status)}
+                theme={theme}
+                title={item?.subject || ""}
+              />
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
 
+        <FloatingActionButton
+          icon="plus"
+          onPress={() => navigation.navigate("StaffAddLeave")}
+          sizeVariant="compact"
+          theme={theme}
+        />
+      </LinearGradient>
+    </View>
+  );
+};
 
-}
 export default StaffViewLeave;

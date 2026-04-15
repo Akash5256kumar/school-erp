@@ -79,12 +79,12 @@ android {
         applicationId "com.schoolerp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2"
     }
     signingConfigs {
-         release {
-                storeFile file("E:/TesdaApp/SchoolApp/android/app/schoolErp.jks")
+        release {
+                storeFile file("schoolErp.jks")
                 storePassword "schoolErp"
                 keyAlias "schoolErp"
                 keyPassword "schoolErp"            

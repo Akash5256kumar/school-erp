@@ -1,23 +1,22 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { blackColor, font12, font14 } from '../Utils/Constant'
+import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { typography } from "../constants";
+import { blackColor } from "../Utils/Constant";
 
-const LabelHeader = ({label,textstyle}) => {
+const LabelHeader = ({ label, textstyle }) => {
   return (
     <View>
-      <Text style={[styles.label,textstyle]}>{label}</Text>
+      <Text style={[styles.label, textstyle]}>{label}</Text>
     </View>
-  )
-}
+  );
+};
 
-export default LabelHeader
+export default LabelHeader;
 
 const styles = StyleSheet.create({
-    label:{
-        fontSize:font14,
-        color:blackColor,
-        fontWeight:"400",
-
-    }
-
-})
+  label: {
+    fontSize: typography.fontRegular,
+    color: blackColor,
+    fontWeight: typography.weights.regular,
+  },
+});

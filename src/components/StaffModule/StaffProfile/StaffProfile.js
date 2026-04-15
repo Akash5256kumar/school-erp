@@ -1,472 +1,89 @@
-// import React, { Component } from 'react';
-// import { Text, View, ImageBackground, Image, TouchableOpacity, BackHandler, ScrollView, TextInput, Alert } from 'react-native';
-// // import { ScrollView, TextInput } from 'react-native-gesture-handler';
-// import styles from './style';
-// const baseColor = '#0747a6'
-// // import * as myConst from '../Baseurl';
-// import Snackbar from 'react-native-snackbar';
-// import AsyncStorage from "@react-native-community/async-storage";
-
-
-// class StaffProfile extends Component {
-
-//     constructor(props) {
-//         super(props);
-//         this.state = {
-//             loading: false,
-//             teacherName: '',
-//             teacherEmail: '',
-//             teacherRole: '',
-//             assignClass: '',
-//             assignSection: '',
-//             firstName: '',
-//             lastName: ''
-//         }
-
-//     }
-
-
-//     async componentDidMount() {
-//         const name = await AsyncStorage.getItem('@name')
-//         var first = name.split(' ').slice(0, -1).join(' ');
-//         var last = name.split(' ').slice(-1).join(' ');
-//         console.log('first', first)
-//         console.log('last', last)
-//         const email = await AsyncStorage.getItem('@email')
-//         const role = await AsyncStorage.getItem('@role')
-//         const assignclass = await AsyncStorage.getItem('@aclass')
-//         const assignsection = await AsyncStorage.getItem('@asection')
-//         this.setState({
-//             teacherName: name,
-//             firstName: first,
-//             lastName: last,
-//             teacherEmail: email,
-//             teacherRole: role,
-//             assignClass: assignclass,
-//             assignSection: assignsection
-//         })
-//     }
-
-
-//     componentWillMount() {
-//         BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-//     }
-
-//     componentWillUnmount() {
-//         BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-//     }
-
-//     handleBackPress = () => {
-//         this.props.navigation.navigate('StaffHome')
-//         return true;
-//     };
-
-//     // handleBackPress = () => {
-//     //     this.props.navigation.goBack()
-//     //     // return true;
-//     // };
-
-//     handleLogout = () => {
-//         Alert.alert(
-//             'Log out',
-//             'Do you want to logout?',
-//             [
-//                 { text: 'Cancel', onPress: () => { return null; } },
-//                 {
-//                     text: 'Confirm',
-//                     onPress: async () => {
-//                         try {
-//                             await AsyncStorage.clear();
-//                             // Use reset to clear the stack and navigate to RoleSelectionScreen
-//                             this.props.navigation.reset({
-//                                 index: 0,
-//                                 routes: [{ name: 'RoleSelectionScreen' }],
-//                             });
-//                         } catch (error) {
-//                             console.error('Error during logout:', error);
-//                         }
-//                     }
-//                 },
-//             ],
-//             { cancelable: false }
-//         );
-//     };
-
-//     render() {
-//         return (
-//             <View style={styles.MainContainer}>
-//                 <View style={styles.NewRowStyle}>
-//                     <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffHome')}>
-//                         <Image style={styles.HeaderArrowImage}
-//                             source={require('../../../assests/images/arrow_back.png')} />
-//                     </TouchableOpacity>
-//                     <Text style={styles.ProfileText}>Profile</Text>
-//                     <TouchableOpacity onPress={() => this.handleLogout()}>
-//                         <Image style={styles.HeaderArrowImage}
-
-//                             source={require('../../../assests/images/logout1.png')} />
-
-//                     </TouchableOpacity>
-
-//                     {/* <Text style={styles.ProfileText}>
-//                             logout
-//                         </Text> */}
-//                 </View>
-//                 <ScrollView>
-
-
-//                     <View style={styles.ProfileImageBackground}>
-//                         <Image style={styles.ProfileImage}
-//                             source={require('../../../assests/images/businessman.png')} />
-//                     </View>
-
-//                     <View>
-//                         <View style={styles.CardviewMargin}>
-//                             <Text style={styles.GeneralText}>User Information</Text>
-
-//                             <View style={styles.RowStyle}>
-//                                 <Text style={styles.BoldTextLeft}>Name</Text>
-//                                 <Text style={styles.BoldTextRight}>Last Name</Text>
-//                             </View>
-
-//                             <View style={styles.RowStyle}>
-//                                 <Text style={styles.NormalText}>{this.state.firstName}</Text>
-//                                 <Text style={styles.NormalText}>{this.state.lastName}</Text>
-//                             </View>
-
-//                             <View style={styles.RowStyle}>
-//                                 <View style={styles.HorizontalLine}></View>
-//                                 <View style={styles.HorizontalLine}></View>
-//                             </View>
-//                             <Text style={styles.BoldTextLeft}>Email</Text>
-
-//                             <View style={styles.RowStyle}>
-//                                 <Text style={styles.EmailText}>{this.state.teacherEmail}</Text>
-//                             </View>
-//                             <View style={styles.HoziontalLineFull}></View>
-
-//                             <View style={styles.RowStyle}>
-//                                 <Text style={styles.BoldTextLeft}>Role Type</Text>
-//                                 <Text style={styles.BoldTextRight}>Class Incharge</Text>
-//                             </View>
-
-//                             <View style={styles.RowStyle}>
-//                                 <Text style={styles.NormalTextViewLeft}>{this.state.teacherRole}</Text>
-//                                 <Text style={styles.NormalTextViewLeft}>{this.state.assignClass}-{this.state.assignSection}</Text>
-//                             </View>
-
-//                             <View style={styles.RowStyle}>
-//                                 <View style={styles.HorizontalLine}></View>
-//                                 <View style={styles.HorizontalLine}></View>
-//                             </View>
-
-//                             {/* <Text style={styles.BoldTextLeft}>Subject</Text>
-
-//                             <View style={styles.RowStyle}>
-//                                 <Text style={styles.NormalTextViewLeft}>bkmkbmkbk</Text>
-//                             </View>
-//                             <View style={styles.HoziontalLineFull}></View> */}
-
-//                         </View>
-
-//                         {/* <TouchableOpacity style={styles.button}
-//                             onPress={() => this.props.navigation.navigate("StaffHome")}
-//                         >
-//                             <Text style={styles.buttonText}>Save</Text>
-//                         </TouchableOpacity> */}
-//                     </View>
-
-//                 </ScrollView>
-//             </View>
-//         )
-//     }
-// }
-// export default StaffProfile;
-// import React, { useEffect, useState, useCallback } from 'react';
-// import {
-//     Text,
-//     View,
-//     Image,
-//     TouchableOpacity,
-//     BackHandler,
-//     ScrollView,
-//     Alert,
-// } from 'react-native';
-// import AsyncStorage from '@react-native-community/async-storage';
-// import Snackbar from 'react-native-snackbar';
-// import styles from './style';
-// import { useNavigation } from '@react-navigation/native';
-// import { resW } from '../../../Utils/Constant';
-// import * as constant from '../../../Utils/Constant'
-// const baseColor = '#0747a6';
-
-// const StaffProfile = () => {
-//     const navigation = useNavigation();
-
-//     const [teacherName, setTeacherName] = useState('');
-//     const [teacherEmail, setTeacherEmail] = useState('');
-//     const [teacherRole, setTeacherRole] = useState('');
-//     const [assignClass, setAssignClass] = useState('');
-//     const [assignSection, setAssignSection] = useState('');
-//     const [firstName, setFirstName] = useState('');
-//     const [lastName, setLastName] = useState('');
-
-//     // Fetch data from AsyncStorage
-//     const loadData = async () => {
-//         try {
-//             const name = await AsyncStorage.getItem('@name');
-//             const email = await AsyncStorage.getItem('@email');
-//             const role = await AsyncStorage.getItem('@role');
-//             const assignclass = await AsyncStorage.getItem('@aclass');
-//             const assignsection = await AsyncStorage.getItem('@asection');
-
-//             console.log("role", role)
-//             if (name) {
-//                 const first = name.split(' ').slice(0, -1).join(' ');
-//                 const last = name.split(' ').slice(-1).join(' ');
-//                 setTeacherName(name);
-//                 setFirstName(first);
-//                 setLastName(last);
-//             }
-
-//             setTeacherEmail(email || '');
-//             setTeacherRole(role || '');
-//             setAssignClass(assignclass || '');
-//             setAssignSection(assignsection || '');
-//         } catch (error) {
-//             console.error('Error loading profile data:', error);
-//         }
-//     };
-
-//     // Back handler
-//     const handleBackPress = useCallback(() => {
-//         navigation.navigate('StaffHome');
-//         return true;
-//     }, [navigation]);
-
-//     useEffect(() => {
-//         loadData();
-
-//         const backHandler = BackHandler.addEventListener(
-//             'hardwareBackPress',
-//             handleBackPress
-//         );
-
-//         return () => backHandler.remove();
-//     }, [handleBackPress]);
-
-//     // Logout function
-//     const handleLogout = () => {
-//         Alert.alert(
-//             'Log out',
-//             'Do you want to logout?',
-//             [
-//                 { text: 'Cancel', onPress: () => null },
-//                 {
-//                     text: 'Confirm',
-//                     onPress: async () => {
-//                         try {
-//                             await AsyncStorage.clear();
-//                             navigation.reset({
-//                                 index: 0,
-//                                 routes: [{ name: 'RoleSelectionScreen' }],
-//                             });
-//                         } catch (error) {
-//                             console.error('Error during logout:', error);
-//                         }
-//                     },
-//                 },
-//             ],
-//             { cancelable: false }
-//         );
-//     };
-
-//     return (
-//         <View style={styles.MainContainer}>
-//             {/* Header */}
-//             <View style={styles.NewRowStyle}>
-//                 <TouchableOpacity onPress={() => navigation.navigate('StaffHome')}>
-//                     <Image
-//                         style={styles.HeaderArrowImage}
-//                         source={constant.Icons.backArrowIcon}
-//                     />
-//                 </TouchableOpacity>
-
-//                 <Text style={styles.ProfileText}>Profile</Text>
-
-//                 <TouchableOpacity onPress={handleLogout}>
-//                     <Image
-//                         style={[styles.HeaderArrowImage, { marginRight: resW(4), height: resW(6), width: resW(6), }]}
-//                         source={require('../../../assests/images/logout1.png')}
-//                     />
-//                 </TouchableOpacity>
-//             </View>
-
-//             {/* Scrollable Content */}
-//             <ScrollView>
-//                 <View style={styles.ProfileImageBackground}>
-//                     <Image
-//                         style={styles.ProfileImage}
-//                         source={require('../../../assests/images/businessman.png')}
-//                     />
-//                     {/* <View style={styles.RowStyle}> */}
-//                     <Text style={[styles.NormalText1, { marginTop: constant.resH(1) }]}>{firstName} {lastName}</Text>
-//                     <Text style={[styles.NormalText1]}>
-//                         Contact:9417778990
-//                     </Text>
-//                     {/* <Text style={styles.NormalText}></Text> */}
-//                     {/* </View> */}
-//                 </View>
-
-//                 {/* <View style={styles.CardviewMargin}>
-//           <Text style={styles.GeneralText}>User Information</Text>
-
-//           <View style={styles.RowStyle}>
-//             <Text style={styles.BoldTextLeft}>Name</Text>
-//             <Text style={styles.BoldTextRight}>Last Name</Text>
-//           </View>
-
-//           <View style={styles.RowStyle}>
-//             <Text style={styles.NormalText}>{firstName}</Text>
-//             <Text style={styles.NormalText}>{lastName}</Text>
-//           </View>
-
-//           <View style={styles.RowStyle}>
-//             <View style={styles.HorizontalLine}></View>
-//             <View style={styles.HorizontalLine}></View>
-//           </View>
-
-//           <Text style={styles.BoldTextLeft}>Email</Text>
-
-//           <View style={styles.RowStyle}>
-//             <Text style={styles.EmailText}>{teacherEmail}</Text>
-//           </View>
-
-//           <View style={styles.HoziontalLineFull}></View>
-
-//           <View style={styles.RowStyle}>
-//             <Text style={styles.BoldTextLeft}>Role Type</Text>
-//             <Text style={styles.BoldTextRight}>Class Incharge</Text>
-//           </View>
-
-//           <View style={styles.RowStyle}>
-//             <Text style={styles.NormalTextViewLeft}>{teacherRole}</Text>
-//             <Text style={styles.NormalTextViewLeft}>
-//               {assignClass}-{assignSection}
-//             </Text>
-//           </View>
-
-//           <View style={styles.RowStyle}>
-//             <View style={styles.HorizontalLine}></View>
-//             <View style={styles.HorizontalLine}></View>
-//           </View>
-//         </View> */}
-//                 <TouchableOpacity style={styles.infoButton}>
-                    
-
-
-//                         <Image source={constant.Icons.UserEdit} style={styles.icon}>
-
-//                         </Image>
-          
-//                     <Text style={styles.infoText} >
-//                         Edit Profile
-//                     </Text>
-//                 </TouchableOpacity>
-//                 <TouchableOpacity style={styles.infoButton}>
- 
-
-
-//                         <Image source={constant.Icons.InfoIcon} style={styles.icon}>
-
-//                         </Image>
-                 
-//                     <Text style={styles.infoText} >
-//                         Staff Information
-//                     </Text>
-//                 </TouchableOpacity>
-//                 <TouchableOpacity style={styles.infoButton}>
- 
-
-
-//                         <Image source={constant.Icons.changePassword} style={styles.icon}>
-
-//                         </Image>
-                    
-//                     <Text style={styles.infoText} >
-//                         Change Password
-//                     </Text>
-//                 </TouchableOpacity>
-//                 <TouchableOpacity style={styles.infoButton}>
-     
-
-
-//                         <Image source={constant.Icons.LogoutIcon} style={styles.icon}>
-
-//                         </Image>
-                  
-//                     <Text style={styles.infoText} >
-//                         Logout
-//                     </Text>
-//                 </TouchableOpacity>
-//             </ScrollView>
-//         </View>
-//     );
-// };
-
-// export default StaffProfile;
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
   BackHandler,
-  ScrollView,
   Modal,
-} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import styles from './style';
-import * as constant from '../../../Utils/Constant';
-import { resH, resW, Blue, whiteColor, blackColor } from '../../../Utils/Constant';
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import AsyncStorage from "@react-native-community/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import LinearGradient from "react-native-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Info, Lock, LogOut, SquarePen } from "lucide-react-native";
+
+import CommonHeader from "../../CommonHeader";
+import { STRINGS } from "../../../constants";
+import { clearStaffSession } from "../../../auth/staffSessionController";
+import ProfileActionCard from "./ProfileActionCard";
+import createStaffProfileTheme from "./profileTheme";
+
+const CONTACT_KEYS = ["mobile", "phone", "phone_no", "contact_no", "phoneno"];
+
+const resolveContactValue = (parsedUserData, teacherEmail, fallback) => {
+  if (parsedUserData && typeof parsedUserData === "object") {
+    const matchedKey = CONTACT_KEYS.find((key) => parsedUserData?.[key]);
+
+    if (matchedKey) {
+      return String(parsedUserData[matchedKey]);
+    }
+  }
+
+  return teacherEmail || fallback;
+};
 
 const StaffProfile = () => {
   const navigation = useNavigation();
-  const [teacherEmail, setTeacherEmail] = useState('');
-  const [teacherRole, setTeacherRole] = useState('');
-  const [assignClass, setAssignClass] = useState('');
-  const [assignSection, setAssignSection] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [logoutModalVisible, setLogoutModalVisible] = useState(false); 
- 
-  const loadData = async () => {
+  const insets = useSafeAreaInsets();
+  const { height, width } = useWindowDimensions();
+  const theme = useMemo(
+    () => createStaffProfileTheme({ height, width }),
+    [height, width]
+  );
+  const profileStrings = STRINGS.staffProfile;
+
+  const [teacherEmail, setTeacherEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [contactValue, setContactValue] = useState(
+    profileStrings.contactFallback
+  );
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+
+  const loadData = useCallback(async () => {
     try {
-      const name = await AsyncStorage.getItem('@name');
-      const email = await AsyncStorage.getItem('@email');
-      const role = await AsyncStorage.getItem('@role');
-      const assignclass = await AsyncStorage.getItem('@aclass');
-      const assignsection = await AsyncStorage.getItem('@asection');
+      const [name, email, rawUserData] = await Promise.all([
+        AsyncStorage.getItem("@name"),
+        AsyncStorage.getItem("@email"),
+        AsyncStorage.getItem("userData"),
+      ]);
 
-      if (name) {
-        const first = name.split(' ').slice(0, -1).join(' ');
-        const last = name.split(' ').slice(-1).join(' ');
-        setFirstName(first);
-        setLastName(last);
-      }
+      const parsedUserData = rawUserData ? JSON.parse(rawUserData) : null;
+      const nextName = (name || "").trim().toUpperCase();
 
-      setTeacherEmail(email || '');
-      setTeacherRole(role || '');
-      setAssignClass(assignclass || '');
-      setAssignSection(assignsection || '');
+      setDisplayName(nextName);
+      setTeacherEmail(email || "");
+      setContactValue(
+        resolveContactValue(
+          parsedUserData,
+          email || "",
+          profileStrings.contactFallback
+        )
+      );
     } catch (error) {
-      console.error('Error loading profile data:', error);
+      console.error("Error loading staff profile data:", error);
+      setDisplayName("");
+      setTeacherEmail("");
+      setContactValue(profileStrings.contactFallback);
     }
-  };
+  }, [profileStrings.contactFallback]);
 
   const handleBackPress = useCallback(() => {
-    navigation.navigate('StaffHome');
+    navigation.navigate("StaffHome");
     return true;
   }, [navigation]);
 
@@ -474,127 +91,453 @@ const StaffProfile = () => {
     loadData();
 
     const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
+      "hardwareBackPress",
       handleBackPress
     );
 
     return () => backHandler.remove();
-  }, [handleBackPress]);
+  }, [handleBackPress, loadData]);
 
-  // ✅ Confirm logout
-  const confirmLogout = async () => {
+  const confirmLogout = useCallback(async () => {
     try {
-      await AsyncStorage.clear();
+      await clearStaffSession();
       setLogoutModalVisible(false);
       navigation.reset({
         index: 0,
-        routes: [{ name: 'RoleSelectionScreen' }],
+        routes: [{ name: "RoleSelectionScreen" }],
       });
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error("Error during logout:", error);
     }
-  };
+  }, [navigation]);
+
+  const actions = useMemo(
+    () => [
+      {
+        gradient: [
+          theme.colors.primaryActionGradientStart,
+          theme.colors.primaryActionGradientEnd,
+        ],
+        Icon: SquarePen,
+        key: "editProfile",
+        label: profileStrings.actions.editProfile,
+        onPress: () => navigation.navigate("EditStaffProfile"),
+      },
+      {
+        gradient: [
+          theme.colors.teachingGradientStart,
+          theme.colors.teachingGradientEnd,
+        ],
+        Icon: Info,
+        key: "teachingInformation",
+        label: profileStrings.actions.teachingInformation,
+        onPress: () => navigation.navigate("TeachingInfo"),
+      },
+      {
+        gradient: [
+          theme.colors.passwordGradientStart,
+          theme.colors.passwordGradientEnd,
+        ],
+        Icon: Lock,
+        key: "changePassword",
+        label: profileStrings.actions.changePassword,
+        onPress: () => navigation.navigate("StaffChangePassword"),
+      },
+      {
+        gradient: [
+          theme.colors.logoutGradientStart,
+          theme.colors.logoutGradientEnd,
+        ],
+        Icon: LogOut,
+        key: "logout",
+        label: profileStrings.actions.logout,
+        onPress: () => setLogoutModalVisible(true),
+      },
+    ],
+    [
+      navigation,
+      profileStrings.actions.changePassword,
+      profileStrings.actions.editProfile,
+      profileStrings.actions.logout,
+      profileStrings.actions.teachingInformation,
+      theme.colors.logoutGradientEnd,
+      theme.colors.logoutGradientStart,
+      theme.colors.passwordGradientEnd,
+      theme.colors.passwordGradientStart,
+      theme.colors.primaryActionGradientEnd,
+      theme.colors.primaryActionGradientStart,
+      theme.colors.teachingGradientEnd,
+      theme.colors.teachingGradientStart,
+    ]
+  );
+
+  const resolvedDisplayName =
+    displayName || teacherEmail || profileStrings.title;
 
   return (
-    <View style={styles.MainContainer}>
-      {/* Header */}
-      <View style={styles.NewRowStyle}>
-        <TouchableOpacity onPress={() => navigation.navigate('StaffHome')}>
-          <Image
-            style={styles.HeaderArrowImage}
-            source={constant.Icons.backArrowIcon}
-          />
-        </TouchableOpacity>
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: theme.colors.headerGradientEnd,
+        },
+      ]}
+    >
+      <StatusBar
+        backgroundColor={theme.colors.headerGradientEnd}
+        barStyle="light-content"
+      />
 
-        <Text style={styles.ProfileText}>Profile</Text>
-
-        {/* <TouchableOpacity onPress={() => setLogoutModalVisible(true)}>
-          <Image
-            style={[styles.HeaderArrowImage, { marginRight: resW(4), height: resW(6), width: resW(6) }]}
-            source={require('../../../assests/images/logout1.png')}
-          />
-        </TouchableOpacity> */}
-      </View>
-
-      {/* Scrollable Content */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.ProfileImageBackground}>
-          <Image
-            style={styles.ProfileImage}
-            source={require('../../../assests/images/businessman.png')}
-          />
-          <Text style={[styles.NormalText1, { marginTop: resH(1) }]}>
-            {firstName} {lastName}
-          </Text>
-          <Text style={[styles.NormalText1, { marginTop: resH(0.5) }]}>9417778990</Text>
-        </View>
-
-        {/* Action Buttons */}
-        <TouchableOpacity style={styles.infoButton} onPress={()=>navigation.navigate('EditStaffProfile')}>
-          <Image source={constant.Icons.UserEdit} style={styles.icon} />
-          <Text style={styles.infoText}>Edit Profile</Text>
-          <Image source={constant.Icons.RightArrow} style={styles.icon1}/>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.infoButton} onPress={()=>navigation.navigate('TeachingInfo')} >
-          <Image source={constant.Icons.InfoIcon} style={styles.icon} />
-          <Text style={styles.infoText}>Teaching Information</Text>
-                 <Image source={constant.Icons.RightArrow} style={styles.icon1}/>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.infoButton}onPress={()=>navigation.navigate('StaffChangePassword')}>
-          <Image source={constant.Icons.changePassword} style={styles.icon} />
-          <Text style={styles.infoText}>Change Password</Text>
-                 <Image source={constant.Icons.RightArrow} style={styles.icon1}/>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.infoButton, ]}
-          onPress={() => setLogoutModalVisible(true)}
-        >
-          <Image source={constant.Icons.LogoutIcon} style={[styles.icon, ]} />
-          <Text style={[styles.infoText, ]}>Logout</Text>
-            <Image source={constant.Icons.RightArrow} style={styles.icon1}/>
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* ✅ Custom Logout Modal */}
-      <Modal
-        transparent={true}
-        visible={logoutModalVisible}
-        animationType="fade"
-        onRequestClose={() => setLogoutModalVisible(false)}
+      <View
+        style={[
+          styles.screen,
+          {
+            backgroundColor: theme.colors.screenBackground,
+          },
+        ]}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Log out</Text>
-            <Text style={styles.modalMessage}>Are you sure you want to log out?</Text>
+        <CommonHeader
+          IconColor={theme.colors.headerText}
+          backgroundColor={theme.colors.headerGradientEnd}
+          compact
+          extStyle={{
+            height: theme.sizing.headerHeight,
+            marginTop: 0,
+          }}
+          onLeftClick={handleBackPress}
+          textColor={theme.colors.headerText}
+          title={profileStrings.title}
+          titleStyle={theme.typography.headerTitle}
+        />
 
-            <View style={styles.modalButtonContainer}>
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#E0E0E0' }]}
-                onPress={() => setLogoutModalVisible(false)}
-              >
-                <Text style={[styles.modalButtonText, { color: blackColor }]}>
-                  Cancel
-                </Text>
-              </TouchableOpacity>
+        <ScrollView
+          alwaysBounceVertical={false}
+          contentInsetAdjustmentBehavior="never"
+          nestedScrollEnabled
+          bounces={false}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              alignItems: "center",
+              minHeight: theme.sizing.scrollMinHeight + insets.bottom,
+              paddingBottom: theme.spacing.contentBottom + insets.bottom,
+              paddingHorizontal: theme.spacing.contentHorizontal,
+              paddingTop: theme.spacing.contentTop,
+            },
+          ]}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
+          <View
+            style={[
+              styles.profileCard,
+              {
+                backgroundColor: theme.colors.profileCardBackground,
+                borderRadius: theme.radii.profileCard,
+                maxWidth: theme.sizing.maxWidth,
+                paddingBottom: theme.sizing.topCardPaddingBottom,
+                paddingHorizontal: theme.sizing.topCardPaddingHorizontal,
+                paddingTop: theme.sizing.topCardPaddingTop,
+              },
+              theme.shadows.profileCard,
+            ]}
+          >
+            <LinearGradient
+              colors={[
+                theme.colors.headerGradientStart,
+                theme.colors.headerGradientEnd,
+              ]}
+              end={{ x: 1, y: 0 }}
+              start={{ x: 0, y: 0 }}
+              style={[
+                styles.banner,
+                {
+                  borderTopLeftRadius: theme.radii.profileCard,
+                  borderTopRightRadius: theme.radii.profileCard,
+                  height: theme.sizing.bannerHeight,
+                },
+              ]}
+            />
 
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: Blue }]}
-                onPress={confirmLogout}
+            <View
+              style={[
+                styles.avatarShell,
+                {
+                  backgroundColor: theme.colors.avatarBorderSurface,
+                  borderRadius: theme.radii.avatar + theme.radii.avatarBorder,
+                  height:
+                    theme.sizing.avatarSize + theme.radii.avatarBorder * 2,
+                  marginTop: -(theme.sizing.avatarSize * 0.46),
+                  width: theme.sizing.avatarSize + theme.radii.avatarBorder * 2,
+                },
+              ]}
+            >
+              <LinearGradient
+                colors={[
+                  theme.colors.avatarGradientStart,
+                  theme.colors.avatarGradientEnd,
+                ]}
+                end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}
+                style={[
+                  styles.avatarCore,
+                  {
+                    borderRadius: theme.radii.avatar,
+                    height: theme.sizing.avatarSize,
+                    width: theme.sizing.avatarSize,
+                  },
+                ]}
+              />
+            </View>
+
+            <View
+              style={[
+                styles.profileMeta,
+                {
+                  marginTop: theme.spacing.topCardGap,
+                },
+              ]}
+            >
+              <Text
+                numberOfLines={1}
+                style={[styles.profileName, theme.typography.profileName]}
               >
-                <Text style={[styles.modalButtonText, { color: whiteColor }]}>
-                  Logout
-                </Text>
-              </TouchableOpacity>
+                {resolvedDisplayName}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.profileSubtitle,
+                  theme.typography.profileSubtitle,
+                  {
+                    marginTop: theme.spacing.profileMetaGap,
+                  },
+                ]}
+              >
+                {contactValue}
+              </Text>
             </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+
+          <View
+            style={[
+              styles.actionList,
+              {
+                gap: theme.spacing.listGap,
+                marginTop: theme.spacing.sectionGap,
+                width: "100%",
+              },
+            ]}
+          >
+            {actions.map((action) => (
+              <ProfileActionCard
+                action={action}
+                key={action.key}
+                onPress={action.onPress}
+                theme={theme}
+              />
+            ))}
+          </View>
+        </ScrollView>
+
+        <Modal
+          animationType="fade"
+          onRequestClose={() => setLogoutModalVisible(false)}
+          transparent
+          visible={logoutModalVisible}
+        >
+          <View
+            style={[
+              styles.modalOverlay,
+              {
+                backgroundColor: theme.colors.modalOverlay,
+                paddingHorizontal: theme.spacing.modalOverlayHorizontal,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.modalCard,
+                {
+                  backgroundColor: theme.colors.modalSurface,
+                  borderRadius: theme.radii.modal,
+                  maxWidth: theme.sizing.modalMaxWidth,
+                  padding: theme.spacing.modalCardPadding,
+                },
+                theme.shadows.actionCard,
+              ]}
+            >
+              <Text style={[styles.modalTitle, theme.typography.modalTitle]}>
+                {profileStrings.confirmLogoutTitle}
+              </Text>
+              <Text
+                style={[
+                  styles.modalDescription,
+                  theme.typography.modalDescription,
+                  {
+                    marginTop: theme.spacing.modalDescriptionGap,
+                  },
+                ]}
+              >
+                {profileStrings.confirmLogoutDescription}
+              </Text>
+
+              <View
+                style={[
+                  styles.modalActions,
+                  {
+                    gap: theme.spacing.modalButtonGap,
+                    marginTop: theme.spacing.modalTitleGap,
+                  },
+                ]}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.88}
+                  onPress={() => setLogoutModalVisible(false)}
+                  style={[
+                    styles.modalButton,
+                    {
+                      backgroundColor: theme.colors.modalCancelBackground,
+                      borderRadius: theme.radii.modalButton,
+                      minHeight: theme.sizing.modalButtonHeight,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      theme.typography.modalAction,
+                      {
+                        color: theme.colors.modalCancelText,
+                      },
+                    ]}
+                  >
+                    {STRINGS.common.cancel}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  activeOpacity={0.88}
+                  onPress={confirmLogout}
+                  style={[
+                    styles.modalButton,
+                    {
+                      borderRadius: theme.radii.modalButton,
+                      minHeight: theme.sizing.modalButtonHeight,
+                      overflow: "hidden",
+                    },
+                    theme.shadows.modalPrimaryButton,
+                  ]}
+                >
+                  <LinearGradient
+                    colors={[
+                      theme.colors.modalConfirmGradientStart,
+                      theme.colors.modalConfirmGradientEnd,
+                    ]}
+                    end={{ x: 1, y: 0 }}
+                    start={{ x: 0, y: 0 }}
+                    style={[
+                      styles.modalGradientButton,
+                      {
+                        minHeight: theme.sizing.modalButtonHeight,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        theme.typography.modalAction,
+                        {
+                          color: theme.colors.headerText,
+                        },
+                      ]}
+                    >
+                      {profileStrings.confirmLogoutAction}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default StaffProfile;
+const styles = StyleSheet.create({
+  actionList: {
+    alignItems: "center",
+  },
+  avatarCore: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarShell: {
+    alignItems: "center",
+    alignSelf: "center",
+    justifyContent: "center",
+  },
+  banner: {
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
+  modalActions: {
+    flexDirection: "row",
+  },
+  modalButton: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  modalCard: {
+    width: "100%",
+  },
+  modalDescription: {
+    textAlign: "center",
+  },
+  modalGradientButton: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    width: "100%",
+  },
+  modalOverlay: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
+  modalTitle: {
+    textAlign: "center",
+  },
+  profileCard: {
+    overflow: "hidden",
+    width: "100%",
+  },
+  profileMeta: {
+    alignItems: "center",
+  },
+  profileName: {
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  profileSubtitle: {
+    textAlign: "center",
+  },
+  safeArea: {
+    flex: 1,
+  },
+  screen: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    width: "100%",
+  },
+});
 
+export default StaffProfile;

@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
+  ActivityIndicator,
   Image,
+  StyleSheet,
   Text,
   View,
   TouchableOpacity,
@@ -11,6 +13,7 @@ import {
   StatusBar,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import { getPersistedStudentToken } from '../../../auth/studentSessionController';
 import * as constant from '../../../Utils/Constant';
 import styles from './style';
 import LinearGradient from 'react-native-linear-gradient';
@@ -25,6 +28,8 @@ const Home = ({ navigation }) => {
   const [classes, setClasses] = useState('');
   const [name, setName] = useState('');
   const [dataSource, setDataSource] = useState([]);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [navigatingLabel, setNavigatingLabel] = useState('');
 
   const handleBackPress = useCallback(() => {
     Alert.alert(
@@ -39,7 +44,8 @@ const Home = ({ navigation }) => {
     return true;
   }, []);
 
-  const dashboardApi = useCallback((stdRoll, studentClass) => {
+  const dashboardApi = useCallback(async (stdRoll, studentClass) => {
+    const token = await getPersistedStudentToken();
     let formData = {
       std_roll: stdRoll,
       class: studentClass,
@@ -50,6 +56,7 @@ const Home = ({ navigation }) => {
       method: 'POST',
       headers: {
         Accept: 'application/json',
+        ...(token ? { Authorization: token } : {}),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(formData), // FIX: Must stringify for JSON body
@@ -61,6 +68,26 @@ const Home = ({ navigation }) => {
       })
       .catch((error) => console.log(error));
   }, []);
+
+  // Reset navigation loader when this screen comes back into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setIsNavigating(false);
+      setNavigatingLabel('');
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const navigateTo = useCallback(
+    (screen, params, label) => {
+      setNavigatingLabel(label || 'Loading...');
+      setIsNavigating(true);
+      requestAnimationFrame(() => {
+        navigation.navigate(screen, params);
+      });
+    },
+    [navigation],
+  );
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
@@ -145,7 +172,7 @@ const Home = ({ navigation }) => {
             <View style={{ marginStart: 10, marginEnd: 10, marginBottom: '20%' }}>
               {/* First Row */}
               <View style={styles.HomeScreenView}>
-                <TouchableOpacity onPress={() => navigation.navigate('SubjectScreen')}>
+                <TouchableOpacity onPress={() => navigateTo('SubjectScreen', undefined, 'Opening Homework...')}>
                   <View style={styles.CircleShapeView}>
                     <View style={styles.imageView}>
                       <Image style={styles.GridImage} source={constant.Icons.homeWork} />
@@ -156,7 +183,7 @@ const Home = ({ navigation }) => {
 
                 <TouchableOpacity
                   onPress={() =>
-                    navigation.navigate('Syllabus', { otherParam: 'Notes' })
+                    navigateTo('Notes', undefined, 'Opening Notes...')
                   }
                 >
                   <View style={styles.CircleShapeView}>
@@ -295,8 +322,34 @@ const Home = ({ navigation }) => {
           </ScrollView>
         </View>
       </ScrollView>
+
+      {/* Navigation loader overlay */}
+      {isNavigating ? (
+        <View style={homeLoaderStyles.overlay}>
+          <ActivityIndicator size="large" color={constant.Blue} />
+          {navigatingLabel ? (
+            <Text style={homeLoaderStyles.label}>{navigatingLabel}</Text>
+          ) : null}
+        </View>
+      ) : null}
     </LinearGradient>
   );
 };
+
+const homeLoaderStyles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.72)',
+    justifyContent: 'center',
+    zIndex: 99,
+  },
+  label: {
+    color: '#0747a6',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font14,
+    marginTop: constant.resW(2.5),
+  },
+});
 
 export default Home;

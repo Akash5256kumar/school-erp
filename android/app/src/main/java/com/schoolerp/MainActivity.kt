@@ -14,6 +14,9 @@ class MainActivity : ReactActivity() {
    */
   override fun getMainComponentName(): String = "schoolErp"
  override fun onCreate(savedInstanceState: Bundle?) {
+    // Switch from SplashTheme (white launch window) to AppTheme before React Native renders.
+    // This keeps the white background while handing off to the JS layer seamlessly.
+    setTheme(R.style.AppTheme)
     super.onCreate(null)
   }
   /**

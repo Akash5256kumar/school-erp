@@ -11,10 +11,10 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Header from '../../Header/Header';
 import style from './style';
 import * as myConst from '../../Baseurl';
-import { useSelector } from 'react-redux';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
 
 const Sibling = ({ navigation }) => {
-    const usertoken = useSelector(state=>state.userSlice.token)
+    const {token: usertoken} = useStudentAuth()
   const [stdRoll, setStdRoll] = useState('');
   const [dataSource, setDataSource] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

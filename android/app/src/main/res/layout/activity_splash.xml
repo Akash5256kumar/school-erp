@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/launch_background"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <!-- App logo — fitCenter keeps aspect ratio, no stretching -->
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:contentDescription="App Logo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/app_logo" />
+
+    <!-- Animated indeterminate spinner below logo -->
+    <ProgressBar
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="36dp"
+        android:indeterminate="true"
+        android:indeterminateTint="#E05C2A"
+        style="?android:attr/progressBarStyle" />
+
+</LinearLayout>

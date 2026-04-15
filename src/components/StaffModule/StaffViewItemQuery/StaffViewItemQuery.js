@@ -3,6 +3,7 @@ import { Text, View, Image, TouchableOpacity, BackHandler, FlatList } from 'reac
 import styles from './style';
 const baseColor = '#0747a6'
 import * as myConst from '../../Baseurl';
+import staffApiClient from '../../../api/staffClient';
 import AsyncStorage from "@react-native-community/async-storage";
 
 
@@ -34,19 +35,10 @@ class StaffViewItemQuery extends Component {
 
 
     getViewItemQueryApi() {
-        let data = {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-        }
         this.setState({ isLoading: true });
-        fetch(myConst.BASEURL + 'get_item', data)
-            .then((response) => response.json())
+        staffApiClient.get('get_item')
             .then(async (responseJson) => {
                 if (responseJson.status === true) {
-                    // console.log('responseJson-->', responseJson.data)
                     this.setState({ isLoading: false });
 
                     let response = responseJson.data

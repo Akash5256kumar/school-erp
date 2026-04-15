@@ -1,132 +1,99 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { BackHandler } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import StudentDocumentList from "../Shared/StudentDocumentList";
 import {
-  Text,
-  View,
-  Image,
-  FlatList,
-  Pressable,
-  BackHandler,
-  Keyboard,
-  Linking,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import styles from './style';
-import * as myConst from '../../Baseurl';
-import * as constant from '../../../Utils/Constant';
-import CommonHeader from '../../CommonHeader';
-import CommonSearch from '../../Search/CommonSearch';
-import { useSelector } from 'react-redux';
+  areNewsItemsEqual,
+  fetchNewsItems,
+  formatNewsDate,
+  NEWS_REFRESH_INTERVAL_MS,
+} from "./newsUtils";
 
 const News = ({ navigation }) => {
-  const [dataSource, setDataSource] = useState([]);
-  const usertoken = useSelector(state=>state.userSlice.token)
-  const [originalDataSource, setOriginalDataSource] = useState([]);
-  const [status, setStatus] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const newsRequestIdRef = useRef(0);
+  const hasLoadedNewsRef = useRef(false);
 
-  // Handle Back Press
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      navigation.navigate('Dashboard');
-      return true;
-    });
+  const loadNews = useCallback(async ({ showLoader = false } = {}) => {
+    const requestId = newsRequestIdRef.current + 1;
+    newsRequestIdRef.current = requestId;
 
-    return () => backHandler.remove();
-  }, [navigation]);
-
-  // Fetch News API
-  const newsApi = async () => {
-    setLoading(true);
-    try {
-      let response = await fetch(myConst.BASEURL + 'viewnews', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'Authorization' : usertoken
-        },
-      });
-      let responseJson = await response.json();
-      console.log('news--->>>', responseJson);
-
-      if (responseJson?.data) {
-        setDataSource(responseJson.data);
-        setOriginalDataSource(responseJson.data);
-
-        // set status (Publish / UnPublish)
-        responseJson.data.forEach((item) => {
-          if (item.isActive === 1) setStatus('Publish');
-          else if (item.isActive === 0) setStatus('UnPublish');
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+    if (showLoader) {
+      setLoading(true);
     }
-  };
 
-  useEffect(() => {
-    newsApi();
+    try {
+      const newsItems = await fetchNewsItems();
+
+      if (requestId !== newsRequestIdRef.current) {
+        return;
+      }
+
+      setItems((previousItems) =>
+        areNewsItemsEqual(previousItems, newsItems) ? previousItems : newsItems
+      );
+    } catch (error) {
+      console.log("News API Error", error);
+
+      if (requestId !== newsRequestIdRef.current) {
+        return;
+      }
+
+      setItems([]);
+    } finally {
+      if (requestId === newsRequestIdRef.current) {
+        hasLoadedNewsRef.current = true;
+        setLoading(false);
+      }
+    }
   }, []);
 
-  // Search Filter
-  const onSearch = (text) => {
-    const lowerText = text.toLowerCase();
-    let filteredArr = originalDataSource.filter((obj) =>
-      obj.news_title.toLowerCase().includes(lowerText)
-    );
-    setDataSource(text ? filteredArr : originalDataSource);
-  };
+  useFocusEffect(
+    useCallback(() => {
+      loadNews({ showLoader: !hasLoadedNewsRef.current });
 
-  // Click Handler
-  const fn_Click = (item) => {
-    Keyboard.dismiss();
-    if (!item?.link) {
-      constant.showAlert('Oops, No Available ☹️');
-    } else {
-      Linking.openURL(item.link);
-    }
-  };
+      const intervalId = setInterval(() => {
+        loadNews();
+      }, NEWS_REFRESH_INTERVAL_MS);
 
-  const renderItem = ({ item }) => (
-    <Pressable style={styles.FlatListView} onPress={() => fn_Click(item)}>
-      <View style={styles.CardView}>
-        <View style={styles.CardViewStyle}>
-          <View style={styles.DocImageAndTextStyle}>
-            <Image style={styles.AssignmentImage} source={constant.Icons.newsIcon} />
-            <View style={styles.TextViewStyle}>
-              <Text style={styles.DashboardTextStyle}>{item?.news_title}</Text>
-              {/* <Text style={styles.DateText}>{moment(item?.news_date).format('DD-MM-YYYY')}</Text> */}
-            </View>
-          </View>
-
-          <View style={styles.GreenStatusBackground}>
-            <Image style={styles.eyeIcon} source={constant.Icons.newsEyeIcon} />
-            {/* <Text style={styles.StatusText}>{status}</Text> */}
-          </View>
-        </View>
-      </View>
-    </Pressable>
+      return () => {
+        clearInterval(intervalId);
+      };
+    }, [loadNews])
   );
 
+  useEffect(() => {
+    const handler = BackHandler.addEventListener("hardwareBackPress", () => {
+      navigation.navigate("Dashboard");
+      return true;
+    });
+    return () => handler.remove();
+  }, [navigation]);
+
+  const renderCard = useCallback((item) => ({
+    title: item.title || "News Update",
+    date: formatNewsDate(item.date),
+    accentColor: "#f59e0b", // Custom orange/yellow accent for news
+    emoji: "📰",
+  }), []);
+
+  const handleCardPress = useCallback((item) => {
+    navigation.navigate("NewsDetail", { newsItem: item });
+  }, [navigation]);
+
   return (
-    <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
-      <View style={styles.MainContainer}>
-        <CommonHeader title={'News'} onLeftClick={() => navigation.goBack()} />
-
-        {/* Search */}
-        <CommonSearch searchText={(d) => onSearch(d)} />
-
-        {/* News List */}
-        <FlatList
-          data={dataSource}
-          keyboardShouldPersistTaps="always"
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={renderItem}
-        />
-      </View>
-    </LinearGradient>
+    <StudentDocumentList
+      title="News"
+      items={items}
+      renderCard={renderCard}
+      onCardPress={handleCardPress}
+      onBack={() => navigation.goBack()}
+      searchFields={["title"]}
+      emptyMessage={loading ? "Loading news..." : "No news available at the moment."}
+      accentColor="#f59e0b"
+      headerEmoji="📰"
+    />
   );
 };
 

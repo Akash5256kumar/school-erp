@@ -1,65 +1,91 @@
-import React, { Component, version } from 'react';
-import { Image, Text, View, TouchableOpacity, BackHandler } from 'react-native';
-import styles from './style';
-const baseColor = '#0747a6'
+import React from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { Eye, Plus } from "lucide-react-native";
 
+import { STRINGS } from "../../../constants";
+import AttendanceActionCard from "../AttendanceShared/AttendanceActionCard";
+import AttendanceScreen from "../AttendanceShared/AttendanceScreen";
+import attendanceTheme from "../AttendanceShared/attendanceTheme";
 
-class StaffAttendance extends Component {
+const HOME_ACTIONS = [
+  {
+    Icon: Plus,
+    colors: attendanceTheme.gradients.addAction,
+    description: STRINGS.attendance.actions.add.description,
+    route: "StaffAddAttendance",
+    title: STRINGS.attendance.actions.add.title,
+  },
+  {
+    Icon: Eye,
+    colors: attendanceTheme.gradients.viewAction,
+    description: STRINGS.attendance.actions.view.description,
+    route: "StaffViewStudentAttendance",
+    title: STRINGS.attendance.actions.view.title,
+  },
+];
 
+const StaffAttendance = ({ navigation }) => {
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const showTwoColumns =
+    width >= attendanceTheme.layout.contentMaxWidthPortrait;
 
-    // componentWillMount() {
-    //     BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    // }
+  return (
+    <AttendanceScreen
+      onBackPress={() => navigation.goBack()}
+      title={STRINGS.attendance.homeTitle}
+    >
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.grid, showTwoColumns && styles.gridWide]}>
+          {HOME_ACTIONS.map((action) => (
+            <AttendanceActionCard
+              colors={action.colors}
+              description={action.description}
+              Icon={action.Icon}
+              key={action.route}
+              onPress={() => navigation.navigate(action.route)}
+              style={[
+                styles.card,
+                showTwoColumns && styles.cardWide,
+                isLandscape && styles.cardLandscape,
+              ]}
+              title={action.title}
+            />
+          ))}
+        </View>
+      </ScrollView>
+    </AttendanceScreen>
+  );
+};
 
-    // componentWillUnmount() {
-    //     BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    // }
-
-    handleBackPress = () => {
-        this.props.navigation.navigate('StaffHome')
-        return true;
-    };
-
-
-    render() {
-        return (
-            <View style={styles.MainContainer}>
-                <View style={styles.HeaderBackground}>
-                    <View style={styles.HeaderStyle}>
-                        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                            <Image style={styles.HeaderArrowImage}
-                                source={require('../../../assests/images/leftarrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.HeaderText}>Attendance</Text>
-                        <View></View>
-                    </View>
-                </View>
-
-                <View style={styles.ButtonContainerStyle}>
-
-                    <View style={styles.TabCardView}>
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffAddAttendance')}>
-                            <Image style={styles.IconStyle}
-                                source={require("../../../assests/images/addAttendance.png")} />
-                            <Text style={styles.CardviewText}>
-                                Add Attendance
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.TabCardView}>
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffViewStudentAttendance')}>
-                            <Image style={styles.IconStyle}
-                                source={require("../../../assests/images/viewAttendance.png")} />
-                            <Text style={styles.CardviewText}>View Attendance</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                </View>
-            </View>
-        )
-    }
-
-}
-
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: attendanceTheme.spacing.screenBottom,
+  },
+  grid: {
+    gap: attendanceTheme.spacing.sectionGap,
+  },
+  gridWide: {
+    flexDirection: "row",
+  },
+  card: {
+    flex: 1,
+  },
+  cardWide: {
+    minWidth: 0,
+  },
+  cardLandscape: {
+    minHeight: attendanceTheme.layout.actionCardMinHeight,
+  },
+});
 
 export default StaffAttendance;

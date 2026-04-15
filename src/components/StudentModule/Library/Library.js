@@ -1,260 +1,195 @@
-import React, {useEffect, useState, useCallback} from 'react';
-import {
-  Text,
-  View,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  BackHandler,
-  Pressable,
-} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import styles from './style';
-import * as myConst from '../../Baseurl';
-import Searchbar from '../../SearchBar';
-import Header from '../../Header/Header';
-import moment from 'moment';
-import {resW, typeMedium} from '../../../Utils/Constant';
-import { useSelector } from 'react-redux';
+import React, { useCallback, useEffect, useState } from "react";
+import { BackHandler } from "react-native";
+import AsyncStorage from "@react-native-community/async-storage";
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
+import moment from "moment";
 
-const Library = ({navigation, route}) => {
-  const userData = useSelector(state=>state.userSlice.userData)
-  const usertoken = useSelector(state=>state.userSlice.token)
-  const [loading, setLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [stdRoll, setStdRoll] = useState('');
-  const [dataSource, setDataSource] = useState([]);
-  const [issueBookSource, setIssueBookSource] = useState([]);
-  const [originalDataSource, setOriginalDataSource] = useState([]);
-  const [issueBookOriginalSource, setIssueBookOriginalSource] = useState([]);
-  const [active, setActive] = useState(true);
+import * as myConst from "../../Baseurl";
+import { LIBRARY_COPY } from "../../../constants/libraryLeaveCopy";
+import usePullToRefresh from "../../../hooks/usePullToRefresh";
+import LibraryScreenView from "../../common/LibraryScreenView";
+import {
+  buildIssuedBookDetailPayload,
+  buildLibraryBookDetailPayload,
+} from "../../common/libraryDetailUtils";
+
+const Library = ({ navigation }) => {
+  const {token: usertoken} = useStudentAuth();
+  const [issuedBooks, setIssuedBooks] = useState([]);
+  const [libraryBooks, setLibraryBooks] = useState([]);
+  const [originalLibraryBooks, setOriginalLibraryBooks] = useState([]);
+  const [activeTab, setActiveTab] = useState("issued");
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
   const handleBackPress = useCallback(() => {
-    navigation.navigate('Dashboard');
+    navigation.navigate("Dashboard");
     return true;
   }, [navigation]);
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-    };
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackPress
+    );
+
+    return () => subscription.remove();
   }, [handleBackPress]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      let otherParam = route?.params?.otherParam;
-      console.log('param-->', otherParam);
-      const value = await AsyncStorage.getItem('@std_roll');
-      console.log('value-->>', value);
-      setStdRoll(value);
-      if (otherParam === 'Books') {
-        libraryApi(value);
-        libraryBookIssueApi(value);
+  const libraryBookIssueApi = useCallback(
+    async (stdRoll) => {
+      const formData = new FormData();
+      formData.append("std_roll", stdRoll);
+
+      const response = await fetch(myConst.BASEURL + "issueBook", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "multipart/form-data",
+          Authorization: usertoken,
+        },
+        body: formData,
+      });
+
+      const responseJson = await response.json();
+      const nextBooks = responseJson?.data || [];
+      setIssuedBooks(nextBooks);
+    },
+    [usertoken]
+  );
+
+  const libraryApi = useCallback(
+    async (stdRoll) => {
+      const formData = new FormData();
+      formData.append("std_roll", stdRoll);
+
+      const response = await fetch(myConst.BASEURL + "viewlibrary", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "multipart/form-data",
+          Authorization: usertoken,
+        },
+        body: formData,
+      });
+
+      const responseJson = await response.json();
+      const nextBooks = responseJson?.data || [];
+      setLibraryBooks(nextBooks);
+      setOriginalLibraryBooks(nextBooks);
+    },
+    [usertoken]
+  );
+
+  const loadLibrary = useCallback(async () => {
+    try {
+      const storedRoll = await AsyncStorage.getItem("@std_roll");
+      const resolvedRoll = storedRoll || "";
+
+      if (!resolvedRoll) {
+        setIssuedBooks([]);
+        setLibraryBooks([]);
+        setOriginalLibraryBooks([]);
+        return;
       }
-    };
 
-    fetchData();
-  }, [route]);
+      await Promise.all([
+        libraryApi(resolvedRoll),
+        libraryBookIssueApi(resolvedRoll),
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [libraryApi, libraryBookIssueApi]);
 
-  const libraryBookIssueApi = std_roll => {
-    let formData = new FormData();
-    formData.append('std_roll', std_roll);
-    let data = {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-        'Authorization' : usertoken
-      },
-      body: formData,
-    };
-    fetch(myConst.BASEURL + 'issueBook', data)
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log('issuebook>>', JSON.stringify(responseJson));
-        if (responseJson.data !== undefined) {
-          setIssueBookSource(responseJson.data);
-          setIssueBookOriginalSource(responseJson.data);
-        }
-      })
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false));
-  };
+  useEffect(() => {
+    loadLibrary();
+  }, [loadLibrary]);
 
-  const libraryApi = std_roll => {
-    let formData = new FormData();
-    formData.append('std_roll', std_roll);
-    let data = {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-        'Authorization' : usertoken
-      },
-      body: formData,
-    };
-    fetch(myConst.BASEURL + 'viewlibrary', data)
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log('library>>', responseJson);
-        if (responseJson.data !== undefined) {
-          setDataSource(responseJson.data);
-          setOriginalDataSource(responseJson.data);
-        }
-      })
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false));
-  };
+  const { onRefresh, refreshing } = usePullToRefresh(loadLibrary);
 
-  const onSearch = text => {
-    console.log('serach-->', JSON.stringify(originalDataSource));
-    let filteredArr = originalDataSource.filter(object =>
-      object.title.toLowerCase().includes(text),
+  const handleSearchChange = (text) => {
+    setSearchValue(text);
+
+    const normalizedQuery = text.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      setLibraryBooks(originalLibraryBooks);
+      return;
+    }
+
+    const filteredBooks = originalLibraryBooks.filter((item) =>
+      `${item?.title || ""} ${item?.author_name || ""}`
+        .toLowerCase()
+        .includes(normalizedQuery)
     );
-    console.log('filter--->', filteredArr);
-    setDataSource(text ? filteredArr : originalDataSource);
+
+    setLibraryBooks(filteredBooks);
   };
 
-  const toggleFunction = () => {
-    setIsVisible(prev => !prev);
+  const handleTabChange = (nextTab) => {
+    setActiveTab(nextTab);
+
+    if (nextTab === "issued") {
+      setSearchVisible(false);
+      setSearchValue("");
+      setLibraryBooks(originalLibraryBooks);
+    }
   };
+
+  const handleIssuedPress = useCallback(
+    (item) => {
+      if (item?.detailPayload) {
+        navigation.navigate("LibraryBookDetail", item.detailPayload);
+      }
+    },
+    [navigation]
+  );
+
+  const handleLibraryPress = useCallback(
+    (item) => {
+      if (item?.detailPayload) {
+        navigation.navigate("LibraryBookDetail", item.detailPayload);
+      }
+    },
+    [navigation]
+  );
+
+  const issuedItems = issuedBooks.map((item, index) => ({
+    id: item?.issue?.id || item?.book?.id || `issued-${index}`,
+    detailPayload: buildIssuedBookDetailPayload(item),
+    title: item?.book?.title || LIBRARY_COPY.tabs.issued,
+    dateRange: `${moment(item?.issue?.issue_date).format(
+      "DD-MM-YYYY"
+    )} — ${moment(item?.issue?.return_date).format("DD-MM-YYYY")}`,
+    fineText: Number(item?.issue?.fine) > 0 ? `Fine: ${item?.issue?.fine}` : "",
+  }));
+
+  const libraryItems = libraryBooks.map((item, index) => ({
+    id: item?.id || `library-${index}`,
+    detailPayload: buildLibraryBookDetailPayload(item),
+    title: item?.title || "",
+    authorText: `${LIBRARY_COPY.writtenByPrefix} ${
+      item?.author_name || ""
+    }`.trim(),
+  }));
 
   return (
-    <View style={styles.MainContainer}>
-      <Header
-        title={'Library'}
-        goBack={() => {
-          navigation.goBack();
-        }}
-      />
-
-      <View style={styles.buttonMainView}>
-        <Pressable
-          style={active ? styles.buttonStyle : styles.buttonStyle2}
-          onPress={() => setActive(true)}>
-          <Text style={active ? styles.buttonTextStyle : styles.buttonTextStyle2}>
-            Issued Book
-          </Text>
-        </Pressable>
-        <Pressable
-          style={active ? styles.buttonStyle2 : styles.buttonStyle}
-          onPress={() => setActive(false)}>
-          <Text style={active ? styles.buttonTextStyle2 : styles.buttonTextStyle}>
-            Library Book
-          </Text>
-        </Pressable>
-      </View>
-
-      {active ? (
-        <View>
-          <FlatList
-            data={issueBookSource}
-            renderItem={({item}) => (
-              <View style={styles.CardView}>
-                <View style={styles.CardViewStyle}>
-                  <View style={styles.CircleShapeView}>
-                    <Image
-                      style={styles.AssignmentImage}
-                      source={require('../../../assests/images/assignment.png')}
-                    />
-                  </View>
-                  <View style={styles.TextViewStyle}>
-                    <Text style={styles.DashboardTextStyle}>
-                      {item?.book?.title}
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginTop: resW(1),
-                      }}>
-                      <Text style={styles.DateText}>
-                        {moment(item?.issue?.issue_date).format('DD-MM-YYYY')}{' '}
-                      </Text>
-                      <View
-                        style={{
-                          width: resW(4),
-                          backgroundColor: 'grey',
-                          height: resW(0.4),
-                          marginTop: resW(1),
-                        }}
-                      />
-                      <Text style={styles.DateText}>
-                        {' '}
-                        {moment(item?.issue?.return_date).format('DD-MM-YYYY')}
-                      </Text>
-                    </View>
-                    {item?.issue?.fine > 0 && (
-                      <Text
-                        style={[
-                          styles.DateText,
-                          {
-                            color: 'red',
-                            marginTop: resW(1),
-                            fontFamily: typeMedium,
-                          },
-                        ]}>
-                        Fine: {item?.issue?.fine}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            ItemSeparatorComponent={() => <View style={{height: resW(4)}} />}
-            ListFooterComponent={() => <View style={{height: resW(4)}} />}
-            ListHeaderComponent={() => <View style={{height: resW(1)}} />}
-          />
-        </View>
-      ) : (
-        <View>
-          {isVisible ? (
-            <View style={{marginBottom: resW(3)}}>
-              <Searchbar onChangeSearch={text => onSearch(text)} />
-            </View>
-          ) : null}
-
-          <FlatList
-            data={dataSource}
-            renderItem={({item}) => (
-              <View style={styles.CardView}>
-                <View style={styles.CardViewStyle}>
-                  <View style={styles.DocImageAndTextStyle}>
-                    <View style={styles.CircleShapeView}>
-                      <Image
-                        style={styles.AssignmentImage}
-                        source={require('../../../assests/images/assignment.png')}
-                      />
-                    </View>
-                    <View style={styles.TextViewStyle}>
-                      <Text style={styles.DashboardTextStyle}>{item?.title}</Text>
-                      <Text style={styles.DateText}>
-                        Written by {item?.author_name}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            ItemSeparatorComponent={() => <View style={{height: resW(4)}} />}
-            ListFooterComponent={() => <View style={{height: resW(4)}} />}
-          />
-        </View>
-      )}
-
-      {!active && (
-        <View style={styles.FloatTabStyle}>
-          <TouchableOpacity onPress={toggleFunction}>
-            <Image
-              style={styles.FloatIconStyle}
-              source={require('../../../assests/images/loupe_icon.png')}
-            />
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+    <LibraryScreenView
+      activeTab={activeTab}
+      issuedItems={issuedItems}
+      libraryItems={libraryItems}
+      onBackPress={() => navigation.goBack()}
+      onRefresh={onRefresh}
+      onSearchChange={handleSearchChange}
+      onPressIssuedItem={handleIssuedPress}
+      onPressLibraryItem={handleLibraryPress}
+      onTabChange={handleTabChange}
+      onToggleSearch={() => setSearchVisible((previous) => !previous)}
+      refreshing={refreshing}
+      searchValue={searchValue}
+      searchVisible={searchVisible}
+    />
   );
 };
 

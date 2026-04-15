@@ -1,269 +1,308 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  Pressable, // Use this directly instead of from Libraries
-  StyleSheet,
-  FlatList,
-} from 'react-native';
-// Removed unused imports for clarity
-// import AsyncStorage from '@react-native-community/async-storage';
-import * as constant from '../../../Utils/Constant';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import * as myConst from '../../Baseurl';
-import { useSelector } from 'react-redux';
 import Snackbar from 'react-native-snackbar';
 import moment from 'moment';
 
-const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+import * as constant from '../../../Utils/Constant';
+import * as myConst from '../../Baseurl';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
 
-// --- FIX 1: Define constants for getItemLayout ---
-// Calculate the total width of one item in the list (button + separator)
-const ITEM_WIDTH = constant.resW(28); // from styles.listButton
-const SEPARATOR_WIDTH = constant.resW(4); // from ItemSeparatorComponent
-const HEADER_WIDTH = constant.resW(4); // from ListHeaderComponent
-const TOTAL_ITEM_WIDTH = ITEM_WIDTH + SEPARATOR_WIDTH;
+const DAY_NAMES = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 
-const HomeTimeTable = (props) => {
-    const { navigation } = props
-    const userData = useSelector(state => state.userSlice.userData)
-    const usertoken = useSelector(state=>state.userSlice.token)
-    const [sylabus, setSylabus] = useState([])
-    const [schedule, setSchedule] = useState({})
-    const [select, setSelect] = useState({ "active": 0, 'data': [] })
-    const listRef = useRef(null)
+const getDefaultDay = scheduleMap => {
+  const today = moment().format('dddd');
+  const preferredDay = DAY_NAMES.includes(today) ? today : DAY_NAMES[0];
 
-    useEffect(() => {
-        TransportApi()
-    }, [])
+  if (Array.isArray(scheduleMap?.[preferredDay]) && scheduleMap[preferredDay].length) {
+    return preferredDay;
+  }
 
-    function TransportApi() {
-        let formData = new FormData()
-        formData.append('std_class', userData?.Student_class)
-        formData.append('std_section', userData?.Student_section)
+  return DAY_NAMES.find(day => Array.isArray(scheduleMap?.[day]) && scheduleMap[day].length)
+    || DAY_NAMES[0];
+};
 
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-                'Authorization' : usertoken
-            },
-            body: formData
-        }
-        fetch(myConst.BASEURL + 'viewTimetable', data)
-            .then((response) => response.json())
-            .then(responseJson => {
-    console.log("🔴 Full Response:", JSON.stringify(responseJson, null, 2));
+const HomeTimeTable = () => {
+  const {token: usertoken, userData} = useStudentAuth();
+  const [schedule, setSchedule] = useState({});
+  const [selectedDay, setSelectedDay] = useState(DAY_NAMES[0]);
+  const [loading, setLoading] = useState(false);
 
-    if (responseJson.status === true) {
-        const response = responseJson.data;
-        console.log("🟢 Response Data:", response);
+  useEffect(() => {
+    if (!usertoken || !userData?.Student_class || !userData?.Student_section) {
+      return;
+    }
 
-        const apiSchedule = response?.schedule || response?.Schedule || response || {};
-        console.log("📅 apiSchedule Keys:", Object.keys(apiSchedule));
+    const loadTimetable = async () => {
+      setLoading(true);
 
-        setSchedule(apiSchedule);
+      try {
+        const formData = new FormData();
+        formData.append('std_class', userData.Student_class);
+        formData.append('std_section', userData.Student_section);
 
-        const today = moment().format("dddd");
-        console.log("📌 Today:", today);
-
-        const formattedDay = capitalizeFirstLetter(today.trim().toLowerCase());
-        console.log("📌 FormattedDay:", formattedDay);
-
-        if (formattedDay === 'Sunday') {
-            setSylabus(apiSchedule?.Monday || []);
-            setSelect({ active: 0, data: [] });
-        } else {
-            const weekNumber = dayNames.indexOf(formattedDay);
-            console.log("📌 weekNumber:", weekNumber);
-
-            if (weekNumber !== -1) {
-                const scheduleForDay = apiSchedule?.[formattedDay] || [];
-                console.log(`📚 ${formattedDay} Schedule:`, scheduleForDay);
-
-                setSylabus(scheduleForDay);
-                setSelect({ active: weekNumber, data: [] });
-
-                setTimeout(() => {
-                    listRef.current?.scrollToIndex({ animated: true, index: weekNumber });
-                }, 1000);
-            } else {
-                console.warn("⚠️ Day not found, falling back to Monday");
-                setSylabus(apiSchedule?.Monday || []);
-                setSelect({ active: 0, data: [] });
-            }
-        }
-    } else {
-        Snackbar.show({
-            text: responseJson.message,
-            duration: Snackbar.LENGTH_SHORT,
-            backgroundColor: '#f15270'
+        const response = await fetch(myConst.BASEURL + 'viewTimetable', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'multipart/form-data',
+            Authorization: usertoken,
+          },
+          body: formData,
         });
-    }
-})
 
-            .catch((error) => console.log("API Error:", error))
-    }
+        const responseJson = await response.json();
+        const nextSchedule =
+          responseJson?.data?.schedule ||
+          responseJson?.data?.Schedule ||
+          responseJson?.schedule ||
+          {};
 
-    function getScheduleForDay(day) {
-        const formattedDay = capitalizeFirstLetter(day.trim().toLowerCase());
-        return schedule[formattedDay] || [];
-    }
+        if (!response.ok || responseJson?.status !== true) {
+          throw new Error(responseJson?.message || 'Unable to load timetable');
+        }
 
-    function capitalizeFirstLetter(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+        setSchedule(nextSchedule);
+        setSelectedDay(getDefaultDay(nextSchedule));
+      } catch (error) {
+        setSchedule({});
+        Snackbar.show({
+          text: error?.message || 'Unable to load timetable',
+          duration: Snackbar.LENGTH_SHORT,
+          backgroundColor: '#f15270',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const fn_click = async (item, index) => {
-        const scheduleForDay = getScheduleForDay(item);
-        setSylabus(scheduleForDay);
-        setSelect({ active: index, data: [] });
-    }
-    
-    // --- FIX 1 (continued): Implement the getItemLayout function ---
-    const getItemLayout = (data, index) => ({
-      length: ITEM_WIDTH,
-      offset: HEADER_WIDTH + (TOTAL_ITEM_WIDTH * index),
-      index,
-    });
+    loadTimetable();
+  }, [usertoken, userData?.Student_class, userData?.Student_section]);
 
+  const periods = useMemo(
+    () => (Array.isArray(schedule?.[selectedDay]) ? schedule[selectedDay] : []),
+    [schedule, selectedDay],
+  );
 
-    const renderList = ({ item, index }) => {
-        return (
-            <LinearGradient colors={select.active === index ? ['#A902FE', '#5E3BF9'] : ['#D9D9D9', '#D9D9D9']} style={styles.gradiantStyle} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} >
-                <Pressable style={styles.listButton} onPress={() => fn_click(item, index)} >
-                    <Text style={select.active === index ? styles.listText : styles.listText2}>{item}</Text>
-                </Pressable>
-            </LinearGradient>
-        )
-    }
+  return (
+    <View style={styles.topMainView}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.heading}>Time Table</Text>
+      </View>
 
-    const renderPeriodList = ({ item, index }) => {
-        return (
-            item?.type === 'Break' ?
-                <View style={[styles.periodListView, { paddingVertical: constant.resW(1), backgroundColor: '#A902FE' }]}>
-                    <Text style={styles.periodlistText3}>{item?.start}-{item?.end}</Text>
+      <ScrollView
+        contentContainerStyle={styles.dayTabsContent}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
+        {DAY_NAMES.map(day => {
+          const isActive = day === selectedDay;
+
+          const content = (
+            <Pressable onPress={() => setSelectedDay(day)} style={styles.listButton}>
+              <Text style={isActive ? styles.listText : styles.listText2}>{day}</Text>
+            </Pressable>
+          );
+
+          if (isActive) {
+            return (
+              <LinearGradient
+                colors={['#D000FF', '#5A37F7']}
+                end={{x: 1, y: 0}}
+                key={day}
+                start={{x: 0, y: 0}}
+                style={styles.gradiantStyle}
+              >
+                {content}
+              </LinearGradient>
+            );
+          }
+
+          return (
+            <View key={day} style={styles.inactiveTab}>
+              {content}
+            </View>
+          );
+        })}
+      </ScrollView>
+
+      <View style={styles.scheduleCard}>
+        {loading ? (
+          <Text style={styles.emptyStateText}>Loading timetable...</Text>
+        ) : periods.length ? (
+          <View style={styles.scheduleGrid}>
+            {periods.map((item, index) => {
+              const isBreak = item?.type === 'Break';
+
+              if (isBreak) {
+                return (
+                  <LinearGradient
+                    colors={['#F6EFFF', '#EFE7FF']}
+                    end={{x: 1, y: 1}}
+                    key={`${item?.label}-${item?.start}-${index}`}
+                    start={{x: 0, y: 0}}
+                    style={[styles.periodListView, styles.breakCard]}
+                  >
+                    <Text style={styles.periodlistText3}>
+                      {item?.start}-{item?.end}
+                    </Text>
                     <Text style={styles.periodlistText4}>{item?.label}</Text>
-                </View>
-                :
-                <View style={styles.periodListView}>
-                    <Text style={styles.periodlistText}>{item?.start}-{item?.end}</Text>
-                    <Text style={styles.periodlistText2}>{item?.subject}</Text>
-                </View>
-        )
-    }
+                  </LinearGradient>
+                );
+              }
 
-    return (
-        <View style={styles.topMainView}>
-            <View style={styles.listView}>
-                <FlatList
-                    ref={listRef}
-                    horizontal
-                    data={dayNames}
-                    renderItem={renderList}
-                    showsHorizontalScrollIndicator={false}
-                  
-                    getItemLayout={getItemLayout}
-                    keyExtractor={(item) => item} 
-                    ListHeaderComponent={() => <View style={{ width: constant.resW(4) }} />}
-                    ItemSeparatorComponent={() => <View style={{ width: constant.resW(4) }} />}
-                    ListFooterComponent={() => <View style={{ width: constant.resW(4) }} />}
-                />
-            </View>
-            <View style={{ flex: 1, }}>
-                <FlatList
-                    data={sylabus}
-                    numColumns={3}
-                    renderItem={renderPeriodList}
-                    keyExtractor={(item, index) => `${item.subject}-${index}`} 
-                    columnWrapperStyle={{ alignSelf: 'flex-start', alignItems: 'flex-start' }}
-                    contentContainerStyle={styles.listContainer}
-                    showsHorizontalScrollIndicator={false}
-                    ListHeaderComponent={() => <View style={{ width: constant.resW(4) }} />}
-                    ListFooterComponent={() => <View style={{ width: constant.resW(4) }} />}
-                />
-            </View>
-        </View>
-    );
+              return (
+                <View
+                  key={`${item?.label}-${item?.subject}-${item?.start}-${index}`}
+                  style={styles.periodListView}
+                >
+                  <Text style={styles.periodlistText}>
+                    {item?.start}-{item?.end}
+                  </Text>
+                  <Text style={styles.periodlistText2}>
+                    {item?.subject || 'Subject'}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        ) : (
+          <Text style={styles.emptyStateText}>No timetable available right now.</Text>
+        )}
+      </View>
+    </View>
+  );
 };
 
 export default HomeTimeTable;
 
-
 const styles = StyleSheet.create({
-  topMainView:{
-    backgroundColor:constant.whiteColor,
-    marginVertical:constant.resW(3),
-    flex: 1, // Added flex: 1 to ensure it takes up space
+  topMainView: {
+    backgroundColor: constant.whiteColor,
+    marginTop: constant.resW(5),
   },
-  
-  listView:{
-    // No changes needed
+  sectionHeader: {
+    marginBottom: constant.resW(2.5),
+    marginHorizontal: constant.resW(4),
   },
-  gradiantStyle:{
-    borderRadius:constant.resW(20)
+  heading: {
+    color: constant.blackColor,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font18,
+    lineHeight: constant.resW(7),
   },
-  listButton:{
-  alignItems:'center',
-  justifyContent:'center',
-  borderRadius:constant.resW(20),
- width:constant.resW(28),
-  paddingVertical:constant.resW(1.5),
-  
+  dayTabsContent: {
+    paddingHorizontal: constant.resW(4),
   },
-  listText:{
-    color:constant.whiteColor,
-    fontSize: constant.font16,
-    fontFamily:constant.typeMedium,
+  gradiantStyle: {
+    borderRadius: constant.resW(3),
+    marginRight: constant.resW(4),
   },
-  listText2:{
-    color:constant.blackColor,
-    fontSize: constant.font15,
-    fontFamily:constant.typeMedium,
+  inactiveTab: {
+    backgroundColor: '#F8FAFF',
+    borderColor: '#E2E8F4',
+    borderRadius: constant.resW(3),
+    borderWidth: 1,
+    marginRight: constant.resW(4),
   },
-  listContainer:{
-    marginHorizontal:constant.resW(4),
-    backgroundColor:constant.lightGrayColor,
-    paddingVertical:constant.resW(2),
-    marginVertical:constant.resW(5),
-    borderRadius:5,
-    elevation:1,
-    alignItems:'flex-start',
-    justifyContent:'flex-start'
+  listButton: {
+    alignItems: 'center',
+    borderRadius: constant.resW(3),
+    justifyContent: 'center',
+    minWidth: constant.resW(28),
+    paddingHorizontal: constant.resW(3.8),
+    paddingVertical: constant.resW(2.3),
   },
-  periodListView:{
-  paddingVertical:constant.resW(2),
-  alignSelf:'flex-start',
-  justifyContent:'flex-start',
-  width:constant.resW(31)
-  },
-  periodlistText:{
-    color:constant.blackColor,
-    fontSize: constant.font15,
-    fontFamily:constant.typeSemiBold,
-    alignSelf:'center'
-  },
-  periodlistText2:{
-    color:constant.blackColor,
+  listText: {
+    color: constant.whiteColor,
+    fontFamily: constant.typeSemiBold,
     fontSize: constant.font13,
-    fontFamily:constant.typeSemiBold,
-    alignSelf:'center',
-    marginTop:constant.resW(1)
   },
-  periodlistText3:{
-    color:constant.whiteColor,
-    fontSize: constant.font15,
-    fontFamily:constant.typeSemiBold,
-    alignSelf:'center'
-  },
-  periodlistText4:{
-    color:constant.whiteColor,
+  listText2: {
+    color: '#0F172A',
+    fontFamily: constant.typeMedium,
     fontSize: constant.font13,
-    fontFamily:constant.typeSemiBold,
-    alignSelf:'center',
-    marginTop:constant.resW(1)
   },
-   
-})
+  scheduleCard: {
+    backgroundColor: '#F8FAFF',
+    borderColor: '#E2E8F4',
+    borderRadius: constant.resW(3),
+    borderWidth: 1,
+    elevation: 2,
+    marginHorizontal: constant.resW(4),
+    marginTop: constant.resW(3),
+    paddingHorizontal: constant.resW(2.2),
+    paddingVertical: constant.resW(2.8),
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+  },
+  scheduleGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  periodListView: {
+    alignItems: 'center',
+    backgroundColor: constant.whiteColor,
+    borderRadius: constant.resW(2),
+    justifyContent: 'center',
+    marginBottom: constant.resW(1.8),
+    minHeight: constant.resW(21),
+    paddingHorizontal: constant.resW(1.8),
+    paddingVertical: constant.resW(2.2),
+    width: '31.5%',
+  },
+  breakCard: {
+    borderColor: '#D9C9FF',
+    borderRadius: constant.resW(2),
+    borderWidth: 1,
+  },
+  periodlistText: {
+    alignSelf: 'center',
+    color: constant.blackColor,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font14,
+    lineHeight: constant.resW(5.2),
+    textAlign: 'center',
+  },
+  periodlistText2: {
+    alignSelf: 'center',
+    color: constant.baseTextColor,
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font12,
+    marginTop: constant.resW(1.2),
+    textAlign: 'center',
+  },
+  periodlistText3: {
+    alignSelf: 'center',
+    color: '#6D28D9',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font14,
+    lineHeight: constant.resW(5.2),
+    textAlign: 'center',
+  },
+  periodlistText4: {
+    alignSelf: 'center',
+    color: '#7C3AED',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font12,
+    marginTop: constant.resW(1.2),
+    textAlign: 'center',
+  },
+  emptyStateText: {
+    color: constant.baseTextColor,
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font14,
+    paddingVertical: constant.resW(6),
+    textAlign: 'center',
+  },
+});

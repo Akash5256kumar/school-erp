@@ -1,39 +1,40 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  Image,
   Text,
   View,
-  TouchableOpacity,
-  ImageBackground,
-  ScrollView,
-  BackHandler,
-  Alert,
-  StatusBar,
   StyleSheet,
-  Dimensions,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 import * as constant from '../../../Utils/Constant';
-import LinearGradient from 'react-native-linear-gradient';
-import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
 import * as myConst from '../../Baseurl';
-import { useSelector } from 'react-redux';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
 import Snackbar from 'react-native-snackbar';
-
+import AsyncStorage from '@react-native-community/async-storage';
 
 const HomeTransport = (props) => {
-    const { navigation } = props
-    const userData = useSelector(state=>state.userSlice.userData)
-    const usertoken = useSelector(state=>state.userSlice.token)
+    const {token: usertoken, userData} = useStudentAuth();
     const [transpartData,setTransportData] = useState({})
 
+    const [stdRoll, setStdRoll] = useState('');
+
+    useEffect(() => {
+      const getRoll = async () => {
+        const value = await AsyncStorage.getItem('@std_roll');
+        setStdRoll(value || '');
+      };
+      getRoll();
+    }, []);
+
     useEffect(()=>{
+      if (!usertoken || !stdRoll) {
+        return;
+      }
+
       TransportApi()
-    },[])
+    },[usertoken, stdRoll])
 
    function TransportApi() {
       let formData = new FormData()
-      formData.append('std_roll', userData?.std_roll)
+      formData.append('std_roll', stdRoll)
       let data = {
           method: 'POST',
           headers: {
@@ -51,7 +52,7 @@ const HomeTransport = (props) => {
                   const response = responseJson.data
                   setTransportData(response)
                  
-              } else if (responseJson.staus === false) {
+              } else if (responseJson.status === false) {
 
                   Snackbar.show({
                       text: responseJson.message,
@@ -68,55 +69,72 @@ const HomeTransport = (props) => {
 
   return (
     <View style={styles.topMainView}>
-       <Text style={styles.heading}>Transport Details</Text>
-   <View style={styles.mainView}>
-   
-    <View style={styles.container}>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Route No.</Text>
-        <Text style={styles.cardValue}>{transpartData?.route_no}</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.heading}>Transport Details</Text>
       </View>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Vehicle No.</Text>
-        <Text style={styles.cardValue}>{transpartData?.registration_no}</Text>
+
+      <View style={styles.mainView}>
+        <View style={styles.container}>
+          <View style={styles.cardView}>
+            <Text style={styles.cardLabel}>Route No.</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.route_no || '--'}
+            </Text>
+          </View>
+          <View style={styles.cardView}>
+            <Text style={styles.cardLabel}>Vehicle No.</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.registration_no || '--'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.container}>
+          <View style={styles.cardView}>
+            <Text style={styles.cardLabel}>Pick Up Point</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.pickup_point || '--'}
+            </Text>
+          </View>
+          <View style={styles.cardView}>
+            <Text style={styles.cardLabel}>Drop Point</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.drop_point || '--'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.container}>
+          <View style={styles.cardView}>
+            <Text style={styles.cardLabel}>Incharge Name</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.incharge_name || '--'}
+            </Text>
+          </View>
+          <View style={styles.cardView}>
+            <Text style={styles.cardLabel}>Incharge No.</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.contact_no || '--'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.container}>
+          <View style={styles.cardView}>
+            <Text style={styles.cardLabel}>Driver Name</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.driver_name || '--'}
+            </Text>
+          </View>
+          <View style={styles.cardView}>
+            <Text numberOfLines={1} style={styles.cardLabel}>Driver No.</Text>
+            <Text numberOfLines={2} style={styles.cardValue}>
+              {transpartData?.driver_mobile_no || '--'}
+            </Text>
+          </View>
+        </View>
       </View>
     </View>
-
-    <View style={styles.container}>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Pick Up Point</Text>
-        <Text style={styles.cardValue}>{transpartData?.pickup_point}</Text>
-      </View>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Drop Point</Text>
-        <Text style={styles.cardValue}>{transpartData?.drop_point}</Text>
-      </View>
-    </View>
-
-    <View style={styles.container}>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Incharge Name</Text>
-        <Text style={styles.cardValue}>{transpartData?.incharge_name}</Text>
-      </View>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Incharge No.</Text>
-        <Text style={styles.cardValue}>{transpartData?.contact_no}</Text>
-      </View>
-    </View>
-
-    <View style={styles.container}>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Driver Name</Text>
-        <Text style={styles.cardValue}>{transpartData?.driver_name}</Text>
-      </View>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Driver No.</Text>
-        <Text style={styles.cardValue}>{transpartData?.driver_mobile_no}</Text>
-      </View>
-    </View>
-
-   </View>
-   </View>
   );
 };
 
@@ -126,49 +144,58 @@ export default HomeTransport;
  const styles = StyleSheet.create({
   topMainView:{
     backgroundColor:constant.whiteColor,
-    // paddingHorizontal:constant.resW(4)
+    marginTop: constant.resW(5),
   },
+    sectionHeader: {
+      marginBottom: constant.resW(2.5),
+      marginHorizontal: constant.resW(4),
+    },
     mainView:{
-    backgroundColor:constant.lightGrayColor,
-    paddingHorizontal:constant.resW(2),
-    paddingTop:constant.resW(2),
-    marginHorizontal:constant.resW(4)
+    backgroundColor:'#F8FAFF',
+    borderColor: '#E2E8F4',
+    borderRadius: constant.resW(3),
+    borderWidth: 1,
+    paddingHorizontal:constant.resW(3),
+    paddingTop:constant.resW(3),
+    paddingBottom: constant.resW(1),
+    marginHorizontal:constant.resW(4),
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
     },
     heading:{
       color:constant.blackColor,
-      fontSize: constant.font20,
+      fontSize: constant.font18,
       fontFamily:constant.typeSemiBold,
-      marginTop:constant.resW(2),
-      marginBottom:constant.resW(3),
-      marginLeft:constant.resW(4)
+      lineHeight: constant.resW(7),
     },
     container:{
-      flex:1,
       alignItems:'center',
       flexDirection:"row",
       justifyContent:'space-between',
-      marginBottom:constant.resW(2)
+      marginBottom:constant.resW(2.2)
     },
     cardView:{
      flex:0.48,
-    //  alignItems:'center',
-    //  flexDirection:'row',
-    //  justifyContent:'center',
-    //  flexWrap:'wrap',
-     gap:constant.resW(1),
+     backgroundColor: constant.whiteColor,
+     borderRadius: constant.resW(2.2),
+     minHeight: constant.resW(18),
+     paddingHorizontal: constant.resW(2.5),
+     paddingVertical: constant.resW(2.4),
     },
-    cardText:{
-      color:constant.blackColor,
-      fontSize: constant.font16,
-      fontFamily:constant.typeSemiBold,
-      // textAlign:'center'
-
+    cardLabel:{
+      color:'#64748B',
+      fontSize: constant.font12,
+      fontFamily:constant.typeMedium,
     },
     cardValue:{
       color:constant.blackColor,
-      fontSize: constant.font13,
-      fontFamily:constant.typeMedium,
-      // textAlign:'center'
+      fontSize: constant.font14,
+      fontFamily:constant.typeSemiBold,
+      marginTop: constant.resW(1.2),
+      lineHeight: constant.resW(5),
     }
   
 })

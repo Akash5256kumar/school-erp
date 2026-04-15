@@ -1,179 +1,89 @@
-import React, { Component } from 'react';
-import { Text, View, Image, Pressable, Keyboard } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as constant from '../../../Utils/Constant';
-import StaffHome from '../StaffHome/StaffHome';
-import StaffProfile from '../StaffProfile/StaffProfile';
-import StaffViewLeave from '../StaffViewLeave/StaffViewLeave';
-import StaffSupportSystem from '../StaffSupportSystem/StaffSupportSystem';
-import StaffLibrary from '../StaffLibrary/StaffLibrary';
+import React, { useEffect, useState } from "react";
+import { Keyboard } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { BookOpen } from "lucide-react-native";
+
+import BottomBar from "../../common/BottomBar";
+import { bottomBarItemColors } from "../../../constants/bottomBarTheme";
+import * as constant from "../../../Utils/Constant";
+import StaffHome from "../StaffHome/StaffHome";
+import StaffLibrary from "../StaffLibrary/StaffLibrary";
+import StaffProfile from "../StaffProfile/StaffProfile";
+import StaffSupportSystem from "../StaffSupportSystem/StaffSupportSystem";
+import StaffViewLeave from "../StaffViewLeave/StaffViewLeave";
 
 const Tab = createBottomTabNavigator();
 
-class StaffModuleBottomTabs extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isKeyboardVisible: false,
+const TAB_ITEMS = [
+  {
+    iconSource: constant.Icons.libraryIcon,
+    label: "Library",
+    routeName: "Achievement",
+    ...bottomBarItemColors,
+  },
+  {
+    iconSource: constant.Icons.leaveIcon,
+    label: "Leave",
+    routeName: "Grade",
+    ...bottomBarItemColors,
+  },
+  {
+    Icon: BookOpen,
+    isCenter: true,
+    routeName: "StaffHome",
+  },
+  {
+    iconSource: constant.Icons.SupportIcon,
+    label: "Support",
+    routeName: "Support",
+    ...bottomBarItemColors,
+  },
+  {
+    iconSource: constant.Icons.profileIcon,
+    label: "Profile",
+    routeName: "StaffProfile",
+    ...bottomBarItemColors,
+  },
+];
+
+const StaffModuleBottomTabs = () => {
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showListener = Keyboard.addListener("keyboardDidShow", () =>
+      setIsKeyboardVisible(true)
+    );
+    const hideListener = Keyboard.addListener("keyboardDidHide", () =>
+      setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      showListener.remove();
+      hideListener.remove();
     };
-  }
+  }, []);
 
-  componentDidMount() {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      this._keyboardDidShow,
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      this._keyboardDidHide,
-    );
-  }
-
-  componentWillUnmount() {
-    this.keyboardDidShowListener?.remove();
-    this.keyboardDidHideListener?.remove();
-  }
-
-  _keyboardDidShow = () => {
-    this.setState({ isKeyboardVisible: true });
-  };
-
-  _keyboardDidHide = () => {
-    this.setState({ isKeyboardVisible: false });
-  };
-
-  render() {
-    const baseTabBarStyle = {
-      backgroundColor: constant.whiteColor,
-      height: constant.resW(16),
-      position: 'absolute',
-      shadowColor: '#AC00FE',
-      shadowOffset: { width: 60, height: 50 },
-      shadowOpacity: 2,
-      shadowRadius: 6,
-      elevation: 10,
-      borderTopColor: constant.whiteColor,
-      borderTopWidth: 0,
-    };
-
-    const dynamicTabBarStyle = this.state.isKeyboardVisible
-      ? { display: 'none' } // hides tab bar when keyboard appears
-      : {};
-
-    return (
-      <Tab.Navigator
-        initialRouteName="StaffHome"
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: true,
-          tabBarHideOnKeyboard: true,
-          tabBarLabelStyle: {
-            fontSize: constant.font12,
-            marginBottom: constant.resH(0.8),
-            fontWeight: '600',
-          },
-          tabBarIconStyle: {
-            marginBottom: 0,
-          },
-          tabBarStyle: [baseTabBarStyle, dynamicTabBarStyle],
-        }}
-      >
-        <Tab.Screen
-          name="Achievement"
-          component={StaffLibrary}
-          options={{
-            tabBarLabel: 'library',
-            tabBarIcon: ({ color, size }) => (
-              <Image
-                source={constant.Icons.libraryIcon}
-                resizeMode="contain"
-                style={{
-                  height: constant.resW(9),
-                  width: constant.resW(9),
-                }}
-              />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Grade"
-          component={StaffViewLeave}
-          options={{
-            tabBarLabel: 'leave',
-            tabBarIcon: ({ color, size }) => (
-              <Image
-                source={constant.Icons.leaveIcon}
-                resizeMode="contain"
-                style={{
-                  height: constant.resW(9),
-                  width: constant.resW(9),
-                }}
-              />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="StaffHome"
-          component={StaffHome}
-          options={{
-            unmountOnBlur: false,
-            tabBarButton: (props) => (
-              <Pressable {...props} style={{ marginBottom: constant.resW(10) }}>
-                <Pressable {...props}>
-                  <Image
-                    source={constant.Icons.homeIcon}
-                    resizeMode="contain"
-                    style={{
-                      height: constant.resW(12),
-                      width: constant.resW(12),
-                    }}
-                  />
-                </Pressable>
-              </Pressable>
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Support"
-          component={StaffSupportSystem}
-          options={{
-            tabBarLabel: 'Supports',
-            tabBarIcon: ({ color, size }) => (
-              <Image
-                source={constant.Icons.SupportIcon}
-                resizeMode="contain"
-                style={{
-                  height: constant.resW(9),
-                  width: constant.resW(9),
-                }}
-              />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="StaffProfile"
-          component={StaffProfile}
-          options={{
-            tabBarLabel: 'Profile',
-            tabBarIcon: ({ color, size }) => (
-              <Image
-                source={constant.Icons.profileIcon}
-                resizeMode="contain"
-                style={{
-                  height: constant.resW(9),
-                  width: constant.resW(9),
-                }}
-              />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    );
-  }
-}
+  return (
+    <Tab.Navigator
+      initialRouteName="StaffHome"
+      screenOptions={{
+        headerShown: false,
+      }}
+      tabBar={(props) =>
+        isKeyboardVisible ? null : <BottomBar {...props} items={TAB_ITEMS} />
+      }
+    >
+      <Tab.Screen component={StaffLibrary} name="Achievement" />
+      <Tab.Screen component={StaffViewLeave} name="Grade" />
+      <Tab.Screen
+        component={StaffHome}
+        name="StaffHome"
+        options={{ unmountOnBlur: false }}
+      />
+      <Tab.Screen component={StaffSupportSystem} name="Support" />
+      <Tab.Screen component={StaffProfile} name="StaffProfile" />
+    </Tab.Navigator>
+  );
+};
 
 export default StaffModuleBottomTabs;

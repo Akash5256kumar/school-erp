@@ -1,260 +1,442 @@
-import React from 'react';
-import { StyleSheet, Dimensions, Platform } from 'react-native';
-import { resW, resH } from '../../../Utils/Constant';
-const deviceHeight = Dimensions.get('window').height;
-const deviceWidth = Dimensions.get('window').width;
-const baseColor = '#0747a6'
+import {StyleSheet} from 'react-native';
+import * as constant from '../../../Utils/Constant';
 
-// export default styles = StyleSheet.create({
+const BRAND = '#5E3BF9';
 
-//     MainContainer:{
-//         width: '100%',
-//         height: '100%',
-//         backgroundColor: 'white',
-//     },
-
-//     HeaderText:{
-//         color: 'white',
-//         fontSize: 20,
-//         textTransform: 'uppercase',
-//         fontWeight: 'bold',
-//         marginStart: 20
-//     },
-
-//     HeaderView:{
-//         display: 'flex',
-//          flexDirection: 'row',
-//           justifyContent: 'space-between',
-//            marginTop: Platform.OS === 'ios' ? resW(18) : 0
-//     },
-
-//     HeaderImage:{
-//         height: 25,
-//         width: 30,
-//          marginEnd: 8
-//     },
-
-//     HeaderImageStyle:{
-//         display: 'flex', flexDirection: 'column', marginTop: 40, marginStart: 10
-//     },
-
-
-//     HomeScreenView: {
-//         flex: 3,
-//         display: 'flex', 
-//         flexDirection: 'row', 
-//         justifyContent: 'space-around',
-//     },
-
-//     ContainerImage:{
-//         height: resW(85), 
-//         width: '100%',
-//     },
-
-//     ProfileImageBackground: {
-//         display: 'flex', 
-//         flexDirection:'row'
-//     },
-
-//     ProfileImage: {
-//         width:80,
-//         height:80,
-//         marginTop: 20,
-//         marginStart: 10
-//     },
-
-//     TextName: {
-//         color: 'white',
-//         fontSize: 24,
-//         fontWeight: 'bold'
-//     },
-
-//     TextAddress: {
-//         color: 'white',
-//         fontSize: 16,
-//         marginTop: 5
-//     },
-
-//     ProfileCircleShapeView: {
-//         flex: 1,
-//         flexDirection: 'column',
-//         width: deviceWidth*0.42,
-//         height: 130,
-//         borderRadius: 25,
-//         backgroundColor: '#ffb901',
-//         // marginTop: 5,
-//         // marginStart: 5,
-//         // marginEnd: 5,
-//         marginTop: 10,
-//         marginBottom: 10
-//     },
-
-//     ApplyLeavesCircleShapeView: {
-//         flex: 1,
-//         flexDirection: 'column',
-//         width: deviceWidth*0.42,
-//         height: 130,
-//         borderRadius: 25,
-//         backgroundColor: '#ff8a00',
-//         // marginTop: 5,
-//         // marginStart: 5,
-//         // marginEnd: 5,
-//         marginTop: 10,
-//         marginBottom: 10
-//     }, 
-
-//     IssueCircleShapeView: {
-//         flex: 1,
-//         flexDirection: 'column',
-//         width: deviceWidth*0.42,
-//         height: 130,
-//         borderRadius: 25,
-//         backgroundColor: '#48affe',
-//         // marginTop: 5,
-//         // marginStart: 5,
-//         // marginEnd: 5,
-//         marginTop: 10,
-//         marginBottom: 10
-//     },
-
-//     AddItemCircleShapeView: {
-//         flex: 1,
-//         flexDirection: 'column',
-//         width: deviceWidth*0.42,
-//         height: 130,
-//         borderRadius: 25,
-//         backgroundColor: '#c4cce3',
-//         // marginTop: 5,
-//         // marginStart: 5,
-//         // marginEnd: 5,
-//         marginTop: 10,
-//         marginBottom: 10
-//     },
-
-//     SupportCircleShapeView: {
-//         flex: 1,
-//         flexDirection: 'column',
-//         width: deviceWidth*0.42,
-//         height: 130,
-//         borderRadius: 25,
-//         backgroundColor: '#036cd7',
-//         // marginTop: 5,
-//         // marginStart: 5,
-//         // marginEnd: 5,
-//         marginTop: 10,
-//         marginBottom: 10
-//     },
-
-
-//     AttendenceCircleShapeView: {
-//         flex: 1,
-//         flexDirection: 'column',
-//         width: deviceWidth*0.42,
-//         height: 130,
-//         borderRadius: 25,
-//         backgroundColor: '#f75316',
-//         // marginTop: 5,
-//         // marginStart: 5,
-//         // marginEnd: 5,
-//         marginTop: 10,
-//         marginBottom: 10
-//     },
-
-
-//     GridImage: {
-//         height: 90,
-//         width: 90,
-//         marginTop: 8, 
-//         alignSelf: 'center',
-//         justifyContent: 'center'
-//     },
-
-//     GridText: {
-//         fontSize: 18,
-//         color: 'white',
-//         alignSelf: 'center',
-//         fontWeight: 'bold',
-//         marginTop: 5
-//     },
-// })
-import * as constant from '../../../Utils/Constant'
-export default styles = StyleSheet.create({
-  homeTextLabel: {
-    color: constant.blackColor,
-    fontSize: constant.font19
+export default StyleSheet.create({
+  // ── Screen ────────────────────────────────────────────────────────
+  screen: {
+    backgroundColor: '#F4F2FF',
+    flex: 1,
   },
-  scrollContainer:{
-    paddingBottom: resH(20), 
-    backgroundColor: constant.whiteColor 
+  scrollContent: {},
+  content: {
+    paddingBottom: 120,
+    paddingHorizontal: 16,
+    paddingTop: 18,
   },
-  homeNewsTextView: {
-    marginHorizontal: resW(4),
-    marginTop: constant.resH(1)
 
+  // ── Tabs ──────────────────────────────────────────────────────────
+  tabRow: {
+    backgroundColor: '#EBEBF5',
+    borderRadius: 14,
+    flexDirection: 'row',
+    marginBottom: 14,
+    padding: 4,
   },
-  holidayEventContainer:{ 
-      height: resH(5), 
-      backgroundColor: constant.lightGrey, 
-      marginHorizontal: constant.resW(4), 
-      marginTop: resH(1), 
-      alignItems: "center", 
-      justifyContent: "center"
-     },
-     holidayeventText:{
-      color: constant.blackColor, 
-      fontSize: constant.font15
-     },
-  // NewsContainer:{
-  //     borderWidth:1,
-  //     marginTop:constant.resH(1),
-  //     borderColor:"#FA1B1B",
-  //     width:resW(92),
-  //     height:resW(35)
-  // },
-  NewsContainer: {
-    borderWidth: 1,
-    marginTop: constant.resH(1),
-    borderColor: "#FA1B1B",
-    width: resW(92),
-    height: resW(35),
-    // borderRadius: 12,
+  tab: {
+    alignItems: 'center',
+    borderRadius: 11,
+    flex: 1,
+    paddingVertical: 9,
+  },
+  tabActive: {
+    backgroundColor: constant.whiteColor,
+    elevation: 3,
+    shadowColor: '#5E3BF9',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  tabText: {
+    color: '#9CA3AF',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font14,
+  },
+  tabTextActive: {
+    color: '#1E1B4B',
+    fontFamily: constant.typeSemiBold,
+  },
+
+  // ── Calendar card ─────────────────────────────────────────────────
+  calendarCard: {
+    backgroundColor: constant.whiteColor,
+    borderRadius: 20,
+    elevation: 4,
+    marginBottom: 12,
+    overflow: 'hidden',
+    paddingBottom: 12,
+    paddingHorizontal: 12,
+    paddingTop: 14,
+    shadowColor: '#7C5CF6',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+  },
+  calendarHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+    paddingHorizontal: 4,
+  },
+  calendarHeaderTitle: {
+    color: '#1E1B4B',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font16,
+  },
+  calendarHeaderActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
+  },
+  calendarArrowButton: {
+    alignItems: 'center',
+    backgroundColor: '#F0EEFF',
+    borderRadius: 10,
+    height: 32,
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    padding: 10,
-    marginBottom: resH(5),
+    width: 32,
   },
-  iconGrid: {
+  calendarWeekdaysRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 6,
+  },
+  calendarWeekdayCell: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  calendarWeekdayText: {
+    color: '#9CA3AF',
+    fontFamily: constant.typeMedium,
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  calendar: {
+    borderRadius: 12,
+  },
+  calendarDayCell: {
+    alignItems: 'center',
+    paddingVertical: 3,
+  },
+  calendarDay: {
+    alignItems: 'center',
+    borderRadius: 20,
+    height: 34,
+    justifyContent: 'center',
+    width: 34,
+  },
+  calendarDaySelected: {
+    backgroundColor: BRAND,
+  },
+  calendarDayText: {
+    color: '#374151',
+    fontFamily: constant.typeRegular,
+    fontSize: 13,
+  },
+  calendarDayTextToday: {
+    color: BRAND,
+    fontFamily: constant.typeSemiBold,
+  },
+  calendarDayTextSelected: {
+    color: constant.whiteColor,
+    fontFamily: constant.typeSemiBold,
+  },
+  calendarDot: {
+    borderRadius: 999,
+    height: 5,
+    marginTop: 2,
+    width: 5,
+  },
+  calendarFeedbackError: {
+    color: '#DC2626',
+    fontFamily: constant.typeMedium,
+    fontSize: 12,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+
+  // ── Selected date panel ───────────────────────────────────────────
+  datePanelCard: {
+    backgroundColor: constant.whiteColor,
+    borderRadius: 18,
+    elevation: 3,
+    marginBottom: 14,
+    padding: 16,
+    shadowColor: '#7C5CF6',
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+  },
+  datePanelHeader: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: 12,
+  },
+  datePanelDay: {
+    color: '#1E1B4B',
+    fontFamily: constant.typeBold,
+    fontSize: 22,
+  },
+  datePanelMonth: {
+    color: '#6B7280',
+    fontFamily: constant.typeMedium,
+    fontSize: 15,
+  },
+  datePanelEmpty: {
+    color: '#9CA3AF',
+    fontFamily: constant.typeRegular,
+    fontSize: 13,
+    paddingVertical: 8,
+    textAlign: 'center',
+  },
+  datePanelItem: {
+    borderLeftWidth: 3,
+    borderRadius: 10,
+    backgroundColor: '#FAFAFA',
+    marginBottom: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  datePanelItemPressed: {
+    opacity: 0.9,
+  },
+  datePanelItemTopRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+  },
+  datePanelItemTitle: {
+    color: '#1E1B4B',
+    fontFamily: constant.typeSemiBold,
+    fontSize: 14,
+    flex: 1,
+  },
+  datePanelItemAction: {
+    color: BRAND,
+    fontFamily: constant.typeSemiBold,
+    fontSize: 11,
+  },
+  datePanelItemDesc: {
+    color: '#6B7280',
+    fontFamily: constant.typeRegular,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 4,
+  },
+  datePanelItemMeta: {
+    color: '#9CA3AF',
+    fontFamily: constant.typeMedium,
+    fontSize: 11,
+    marginTop: 4,
+  },
+  datePanelItemClass: {
+    color: '#0F766E',
+    fontFamily: constant.typeSemiBold,
+    fontSize: 11,
+    marginTop: 3,
+  },
+
+  // ── Counts row ────────────────────────────────────────────────────
+  countsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+  },
+  countCard: {
+    backgroundColor: constant.whiteColor,
+    borderRadius: 16,
+    elevation: 3,
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    shadowColor: '#7C5CF6',
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+  },
+  countLabel: {
+    color: '#6B7280',
+    fontFamily: constant.typeMedium,
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  countBubble: {
+    alignItems: 'center',
+    borderRadius: 999,
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
+  },
+  countValue: {
+    color: constant.whiteColor,
+    fontFamily: constant.typeBold,
+    fontSize: 14,
+  },
+
+  // ── Section title row ─────────────────────────────────────────────
+  sectionTitleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    marginTop: 4,
+  },
+  sectionTitle: {
+    color: '#1E1B4B',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font18,
+  },
+  sectionViewAll: {
+    color: BRAND,
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font13,
+  },
+
+  // ── News card ─────────────────────────────────────────────────────
+  newsCard: {
+    backgroundColor: constant.whiteColor,
+    borderRadius: 20,
+    elevation: 4,
+    marginBottom: 22,
+    overflow: 'hidden',
+    paddingVertical: 12,
+    shadowColor: '#7C5CF6',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+  },
+
+  // ── Quick Action cards ────────────────────────────────────────────
+  qaGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: "center",
-    gap:resW(5),
-    alignSelf:"center",
-    marginHorizontal: resW(7)
-
+    gap: 12,
+    justifyContent: 'space-between',
   },
-  iconItem: {
-    width: resW(25),
-    height: resW(18),
-    justifyContent: 'center',
+  qaCard: {
+    backgroundColor: constant.whiteColor,
+    borderRadius: constant.resW(3.5),
+    borderWidth: 1,
+    elevation: 2,
+    overflow: 'hidden',
+    paddingBottom: constant.resW(3),
+    paddingHorizontal: constant.resW(3),
+    paddingTop: constant.resW(3),
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    width: '47.5%',
+  },
+  qaAccent: {
+    borderRadius: constant.resW(1),
+    height: constant.resW(1),
+    marginBottom: constant.resW(2.5),
+    width: constant.resW(12),
+  },
+  qaTopRow: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  qaIconWrap: {
     alignItems: 'center',
-    marginBottom: resH(2),
-    borderWidth: 0.5,
-    borderColor: constant.blackColor,
-    borderRadius: 5,
-    padding: 5,
-    marginBottom: resH(5)
+    borderRadius: constant.resW(4),
+    height: constant.resW(18),
+    justifyContent: 'center',
+    width: constant.resW(18),
   },
-  iconImage: {
-    width: resW(14),
-    height: resW(14),
-    resizeMode: 'contain',
-    marginTop: -resH(5),
+  qaImage: {
+    height: constant.resW(12),
+    width: constant.resW(12),
   },
-  iconText: {
+  qaBadge: {
+    alignItems: 'center',
+    borderRadius: constant.resW(5),
+    justifyContent: 'center',
+    paddingHorizontal: constant.resW(2.2),
+    paddingVertical: constant.resW(0.9),
+  },
+  qaBadgeText: {
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font10,
+  },
+  qaBody: {
+    marginTop: constant.resW(3),
+  },
+  qaLabel: {
+    color: '#1E1B4B',
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font14,
+    lineHeight: constant.resW(5.5),
+  },
+  qaDescription: {
+    color: '#6B7280',
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font11,
+    lineHeight: constant.resW(4.5),
+    marginTop: constant.resW(1),
+  },
+  qaFooter: {
+    marginTop: constant.resW(2.5),
+  },
+  qaFooterText: {
+    fontFamily: constant.typeSemiBold,
     fontSize: constant.font12,
-    color: constant.blackColor,
-    textAlign: 'center',
-    marginTop:resH(1)
   },
-})
+
+  // ── Month picker modal ────────────────────────────────────────────
+  pickerBackdrop: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  pickerCard: {
+    backgroundColor: '#EDE9FE',
+    borderRadius: 24,
+    paddingBottom: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    width: 280,
+  },
+  pickerYearRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  pickerYearArrow: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.4)',
+    borderRadius: 20,
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
+  },
+  pickerYearText: {
+    color: '#4C1D95',
+    fontFamily: constant.typeSemiBold,
+    fontSize: 18,
+  },
+  pickerMonthGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 8,
+  },
+  pickerMonthCell: {
+    alignItems: 'center',
+    borderRadius: 12,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    width: '23%',
+  },
+  pickerMonthCellActive: {
+    backgroundColor: BRAND,
+  },
+  pickerMonthText: {
+    color: '#4C1D95',
+    fontFamily: constant.typeMedium,
+    fontSize: 13,
+  },
+  pickerMonthTextActive: {
+    color: constant.whiteColor,
+    fontFamily: constant.typeSemiBold,
+  },
+});

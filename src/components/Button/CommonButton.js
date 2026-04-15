@@ -1,59 +1,23 @@
-import React from 'react';
-import {Image, Pressable, Text, TextInput, View,StyleSheet,StatusBar} from 'react-native';
-import * as constant from '../../Utils/Constant'
-import LinearGradient from 'react-native-linear-gradient';
+import React from "react";
 
-const CommonButton = (props) => {
-  const {
-    title,
-    extStyle,
-    buttonClick,
-    colors
-    
-  } = props;
+import AppButton from "../common/AppButton";
 
-  return (
-    <LinearGradient colors={constant.LinearGradientColor} start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
-    style={[styles.mainView, extStyle]}>
-   <Pressable style={styles.button} onPress={()=>buttonClick()}>
-    <Text style={styles.buttonTitle}>{title}</Text>
-    </Pressable> 
-    </LinearGradient>
-  );
-};
+const CommonButton = ({
+  title,
+  extStyle = {},
+  buttonClick = () => {},
+  colors,
+  isLoading,
+  disabled,
+}) => (
+  <AppButton
+    title={title}
+    loading={isLoading}
+    disabled={disabled}
+    onPress={buttonClick}
+    style={extStyle}
+    colors={colors}
+  />
+);
 
-CommonButton.defaultProps = {
-   searchText : function() { },
-   extStyle :{}
-}
-
-export default CommonButton;
-
-const styles = StyleSheet.create({
-  mainView:{
-  height:constant.resW(13),
-  flexDirection:'row',
-  // alignItems:'center',
-  marginHorizontal:'5%',
-  borderRadius:constant.resW(12),
-  marginBottom:'5%',
-  marginTop:'3%',
-  // justifyContent:'center'
-  },
-  
-button:{
-flex:1,
-borderRadius:constant.resW(12),
-alignItems:'center',
-justifyContent:'center',
-// backgroundColor:'red'
-},
-  buttonTitle:{
-    fontSize: constant.font18,
-    color: constant.whiteColor,
-    fontFamily:constant.typeSemiBold,
-    // flex:1,
-   textAlignVertical:'center'
-  },
-
-})
+export default React.memo(CommonButton);

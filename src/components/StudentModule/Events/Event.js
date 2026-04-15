@@ -1,136 +1,118 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  Text,
-  View,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  BackHandler,
-} from 'react-native';
+import { BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import styles from './style';
-const baseColor = '#0747a6';
-import * as myConst from '../../Baseurl';
 import moment from 'moment';
-import { useSelector } from 'react-redux';
+
+import { REMOTE_FILE_BASE_URL } from '../../../constants';
+import { BASEURL } from '../../Baseurl';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
+import StudentDocumentList from '../Shared/StudentDocumentList';
+
+const toAbsoluteUrl = (value) => {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  if (/^https?:\/\//i.test(normalized)) return normalized;
+  return `${REMOTE_FILE_BASE_URL}${normalized.replace(/^\/+/, '')}`;
+};
 
 const Event = ({ navigation }) => {
-  const usertoken = useSelector(state => state.userSlice.token)
-  const [loading, setLoading] = useState(false);
-  const [classes, setClasses] = useState('');
+  const { token: usertoken } = useStudentAuth();
   const [dataSource, setDataSource] = useState([]);
 
-  // Handle Back Button
   const handleBackPress = useCallback(() => {
     navigation.navigate('Dashboard');
     return true;
   }, [navigation]);
 
-  // Fetch Events API
-  const eventApi = useCallback(() => {
-    let formData = new FormData();
-    formData.append('std_class', classes);
+  useEffect(() => {
+    const fetchClassAndEvents = async () => {
+      try {
+        const stdClass = await AsyncStorage.getItem('@class') || '';
+        if (!stdClass) return;
 
-    let data = {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-        'Authorization': usertoken
-      },
-      body: formData,
+        let formData = new FormData();
+        formData.append('std_class', stdClass);
+
+        const response = await fetch(BASEURL + 'viewevents', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'multipart/form-data',
+            Authorization: usertoken
+          },
+          body: formData,
+        });
+
+        const responseJson = await response.json();
+        
+        // Combine upcoming and past events for a full comprehensive view
+        const upcoming = Array.isArray(responseJson?.data?.upcoming) ? responseJson.data.upcoming : [];
+        const past = Array.isArray(responseJson?.data?.past) ? responseJson.data.past : [];
+        
+        setDataSource([...upcoming, ...past]);
+      } catch (e) {
+        console.log(e);
+      }
     };
 
-    fetch(myConst.BASEURL + 'viewevents', data)
-      .then(response => response.json())
-      .then(responseJson => {
-        setDataSource(
-          responseJson.data.upcoming || responseJson.data.past || []
-        );
-      })
-      .catch(error => console.log(error))
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [classes]);
+    fetchClassAndEvents();
+  }, [usertoken]);
 
-  // ComponentDidMount Equivalent
-  useEffect(() => {
-    const getClassAndFetch = async () => {
-      const value = await AsyncStorage.getItem('@class');
-      setClasses(value || '');
-    };
-    getClassAndFetch();
-  }, []);
-
-  // Fetch events after class is set
-  useEffect(() => {
-    if (classes) {
-      eventApi();
-    }
-  }, [classes, eventApi]);
-
-  // BackHandler
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    return () =>
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
   }, [handleBackPress]);
 
+  const handleEventPress = useCallback(
+    (item) => {
+      navigation.navigate('EventDetail', { eventItem: item });
+    },
+    [navigation],
+  );
+
+  const formatEventDate = useCallback((value) => {
+    if (!value) return 'Date not available';
+    const parsed = moment(value);
+    if (!parsed.isValid()) return 'Date not available';
+    return parsed.format('DD MMM YYYY');
+  }, []);
+
+  const renderCard = useCallback((item) => ({
+    title: item.event_name || 'School Event',
+    date: item.event_time ? formatEventDate(item.event_time) : '',
+    emoji: '📅',
+  }), [formatEventDate]);
+
+  const getFileInfo = useCallback((item) => {
+    const rawFile = String(item?.e_file || '').trim();
+    if (!rawFile) return null;
+
+    const viewUrl = toAbsoluteUrl(rawFile);
+    const fileExt = rawFile.split('.').pop().toLowerCase();
+
+    return {
+      fileExt,
+      name: item.event_name || 'Event attachment',
+      viewUrl,
+      downloadUrl: viewUrl,
+    };
+  }, []);
+
   return (
-    <View style={styles.MainContainer}>
-      <View style={styles.HeaderBackground}>
-        <View style={styles.HeaderContainer}>
-          <TouchableOpacity style={styles.BackButton}   onPress={() => {
-    console.log("Back pressed");
-    navigation.goBack();
-  }} >
-            <Image
-              style={styles.HeaderImage}
-              source={require('../../../assests/images/leftarrow.png')}
-            />
-          </TouchableOpacity>
-
-          <Image
-            style={styles.EventImage}
-            source={require('../../../assests/images/event.png')}
-          />
-        </View>
-        <Text style={styles.HeaderText}>Calendar of Events</Text>
-      </View>
-
-      <FlatList
-        data={dataSource}
-        renderItem={({ item }) => (
-          <View style={styles.FlatStyle}>
-            <View style={styles.CardView}>
-              <View style={styles.CardviewStyle}>
-                <View style={styles.CircleShapeView}>
-                  <Image
-                    style={styles.AssignmentImage}
-                    source={require('../../../assests/images/calendar.png')}
-                  />
-                </View>
-                <View style={styles.TextViewStyle}>
-                  <Text style={styles.TextStyle}>{item.event_name}</Text>
-                  <Text style={styles.TextDate}>
-                    {moment(item.event_time).format('DD-MM-YYYY')}
-                  </Text>
-                </View>
-              </View>
-
-              {/* <View>
-                <Image
-                  style={styles.AssignmentDownloadImage}
-                  source={require('../../../assests/images/calendar.png')}
-                />
-              </View> */}
-            </View>
-          </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    </View>
+    <StudentDocumentList
+      title="Calendar of Events"
+      items={dataSource}
+      renderCard={renderCard}
+      getFileInfo={getFileInfo}
+      onCardPress={handleEventPress}
+      onBack={() => navigation.goBack()}
+      searchFields={['event_name']}
+      emptyMessage="No upcoming or past events found."
+      headerEmoji="🗓️"
+      accentColor="#5E3BF9"
+      badgeLabel="Events"
+      searchPlaceholder="Search events…"
+    />
   );
 };
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Modal,
   View,
@@ -6,8 +6,16 @@ import {
   TouchableOpacity,
   Pressable,
   StyleSheet,
-} from 'react-native';
-import { blackColor, whiteColor, resH, resW, font15 } from '../../Utils/Constant';
+} from "react-native";
+import {
+  colors,
+  componentSizes,
+  radii,
+  shadows,
+  spacing,
+  typography,
+} from "../../constants";
+import { blackColor, whiteColor } from "../../Utils/Constant";
 
 const CommonModal = ({
   visible,
@@ -53,51 +61,47 @@ export default CommonModal;
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContainer: {
     backgroundColor: whiteColor,
-    borderRadius: resH(2),
-    paddingVertical: resH(3),
-    paddingHorizontal: resW(5),
-    width: '80%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 6,
+    borderRadius: componentSizes.modalRadius,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    width: "80%",
+    alignItems: "center",
+    ...shadows.light,
   },
   modalTitle: {
-    fontSize: font15,
-    fontWeight: '600',
+    fontSize: typography.fontMedium,
+    fontWeight: typography.weights.bold,
     color: blackColor,
-    marginBottom: resH(2.5),
-    textAlign: 'center',
+    marginBottom: spacing.xl,
+    textAlign: "center",
   },
   modalButton: {
-    backgroundColor: '#E9F2FF',
-    borderRadius: resH(1),
-    paddingVertical: resH(1.4),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: resH(0.6),
-    width: '100%',
+    backgroundColor: "#E9F2FF",
+    borderRadius: radii.pill,
+    minHeight: componentSizes.buttonHeight,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: spacing.xs,
+    width: "100%",
   },
   modalButtonText: {
     color: blackColor,
-    fontSize: font15,
-    fontWeight: '500',
+    fontSize: typography.fontRegular,
+    fontWeight: typography.weights.medium,
   },
   cancelButton: {
-    backgroundColor: 'red',
-    marginTop: resH(1.2),
+    backgroundColor: colors.danger,
+    marginTop: spacing.sm,
   },
   cancelButtonText: {
     color: whiteColor,
-    fontSize: font15,
-    fontWeight: '500',
+    fontSize: typography.fontRegular,
+    fontWeight: typography.weights.medium,
   },
 });

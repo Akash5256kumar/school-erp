@@ -1,139 +1,161 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-const baseColor = '#0747a6'
+import {StyleSheet} from 'react-native';
 
-export default styles = StyleSheet.create({
+import {colors, radii, shadows, spacing, typography} from '../../../constants';
+import * as constant from '../../../Utils/Constant';
 
-    MainContainer: {
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#FFFFFF'
-    },
-
-    FlatListView: {
-        overflow: 'hidden',
-        paddingBottom: 5,
-        paddingLeft: 5,
-        marginTop: 15,
-        marginBottom: 15
-    },
-
-    TextStyle: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: 'black',
-        marginTop: 20,
-        marginStart: 20,
-        marginBottom: 10
-    },
-
-    DashboardTextStyle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'black'
-    },
-
-    CircleShapeView: {
-        width: 55,
-        height: 55,
-        borderRadius: 80 / 2,
-        backgroundColor: '#d5dcf2',
-        marginTop: 10,
-        marginStart: 10
-    },
-
-    CardViewStyle: {
-        flex: 3, display: 'flex', flexDirection: 'row', justifyContent: 'space-around'
-    },
-
-    CardView: {
-        backgroundColor: '#fff',
-        height: 80,
-        shadowColor: '#000',
-        shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 5,
-        marginStart: 5,
-        marginEnd: 15,
-        borderRadius: 8
-    },
-
-    TextViewStyle: {
-        display: 'flex',
-        flex: 1,
-        flexDirection: 'column',
-        marginTop: 10,
-        marginStart: 20
-    },
-
-    AssignmentImage: {
-        display: 'flex',
-        height: 40,
-        width: 40,
-        marginTop: 8,
-        marginStart: 10
-    },
-
-    AssignmentDownloadImage: {
-        height: 35,
-        width: 35,
-        marginTop: 15,
-        marginEnd: 10
-    },
-
-    DateText: {
-        fontSize: 16, color: 'grey'
-    },
-
-    DocImageAndTextStyle: {
-        flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between'
-    },
-
-
-    GreenStatusBackground: {
-        backgroundColor: '#28a745',
-        borderRadius: 15,
-        height: 35,
-        marginTop: 10,
-        marginEnd: 10,
-        paddingStart: 12,
-        paddingEnd: 12
-    },
-
-    RedStatusBackground: {
-        backgroundColor: '#dc3545',
-        borderRadius: 15,
-        height: 35,
-        marginTop: 10,
-        marginEnd: 10,
-        paddingStart: 12,
-        paddingEnd: 12
-    },
-
-    StatusText: {
-        marginTop: 8,
-        marginEnd: 5,
-        color: 'white',
-        fontSize: 15,
-        // fontWeight: 'bold'
-    },
-
-    FloatTabStyle: {
-        width: 50,
-        height: 50,
-        borderRadius: 30,
-        backgroundColor: baseColor,
-        position: 'absolute',
-        bottom: 10,
-        right: 10,
-    },
-
-    FloatIconStyle : {
-        height: 25,
-        width: 25,
-        marginTop: 10,
-        marginStart: 10
-    }
-
-})
+export default StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    padding: spacing.lg,
+  },
+  calendarShell: {
+    backgroundColor: constant.whiteColor,
+    borderRadius: radii.lg,
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+    ...shadows.light,
+  },
+  calendarHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  calendarTitle: {
+    color: colors.textPrimary,
+    fontFamily: constant.typeSemiBold,
+    fontSize: typography.fontLarge,
+  },
+  refreshChip: {
+    backgroundColor: '#EAF1FF',
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  refreshChipText: {
+    color: colors.primaryDark,
+    fontFamily: constant.typeSemiBold,
+    fontSize: typography.fontSmall,
+  },
+  calendar: {
+    borderRadius: radii.md,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+  },
+  legendItem: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  legendDot: {
+    borderRadius: 999,
+    height: 10,
+    marginRight: spacing.xs,
+    width: 10,
+  },
+  legendText: {
+    color: colors.textSecondary,
+    fontFamily: constant.typeMedium,
+    fontSize: typography.fontSmall,
+  },
+  detailsCard: {
+    backgroundColor: constant.whiteColor,
+    borderRadius: radii.lg,
+    flex: 1,
+    minHeight: 220,
+    padding: spacing.lg,
+    ...shadows.light,
+  },
+  detailsHeader: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  detailsTitle: {
+    color: colors.textPrimary,
+    flex: 1,
+    fontFamily: constant.typeSemiBold,
+    fontSize: typography.fontLarge,
+  },
+  detailsDate: {
+    color: colors.info,
+    fontFamily: constant.typeSemiBold,
+    fontSize: typography.fontSmall,
+    marginLeft: spacing.md,
+    marginTop: spacing.xs,
+  },
+  holidayCard: {
+    backgroundColor: '#FFF7FB',
+    borderColor: '#F7D2E8',
+    borderRadius: radii.md,
+    borderWidth: 1,
+    padding: spacing.md,
+  },
+  holidayCardHeader: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  holidayTitle: {
+    color: colors.textPrimary,
+    flex: 1,
+    fontFamily: constant.typeSemiBold,
+    fontSize: typography.fontMedium,
+    marginRight: spacing.sm,
+  },
+  rangeBadge: {
+    backgroundColor: '#FDE7F3',
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  rangeBadgeText: {
+    color: '#B03079',
+    fontFamily: constant.typeSemiBold,
+    fontSize: typography.fontSmall,
+  },
+  holidayDescription: {
+    color: colors.textSecondary,
+    fontFamily: constant.typeRegular,
+    fontSize: typography.fontRegular,
+    lineHeight: typography.fontRegular * 1.5,
+    marginTop: spacing.sm,
+  },
+  loaderWrap: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  emptyState: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  emptyStateTitle: {
+    color: colors.textPrimary,
+    fontFamily: constant.typeSemiBold,
+    fontSize: typography.fontMedium,
+    textAlign: 'center',
+  },
+  emptyStateText: {
+    color: colors.textSecondary,
+    fontFamily: constant.typeRegular,
+    fontSize: typography.fontRegular,
+    lineHeight: typography.fontRegular * 1.5,
+    marginTop: spacing.sm,
+    textAlign: 'center',
+  },
+  cardGap: {
+    height: spacing.md,
+  },
+  footerGap: {
+    height: spacing.sm,
+  },
+});

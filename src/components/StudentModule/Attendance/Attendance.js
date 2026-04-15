@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, ScrollView, Image, BackHandler, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { Calendar, CalendarList } from 'react-native-calendars';
 import AsyncStorage from "@react-native-community/async-storage";
+import { getPersistedStudentToken } from '../../../auth/studentSessionController';
 import styles from './style';
 const baseColor = '#0747a6'
 import Header from '../../Header/Header';
@@ -99,7 +100,8 @@ class Attendance extends Component {
     }
 
 
-    attendanceApi(dateString) {
+    async attendanceApi(dateString) {
+        const token = await getPersistedStudentToken();
         let formData = new FormData()
         formData.append('std_class', this.state.str_class)
         formData.append('std_section', this.state.str_section)
@@ -109,6 +111,7 @@ class Attendance extends Component {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
+                ...(token ? { Authorization: token } : {}),
                 'Content-Type': 'multipart/form-data',
             },
             body: formData

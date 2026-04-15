@@ -35,13 +35,8 @@ export default styles = StyleSheet.create({
     },
 
     FlatListView: {
-
-        // overflow: 'hidden',
-        // paddingBottom: 5,
-        // paddingLeft: 5,
-        marginTop: '2%',
-        marginBottom: '3%',
-        
+        marginTop: constant.resW(1.5),
+        marginBottom: constant.resW(1.5),
     },
 
     TextStyle: {
@@ -55,21 +50,21 @@ export default styles = StyleSheet.create({
 
     DashboardTextStyle: {
         color: 'black',
-        fontSize: constant.font18,
+        fontSize: constant.font16,
         fontFamily:constant.typeSemiBold,
     },
     DashboardTextStyle2: {
         color: '#9CA4AB',
         fontSize: constant.font12,
         fontFamily:constant.typeMedium,
+        marginTop: constant.resW(0.3),
     },
     DashboardTextStyle3: {
-        color: '#000',
+        color: '#6E7681',
         fontSize: constant.font12,
-        fontFamily:constant.typeSemiBold,
-        position:'absolute',
-        top:constant.resW(1),
-        right:constant.resW(3)
+        fontFamily:constant.typeMedium,
+        flex: 1,
+        marginRight: constant.resW(2),
     },
 
     CircleShapeView: {
@@ -82,78 +77,58 @@ export default styles = StyleSheet.create({
     },
 
     CardViewStyle: {
-        flex: 1, 
-         flexDirection: 'row',
-         justifyContent: 'space-around',
-         alignItems:'center',
-         backgroundColor:'#fff',
-        paddingHorizontal:'3%',
-        marginHorizontal:'5%',
-        paddingVertical:'2%',
-        shadowColor: '#000',
-        shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 5,
-        borderRadius: 8,
-
+        flex: 1,
+        flexDirection: 'row',
+        alignItems:'center',
+        justifyContent: 'space-between',
+        paddingHorizontal:'4.5%',
     },
 
     CardView: {
-        backgroundColor: 'red',
-        // height: 90,
+        backgroundColor: '#fff',
         shadowColor: '#000',
         shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4,
+        shadowOpacity: 0.18,
         shadowRadius: 5,
-        elevation: 5,
-        // marginStart: 5,
-        // marginEnd: 15,
+        elevation: 2,
         borderRadius: 8,
         marginHorizontal:'5%',
-        paddingVertical:'4%',
-        alignItems:'center',
-        justifyContent:'center',
-        paddingHorizontal:'4%',
-        
-        // marginVertical:'5%'
+        paddingVertical:'3.2%',
     },
 
     TextViewStyle: {
-        // display: 'flex',
         flex: 1,
-        // flexDirection: 'column',
-        // marginTop: 10,
-        marginHorizontal: '2%',
-        // justifyContent:'center',
-        // backgroundColor:'green'
+        marginHorizontal: '3%',
+        justifyContent:'center',
     },
 
     AssignmentImage: {
-        height: constant.resW(18),
-        width: constant.resW(18),
-        // display: 'flex',
-        // height: 40,
-        // width: 40,
-        // marginTop: 8,
-        // marginStart: 10
+        height: constant.resW(12),
+        width: constant.resW(12),
     },
 
     AssignmentDownloadImage: {
-        // height: 35,
-        // width: 35,
-        // marginTop: 15,
-        // marginEnd: 10
-        height: constant.resW(8),
-        width: constant.resW(8),
+        height: constant.resW(6.5),
+        width: constant.resW(6.5),
+        tintColor: constant.baseTextColor,
     },
 
     DateText: {
-        fontSize: 16, color: 'grey'
+        fontSize: constant.font12,
+        color: '#7F8794',
+        fontFamily: constant.typeMedium,
     },
 
     DocImageAndTextStyle: {
-        flex: 1,  flexDirection: 'row', justifyContent: 'space-between',alignItems:'center'
+        flex: 1,
+        flexDirection: 'row',
+        alignItems:'center'
+    },
+
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: constant.resW(0.6),
     },
 
     FloatTabStyle: {
@@ -207,7 +182,7 @@ export default styles = StyleSheet.create({
 
     PdfHeaderText: {
         color: 'white',
-        fontSize: 20,
+        fontSize: constant.font18,
         fontWeight: 'bold',
         // marginTop: 15,
         // marginStart: 10
@@ -226,8 +201,8 @@ export default styles = StyleSheet.create({
     // },
 
     PdfHeaderArrowImage: {
-        height: constant.resW(8),
-         width: constant.resW(8),
+        height: constant.resW(6.5),
+         width: constant.resW(6.5),
         marginEnd: constant.resW(3),
         tintColor:constant.whiteColor
         // marginStart: 5

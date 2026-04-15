@@ -15,7 +15,7 @@ import Snackbar from 'react-native-snackbar';
 import * as myConst from '../../Baseurl';
 import styles from './style';
 import Header from '../../Header/Header';
-import { useSelector } from 'react-redux';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
 
 const baseColor = '#0747a6';
 
@@ -66,7 +66,7 @@ const radio_props = [
 ];
 
 const FeeDueDetail = ({ navigation }) => {
-    const usertoken = useSelector(state=>state.userSlice.token)
+    const {token: usertoken} = useStudentAuth()
   const [std_roll, setStdRoll] = useState('');
   const [classes, setClasses] = useState('');
   const [section, setSection] = useState('');

@@ -25,7 +25,6 @@ LocaleConfig.defaultLocale = 'custom';
 const AppCalender = (props) => {
     const { markData,fn_ClickLeftArrow,fn_ClickRightArrow,current,monthString,onDateClick,loader } = props
     const [selectDate, setSelectDate] = useState('')
-    const tabWidth = resW(38);
     const [monthChange, setMonthChange] = useState(moment(new Date).format("MMMM - YYYY"))
 
     const [currentMonth, setCurrentMonth] = useState(moment().format("YYYY-MM-DD"));
@@ -112,7 +111,6 @@ const AppCalender = (props) => {
     }
 
     return (
-         
                     <View style={styles.innerView}>
                         <Calendar
                          key={currentMonth} // ✅ Forces re-render on month change
@@ -141,36 +139,31 @@ const AppCalender = (props) => {
                                 // borderRadius: 10,
                             }}
                             style={{
-                                borderWidth: 1,
-                                borderColor: '#FFFFFF',
-                                // elevation: 2,
-                                borderRadius: 10,
-                                marginHorizontal: resW(3),
-                                marginVertical: resW(0),
-                                paddingVertical: '0%',
-                                // shadowColor: "#000",
-                                // shadowOffset: { width: 0, height: 2 },
-                                // shadowOpacity: 0.2,
-                                // shadowRadius: 2,
+                                backgroundColor: '#FFFFFF',
+                                borderWidth: 0,
+                                borderRadius: 16,
+                                marginHorizontal: resW(1.8),
+                                marginVertical: resW(1.8),
+                                paddingBottom: resW(2),
+                                paddingTop: resW(1),
                             }}
                             theme={{
                                 monthTextColor: constant.blackColor,
                                 textMonthFontFamily: constant.typeSemiBold,
                                 textDayHeaderFontFamily: constant.typeMedium,
-                                textMonthFontSize: constant.font12,
+                                textMonthFontSize: constant.font16,
                                 textDayHeaderFontSize:constant.font12,
                                 'stylesheet.calendar.header': {
                                     week: {
                                       flexDirection: 'row',
                                       justifyContent: 'space-around',
-                                      // borderBottomWidth: 1, // ← Add line here
                                       borderBottomColor: '#F3F3F3', // customize color
-                                      paddingBottom: resW(3), // adjust spacing
+                                      paddingBottom: resW(3),
                                       marginTop: resW(2),
                                     },
                                     dayHeader: {
                                       fontSize: constant.font12,
-                                      color: constant.grayColor,
+                                      color: '#94A3B8',
                                       fontFamily: constant.typeSemiBold,
                                       textAlign: 'center',
                                       width: resW(8),
@@ -184,17 +177,7 @@ const AppCalender = (props) => {
                             markedDates={markData}
                         />
 
-                       {loader && <View style={{
-                          position: 'absolute',
-                          top:0,
-                          left:0,
-                          right:0,
-                          bottom:0,
-                          flex:1,
-                          alignItems:'center',
-                          justifyContent:'center',
-                          backgroundColor:'#00000020'
-                        }}>
+                       {loader && <View style={styles.loaderOverlay}>
                           <ActivityIndicator color={constant.baseColor} size={'large'} />
                         </View>}
                  
@@ -234,10 +217,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: resW(30)
     },
     innerView: {
-        //   backgroundColor:'#00000010',
-        //   paddingVertical:constant.moderateScale(13),
-        //   paddingHorizontal:constant.moderateScale(15),
-        //   borderRadius:15,
+        backgroundColor:'#F8FAFF',
     },
     cal_Arrow: {
         height: resW(4),
@@ -256,13 +236,12 @@ const styles = StyleSheet.create({
         fontFamily: constant.typeMedium,
     },
     calenderDateImage: {
-        height: resW(8),
-        width: resW(8),
+        height: resW(8.6),
+        width: resW(8.6),
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius:resW(50),
-        marginTop:-3,
-        // backgroundColor:'green'
+        marginTop:-1,
     },
     calenderDateImage2: {
         height: resW(8),
@@ -274,63 +253,71 @@ const styles = StyleSheet.create({
         
     },
     cal_DayButton: {
-        height: resW(8),
-        width: resW(8),
+        height: resW(8.6),
+        width: resW(8.6),
         justifyContent: 'center',
         alignItems: 'center',
 
     },
     cal_DayText: {
         fontSize: constant.font13,
-        color: constant.baseColor,
+        color: '#0F172A',
         fontFamily: constant.typeSemiBold,
-        // marginTop:resW(1)
     },
     dotStyle:{
-        height: resW(1.3),
-        width: resW(1.3),
-        borderRadius:40,
+        height: resW(0.9),
+        width: resW(2.8),
+        borderRadius:resW(2),
         backgroundColor:constant.baseColor,
         position:'absolute',
-        top:5,
-        right:1
+        bottom: resW(0.7),
+        alignSelf: 'center',
     },
     headerContainer: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         width:'100%',
-        height:resW(9),
+        height:resW(11),
+        paddingHorizontal: resW(1.5),
         
       },
       monthText: {
-        
         fontSize: constant.font16,
         fontFamily: constant.typeSemiBold,
         color: constant.blackColor,
-        // lineHeight: constant.font10*1.2,
-
       },
       arrowsContainer: {
         flexDirection: "row",
         alignItems: "center",
-       
-        justifyContent:'space-between',
+        justifyContent:'flex-end',
         height:'100%',
-        flex:0.3,
-        // gap:resW(2),
-        // flex:1,
+        gap: resW(2),
         
       },
       arrowButton: {
-        height:'100%',
         alignItems:'center',
+        backgroundColor: '#F1F5F9',
+        borderRadius: resW(5),
+        height:resW(8),
         justifyContent:'center',
-        width:resW(10)
+        width:resW(8)
       },
       arrowIcon: {
-        width: resW(4),
-        height: resW(4),
+        width: resW(3.8),
+        height: resW(3.8),
+      },
+      loaderOverlay: {
+        position: 'absolute',
+        top:0,
+        left:0,
+        right:0,
+        bottom:0,
+        flex:1,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:'#FFFFFFB8',
+        borderRadius: 16,
       },
 
 })

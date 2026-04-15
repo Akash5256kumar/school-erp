@@ -74,13 +74,21 @@ export default styles = StyleSheet.create({
     },
 
     FlatStyle: {
-        marginTop: 20, marginBottom: 10,
-        overflow: 'hidden', paddingBottom: 5, paddingLeft: 5
+        marginTop: 10,
+        overflow: 'hidden', 
+        paddingBottom: 5, 
+        paddingLeft: 5,
+        marginHorizontal: 10,
+        borderWidth: 1.5,
+        borderRadius: 5,
     },
 
     CardviewStyle: {
-        display: 'flex', flexDirection: 'row',
-        justifyContent: 'space-around'
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        paddingVertical: 5,
+        marginHorizontal: 10
     },
 
     FlatListTextStyle: {

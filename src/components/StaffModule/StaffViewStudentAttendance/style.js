@@ -47,19 +47,20 @@ export default styles = StyleSheet.create({
     },
 
     DropDownBackground: {
-        height: 45,
-        marginLeft: 10,
-        marginRight: 10,
-        marginTop: 10,
+        flex: 1,
+        // height: 45,
+        // marginLeft: 10,
+        // marginRight: 10,
+        // marginTop: 10,
         // marginBottom: 10,
-        fontSize: 16,
+        // fontSize: 16,
         borderRadius: 10,
         // color: '#c1c0e0',
         color: baseColor,
         borderWidth: 1,
         borderColor: baseColor,
         // backgroundColor: '#c1c0e0',
-        width: deviceWidth * 0.5
+        // width: deviceWidth * 0.5
     },
 
     TextInputStyleClass: {
@@ -99,7 +100,11 @@ export default styles = StyleSheet.create({
         marginBottom: 10
     },
 
-    RowStyle: { display: 'flex', flexDirection: 'row'},
+    RowStyle: { 
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 10
+    },
 
     HoziontalLineFull: {
         borderBottomColor: 'grey',

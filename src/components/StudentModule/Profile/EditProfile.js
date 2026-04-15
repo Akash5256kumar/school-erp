@@ -1,650 +1,850 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  Text,
-  View,
-  Image,
-  FlatList,
+  ActivityIndicator,
   BackHandler,
+  Image,
+  Modal,
+  Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
-  Modal,
   TouchableOpacity,
-  ActivityIndicator,
+  View,
 } from 'react-native';
-import styles from './EditProfileStyle';
 import LinearGradient from 'react-native-linear-gradient';
-import * as constant from '../../../Utils/Constant';
-import CommonHeader from '../../CommonHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  ArrowLeft,
+  Camera,
+  Image as ImageIcon,
+  User,
+  MapPin,
+  School,
+  Pencil,
+  ChevronDown,
+} from 'lucide-react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import * as myConst from '../../Baseurl';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import SelectDropList from '../../SelectDropList';
 import DatePicker from 'react-native-date-picker';
-import moment from 'moment';
-import CommonButton from '../../Button/CommonButton';
-import { useSelector } from 'react-redux';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
+import * as myConst from '../../Baseurl';
+import * as constant from '../../../Utils/Constant';
 
-const bloodGroupList=[
-    { "code": "A+", "description": "A+" },
-    { "code": "A-", "description": "A-" },
-    { "code": "B+", "description": "B+" },
-    { "code": "B-", "description": "B-" },
-    { "code": "AB+", "description": "AB+" },
-    { "code": "AB-", "description": "AB-" },
-    { "code": "O+", "description": "O+" },
-    { "code": "O-", "description": "O-" }
-  ]
+const {
+  resW, typeBold, typeMedium, typeSemiBold,
+  font12, font14, font15, font16, font18, font20,
+} = constant;
 
-  const genderList = [
-    { code: "male", description: "Male" },
-    { code: "female", description: "Female" },
-    { code: "other", description: "Other" },
-  ];
+// ─── Theme ────────────────────────────────────────────────────────────────────
+const T = {
+  gradStart:   '#C100FF',
+  gradEnd:     '#5B39F6',
+  pageBg:      '#F5F4FF',
+  cardBg:      '#FFFFFF',
+  inputBg:     '#F8F7FF',
+  textStrong:  '#1E1B4B',
+  textBody:    '#595975',
+  textMuted:   '#9CA3AF',
+  divider:     '#EDE9FF',
+  primary:     '#5B39F6',
+  purple:      '#C100FF',
+  shadow:      'rgba(94,59,249,0.10)',
+  border:      '#E8E4FF',
+  focusBorder: '#5B39F6',
+};
 
+const CARD_SHADOW = {
+  elevation: 6,
+  shadowColor: T.shadow,
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 1,
+  shadowRadius: 14,
+};
 
-const EditProfile = (props) => {
-    const userData = useSelector(state=>state.userSlice.userData)
-    const usertoken = useSelector(state=>state.userSlice.token)
-    const {navigation,route } = props
-    const profileData = route.params.profileData
-    const [isVisiblPickerDialog,setIsVisiblPickerDialog] = useState(false)
-    const [openPicker,setOpenPicker] = useState(false)
-    const [emptyLoader,setEmptyLoader] = useState(false)
-    const [name,setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [profilePic, setProfilePic] = useState('') 
-    const [profilePicData,setProfilePicData] = useState([])   
-    const [isEdit, setIsEdit] = useState(false)
-    const [gender,setGender]  = useState('')
-    const [dob, setDob] = useState('')
-    const [religious,setReligious] = useState('')
-    const [category,setCategory] = useState('')
-    const [bloodGroup,setBloodGroup]  = useState('')
-    const [medicalCond,setMedicalCond] = useState('')
-    const [allergy,setAllergy] = useState('')
-    const [address,setAddress] = useState('')
-    const [city,setCity] = useState("")
-    const [state,setState] = useState('')
-    const [country,setCountry] = useState('')
-    const [pincode,setPincode] = useState('')
-    const [per_Address,setPer_Address] = useState('')
-    const [per_city,setper_City] = useState("")
-    const [per_state,setPer_State] = useState('')
-    const [per_country,setPer_Country] = useState('')
-    const [per_pincode,setper_Pincode] = useState('')
-    const  [schoolName,setSchoolName] = useState('')
-    const [certif_Copy,setCertif_Copy] = useState('')
-    const [certifEdit,setCertiEdit] = useState(false)
-    const [certifData,setCertifData] = useState([])
-    const [certifModal,setCertifModal] = useState(false)
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const bloodGroupList = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const genderList = ['Male', 'Female', 'Other'];
 
-
-    const matchBloodGroup = (value) => {
-        return bloodGroupList.find(group => group.code === value);
-      };
-
-      const findGender = (value) => {
-        return genderList.find(gender => gender.code === value);
-      };
- 
-
-    useEffect(()=>{
-    setName(profileData?.name)
-    setEmail(profileData?.email)
-    setDob(profileData?.dob)
-    // setGender(profileData?.gender)
-    setCategory(profileData?.category)
-    setReligious(profileData?.religious)
-    setMedicalCond(profileData?.medical_condition)
-    setAllergy(profileData?.allergy)
-    setAddress(profileData?.address)
-    setCity(profileData?.city)
-    setState(profileData?.state)
-    setCountry(profileData?.country)
-    setPincode(profileData?.pincode)
-    setPer_Address(profileData?.perm_address)
-    setper_City(profileData?.perm_city)
-    setPer_State(profileData?.perm_state)
-    setPer_Country(profileData?.perm_country)
-    setper_Pincode(profileData?.perm_pincode)
-    setSchoolName(profileData?.previous_scl_name)
-    profileData?.prev_certificate&& setCertif_Copy("http://139.59.90.236:86/images/student_image/prev_certificate/"+profileData?.prev_certificate)
-
-    profileData?.studentimage && setProfilePic("http://139.59.90.236:86/images/student_image/STUDENT/"+profileData?.studentimage)
-  
-  
-    if(profileData?.bloodgroup != null){
-    const result = matchBloodGroup(profileData?.bloodgroup);
-    result != undefined && Object.keys(result).length > 0 && setBloodGroup(result.code)
-    }
-
-    if(profileData?.gender != null){
-        const result = findGender(profileData?.gender);
-        result != undefined && Object.keys(result).length > 0 && setGender(result.description)
-        }
-
-    },[])
-
-      
-    const handleBackPress = useCallback(() => {
-        navigation.navigate('Profile');
-        return true;
-      }, [navigation]);
-    
-      // Lifecycle events
-      useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    
-        return () => {
-          BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-        };
-      }, [handleBackPress]);
-        
-
-
-   const selectFile = (type) => {
-        const options = {
-            mediaType: 'photo',
-            videoQuality: 'high',
-            quality: 1,
-            maxWidth: 0,
-            maxHeight: 0,
-            includeBase64: false,
-            cameraType: 'back',
-            selectionLimit: 1,
-            saveToPhotos: false,
-            durationLimit: 0,
-        };
-        if (type === 'Gallery') {
-
-            launchImageLibrary(options, (response) => {
-                try {
-                    console.log(response);
-                    console.log(response.assets[0].fileName);
-                    console.log(response.assets[0].uri);
-                    console.log(response.assets[0].type);
-                    setProfilePic(response.assets[0].uri)
-                    setProfilePicData(response)
-                    setIsEdit(true)
-                   
-                    setIsVisiblPickerDialog(false)
-                  
-                } catch (error) {
-                    console.log(error)
-                    setIsVisiblPickerDialog(false)
-                }
-            })
-          
-
-        } else if (type === 'Camera') {
-            launchCamera(options, (response) => {
-                try {
-                    console.log(response);
-                    console.log(response.assets[0].fileName);
-                    console.log(response.assets[0].uri);
-                    console.log(response.assets[0].type);
-                    setProfilePic(response.assets[0].uri)
-                    setProfilePicData(response)
-                    setIsEdit(true)
-                    setIsVisiblPickerDialog(false)
-                } catch (error) {
-                    setIsVisiblPickerDialog(false)
-                    console.log(error)
-                }
-            })
-    }
-    }
-
-    const selectCertFile = (type) => {
-        const options = {
-            mediaType: 'photo',
-            videoQuality: 'high',
-            quality: 1,
-            maxWidth: 0,
-            maxHeight: 0,
-            includeBase64: false,
-            cameraType: 'back',
-            selectionLimit: 1,
-            saveToPhotos: false,
-            durationLimit: 0,
-        };
-        if (type === 'Gallery') {
-
-            launchImageLibrary(options, (response) => {
-                try {
-                    console.log(response);
-                    console.log(response.assets[0].fileName);
-                    console.log(response.assets[0].uri);
-                    console.log(response.assets[0].type);
-                    setCertif_Copy(response.assets[0].uri)
-                    setCertifData(response)
-                    setCertiEdit(true)
-                   
-                    setCertifModal(false)
-                  
-                } catch (error) {
-                    console.log(error)
-                    setCertifModal(false)
-                }
-            })
-          
-
-        } else if (type === 'Camera') {
-            launchCamera(options, (response) => {
-                try {
-                    console.log(response);
-                    console.log(response.assets[0].fileName);
-                    console.log(response.assets[0].uri);
-                    console.log(response.assets[0].type);
-                    setCertif_Copy(response.assets[0].uri)
-                    setCertifData(response)
-                    setCertiEdit(true)
-                    setCertifModal(false)
-                } catch (error) {
-                    setCertifModal(false)
-                    console.log(error)
-                }
-            })
-    }
-    }
-
-    const fn_UpdateProfile= async()=>{
-        let imageParam
-        let certifImageParam
-        if(isEdit){
-        imageParam =  {
-            uri: profilePicData?.assets[0].uri,
-            type: profilePicData?.assets[0].type,
-            name: profilePicData?.assets[0].fileName,
-          }
-        }
-
-        if(certifEdit){
-            certifImageParam =  {
-                uri: certifData?.assets[0].uri,
-                type: certifData?.assets[0].type,
-                name: certifData?.assets[0].fileName,
-              }
-            }
-
-      setEmptyLoader(true)
-        const paramData = {
-            id : profileData?.id,
-            bloodgroup: bloodGroup,
-            phoneno:profileData?.phoneno,
-            address: address,
-            // studentimage:imageParam,
-            religious: religious,
-            category: category,
-            gender: gender,
-            // prev_certificate: "",
-            allergy: allergy,
-            medical_condition: medicalCond,
-            city: city,
-            state: state,
-            pincode: pincode,
-            country: country,
-            perm_address: per_Address,
-            perm_pincode: per_pincode,
-            perm_city: per_city,
-            perm_state: per_state,
-            perm_country: per_country,
-            previous_scl_name : schoolName,
-            ...(isEdit && { studentimage: imageParam }),
-            ...(certifEdit && { prev_certificate: certifImageParam })
-
-          };
-          const formData = new FormData();
-
-          Object.entries(paramData).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
-              formData.append(key, value);
-            }
-          });
-
-          let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-                'Authorization' : usertoken
-            },
-            body: formData
-        }
-
-        console.log("data",JSON.stringify(data))
-
-        fetch(myConst.BASEURL + 'updateStudentProfile', data)
-        .then((response) => response.json())
-        .then(async (responseJson) => {
-            console.log('data-->', responseJson)
-            setEmptyLoader(false)
-            if (responseJson.status === true) {
-                await AsyncStorage.setItem('userData', JSON.stringify(responseJson?.data)); // safer with JSON.stringify
-                navigation.goBack()
-            } else if (responseJson.status === false) {
-                // showMessage(responseJson.message)
-            }
-        })
-        .catch((error) => console.log(JSON.stringify(error)))
-        .finally(() => {
-            setEmptyLoader(false)
-            // this.setState({ isLoading: false });
-        })
-
-    }
-
+// ─── FormField ────────────────────────────────────────────────────────────────
+const FormField = ({
+  label, value, onChangeText,
+  keyboardType = 'default', maxLength,
+  editable = true, multiline = false, last = false,
+}) => {
+  const [focused, setFocused] = useState(false);
   return (
-    <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
-      <View style={styles.MainContainer}>
-        <CommonHeader
-          title={'Profile'}
-          onLeftClick={() => {
-            navigation.goBack();
-          }}
+    <View style={fld.wrap}>
+      <Text style={fld.label}>{label}</Text>
+      <View style={[
+        fld.inputBox,
+        focused && fld.inputBoxFocused,
+        !editable && fld.inputBoxDisabled,
+        multiline && { height: resW(24), alignItems: 'flex-start' },
+      ]}>
+        <TextInput
+          editable={editable}
+          keyboardType={keyboardType}
+          maxLength={maxLength}
+          multiline={multiline}
+          onBlur={() => setFocused(false)}
+          onChangeText={onChangeText}
+          onFocus={() => setFocused(true)}
+          style={[fld.input, multiline && { textAlignVertical: 'top', flex: 1, paddingTop: 4 }]}
+          value={value ?? ''}
         />
-        <ScrollView>
-            <Pressable style={styles.profileButton} onPress={()=>setIsVisiblPickerDialog(true)}>
-            <Image style={styles.ProfileImage} resizeMode='cover' source={ profilePic==='' ? require('../../../assests/images/businessman.png') : {uri:profilePic}} />
-            <View style={styles.editIconView} >
-                <Image source={constant.Icons.edit} tintColor={constant.baseColor} style={styles.editIcon} />
-            </View>
-            </Pressable>
-            <Text style={[styles.profileTitle]}>{name}</Text>
-            <Text style={[styles.profileTitle]}>{profileData?.std_roll}</Text>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>DOB</Text>
-                {/* <Pressable style={styles.cardInput} onPress={()=>setOpenPicker(true)} >
-                  <Text style={styles.cardInput}>{dob}</Text>
-                </Pressable> */}
-                <TextInput
-                 style={styles.cardInput}
-                 editable={false}
-                 onChangeText={(t)=>setDob(t)}
-                >{dob}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Email ID</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setEmail(t)}
-                >{email}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Gender</Text>
-                <View style={{height:constant.resW(13)}}>
-                <SelectDropList 
-                        list={genderList}
-                        title={gender === '' ? 'Select Gender' : gender}
-                        buttonExt={styles.dropList}
-                        textExt={styles.dropListText}
-                        on_Select={(d)=>setGender(d.code)}
-                        />
-                        </View>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Religious</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 editable={false}
-                 onChangeText={(t)=>setReligious(t)}
-                >{religious}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Category</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 editable={false}
-                 onChangeText={(t)=>setCategory(t)}
-                >{category}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Blood Group</Text>
-                <View style={{height:constant.resW(13)}}>
-                <SelectDropList 
-                        list={bloodGroupList}
-                        title={bloodGroup === '' ? 'Select Blood group' : bloodGroup}
-                        buttonExt={styles.dropList}
-                        textExt={styles.dropListText}
-                        on_Select={(d)=>setBloodGroup(d.description)}
-                        />
-                        </View>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Any Medical condition</Text>
-                <TextInput
-                multiline
-                 style={[styles.cardInput,{height:constant.resW(25), textAlignVertical:'top'}]}
-                 onChangeText={(t)=>setMedicalCond(t)}
-                >{medicalCond}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Allergies</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setAllergy(t)}
-                >{allergy}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle2}>Correspondence Address</Text>
-            </View>
-  
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Address</Text>
-                <TextInput
-                multiline
-                 style={[styles.cardInput,{height:constant.resW(25), textAlignVertical:'top'}]}
-                 onChangeText={(t)=>setAddress(t)}
-                >{address}</TextInput>
-            </View>
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>City</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setCity(t)}
-                >{city}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>State</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setState(t)}
-                >{state}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Country</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setCountry(t)}
-                >{country}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>PinCode</Text>
-                <TextInput
-                 keyboardType='numeric'
-                 maxLength={6}
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setPincode(t)}
-                >{pincode}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle2}>Permanent Address</Text>
-            </View>
-  
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Address</Text>
-                <TextInput
-                multiline
-                 style={[styles.cardInput,{height:constant.resW(25), textAlignVertical:'top'}]}
-                 onChangeText={(t)=>setPer_Address(t)}
-                >{per_Address}</TextInput>
-            </View>
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>City</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setper_City(t)}
-                >{per_city}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>State</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setPer_State(t)}
-                >{per_state}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Country</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setPer_Country(t)}
-                >{per_country}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>PinCode</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 keyboardType='numeric'
-                 maxLength={6}
-                 onChangeText={(t)=>setper_Pincode(t)}
-                >{per_pincode}</TextInput>
-            </View>
-            
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Previous School Name</Text>
-                <TextInput
-                 style={styles.cardInput}
-                 onChangeText={(t)=>setSchoolName(t)}
-                >{schoolName}</TextInput>
-            </View>
-
-            <View style={styles.cardView}>
-                <Text style={styles.cardTitle}>Transfer Certificate Copy:</Text>
-                <Pressable style={styles.certifButton} onPress={()=>setCertifModal(true)}>
-                    {
-                        certif_Copy ===  '' ?
-                        <Image source={require('../../../assests/images/add.png')} resizeMode='contain' style={styles.plusStyle} />
-                      :
-                      <Image source={{uri:certif_Copy}} style={styles.certifyStyle} resizeMode='stretch' />
-
-                    }
-                </Pressable>
-            </View>
-
-            <CommonButton 
-                    title="Submit"
-                    extStyle={{marginTop:'10%',marginBottom:'15%'}}
-                    buttonClick={()=>{fn_UpdateProfile()}}
-                   />
-
-        </ScrollView>
-
       </View>
-
-      <Modal animationType="slide"
-                    transparent visible={isVisiblPickerDialog}
-                    presentationStyle="overFullScreen">
-                    <View style={styles.viewWrapper}>
-                        <View style={styles.modalView}>
-                            <TouchableOpacity onPress={() => selectFile('Camera')}>
-                                <Text style={styles.modalText}>Choose from Camera</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => selectFile('Gallery')}>
-                                <Text style={styles.modalText}>Pick from Gallery</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setIsVisiblPickerDialog(false)}>
-                                <Text style={styles.CancelButton}>Cancel</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-     </Modal>
-
-     <Modal animationType="slide"
-                    transparent visible={certifModal}
-                    presentationStyle="overFullScreen">
-                    <View style={styles.viewWrapper}>
-                        <View style={styles.modalView}>
-                            <TouchableOpacity onPress={() => selectCertFile('Camera')}>
-                                <Text style={styles.modalText}>Choose from Camera</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => selectCertFile('Gallery')}>
-                                <Text style={styles.modalText}>Pick from Gallery</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setCertifModal(false)}>
-                                <Text style={styles.CancelButton}>Cancel</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-     </Modal>
-
-     <Modal animationType="slide"
-                    transparent visible={emptyLoader}
-                    presentationStyle="overFullScreen">
-                    <View style={[styles.viewWrapper,{alignItems:'center'}]}>
-                        <View style={styles.modalView}>
-                           
-                           <ActivityIndicator size={'large'} color={constant.baseColor} />
-                        </View>
-                    </View>
-     </Modal>
-
-     <DatePicker
-          style={styles.datePickerStyle}
-          date={new Date() }
-          open={openPicker}
-          mode="date"
-          modal
-          placeholder="Type Date Of Birth"
-          format="YYYY-MM-DD"
-          confirmBtnText="Confirm"
-          cancelBtnText="Cancel"
-          showIcon={false}
-          onConfirm={date => {
-            console.log(date);
-            // this.setState({open: false, dob: date});
-          }}
-          onCancel={() => {
-            // this.setState({open: false});
-          }}
-          customStyles={{
-            placeholderText: {
-              color: '#59597530',
-              fontFamily: constant.typeMedium,
-            },
-            dateInput: {
-              borderWidth: 0,
-              alignItems: 'flex-start',
-              paddingHorizontal: '4%',
-              fontFamily: constant.typeMedium,
-              color: constant.blackColor,
-
-              // marginBottom: 25,
-              // backgroundColor:'red',
-              // alignSelf:'center',
-              // height:'100%'
-            },
-          }}
-        />
-    </LinearGradient>
+      {!last && <View style={fld.sep} />}
+    </View>
   );
 };
+
+const fld = StyleSheet.create({
+  wrap: { paddingHorizontal: resW(4.5) },
+  label: {
+    color: T.textMuted,
+    fontFamily: typeMedium,
+    fontSize: font12,
+    letterSpacing: 0.6,
+    marginBottom: resW(1.5),
+    marginTop: resW(4),
+    textTransform: 'uppercase',
+  },
+  inputBox: {
+    backgroundColor: T.inputBg,
+    borderColor: T.border,
+    borderRadius: resW(3),
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: resW(3.5),
+    paddingVertical: Platform.OS === 'ios' ? resW(3) : resW(2.5),
+  },
+  inputBoxFocused: { borderColor: T.focusBorder, backgroundColor: '#FFFFFF' },
+  inputBoxDisabled: { backgroundColor: '#F0EFF8', borderColor: '#E8E4FF' },
+  input: {
+    color: T.textStrong,
+    flex: 1,
+    fontFamily: typeMedium,
+    fontSize: font15,
+    padding: 0,
+  },
+  sep: {
+    backgroundColor: T.divider,
+    height: StyleSheet.hairlineWidth,
+    marginTop: resW(4),
+  },
+});
+
+// ─── DropdownField ────────────────────────────────────────────────────────────
+const DropdownField = ({ label, value, list, onSelect, last = false }) => (
+  <View style={fld.wrap}>
+    <Text style={fld.label}>{label}</Text>
+    <View style={{ height: resW(13) }}>
+      <SelectDropList
+        list={list}
+        title={value || `Select ${label}`}
+        buttonExt={drp.btn}
+        textExt={drp.txt}
+        on_Select={onSelect}
+      />
+    </View>
+    {!last && <View style={fld.sep} />}
+  </View>
+);
+
+const drp = StyleSheet.create({
+  btn: {
+    height: '100%', width: '100%',
+    borderWidth: 1.5, borderColor: T.border,
+    backgroundColor: T.inputBg, borderRadius: resW(3),
+  },
+  txt: {
+    color: T.textStrong,
+    fontFamily: typeMedium,
+    fontSize: font15,
+    marginLeft: resW(1),
+  },
+});
+
+// ─── SectionCard ──────────────────────────────────────────────────────────────
+const SectionCard = ({ title, Icon, accentColor, children }) => (
+  <View style={sec.outer}>
+    <View style={sec.headerRow}>
+      <View style={[sec.iconWrap, { backgroundColor: `${accentColor}18` }]}>
+        <Icon color={accentColor} size={16} strokeWidth={2.2} />
+      </View>
+      <Text style={sec.title}>{title}</Text>
+    </View>
+    <View style={[sec.card, CARD_SHADOW]}>
+      {children}
+      <View style={{ height: resW(3) }} />
+    </View>
+  </View>
+);
+
+const sec = StyleSheet.create({
+  outer: { marginBottom: resW(5) },
+  headerRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: resW(2.5),
+    marginBottom: resW(2.5),
+    paddingHorizontal: resW(4),
+  },
+  iconWrap: {
+    alignItems: 'center',
+    borderRadius: resW(2.5),
+    height: resW(8),
+    justifyContent: 'center',
+    width: resW(8),
+  },
+  title: {
+    color: T.textStrong,
+    fontFamily: typeBold,
+    fontSize: font16,
+  },
+  card: {
+    backgroundColor: T.cardBg,
+    borderRadius: resW(4),
+    marginHorizontal: resW(4),
+    overflow: 'visible',
+  },
+});
+
+// ─── CertificateField ─────────────────────────────────────────────────────────
+const CertificateField = ({ uri, onPress }) => (
+  <View style={fld.wrap}>
+    <Text style={fld.label}>Transfer Certificate</Text>
+    <Pressable onPress={onPress} style={certi.btn}>
+      {uri ? (
+        <Image source={{ uri }} style={certi.img} resizeMode="cover" />
+      ) : (
+        <View style={certi.empty}>
+          <View style={certi.uploadIcon}>
+            <ImageIcon color={T.primary} size={22} strokeWidth={1.8} />
+          </View>
+          <Text style={certi.hint}>Tap to upload image</Text>
+          <Text style={certi.hintSub}>JPG, PNG supported</Text>
+        </View>
+      )}
+    </Pressable>
+  </View>
+);
+
+const certi = StyleSheet.create({
+  btn: {
+    marginTop: resW(2),
+    borderWidth: 1.5,
+    borderColor: T.border,
+    borderStyle: 'dashed',
+    borderRadius: resW(3),
+    height: resW(32),
+    width: resW(40),
+    overflow: 'hidden',
+    backgroundColor: T.inputBg,
+  },
+  img: { height: '100%', width: '100%' },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: resW(1.5) },
+  uploadIcon: {
+    width: resW(10), height: resW(10), borderRadius: resW(2.5),
+    backgroundColor: `${T.primary}14`,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  hint:    { color: T.textBody, fontFamily: typeMedium, fontSize: font13 },
+  hintSub: { color: T.textMuted, fontFamily: typeMedium, fontSize: font12 },
+});
+
+// ─── PickerSheet (bottom sheet) ───────────────────────────────────────────────
+const PickerSheet = ({ visible, onCamera, onGallery, onClose }) => (
+  <Modal
+    animationType="slide" transparent visible={visible}
+    presentationStyle="overFullScreen" onRequestClose={onClose}
+  >
+    <Pressable style={psh.overlay} onPress={onClose}>
+      <Pressable style={psh.sheet}>
+        <View style={psh.pill} />
+        <Text style={psh.heading}>Choose Photo</Text>
+
+        <TouchableOpacity style={psh.row} onPress={onCamera} activeOpacity={0.8}>
+          <LinearGradient colors={['#EDE9FF', '#F0EEFF']} style={psh.rowIcon}>
+            <Camera color={T.primary} size={resW(5)} strokeWidth={2} />
+          </LinearGradient>
+          <View style={psh.rowText}>
+            <Text style={psh.rowTitle}>Take Photo</Text>
+            <Text style={psh.rowSub}>Use your camera</Text>
+          </View>
+        </TouchableOpacity>
+
+        <View style={psh.divider} />
+
+        <TouchableOpacity style={psh.row} onPress={onGallery} activeOpacity={0.8}>
+          <LinearGradient colors={['#EDE9FF', '#F0EEFF']} style={psh.rowIcon}>
+            <ImageIcon color={T.purple} size={resW(5)} strokeWidth={2} />
+          </LinearGradient>
+          <View style={psh.rowText}>
+            <Text style={psh.rowTitle}>Pick from Gallery</Text>
+            <Text style={psh.rowSub}>Choose from your photos</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={psh.cancel} onPress={onClose} activeOpacity={0.8}>
+          <Text style={psh.cancelTxt}>Cancel</Text>
+        </TouchableOpacity>
+      </Pressable>
+    </Pressable>
+  </Modal>
+);
+
+const psh = StyleSheet.create({
+  overlay: {
+    backgroundColor: 'rgba(15,10,40,0.45)',
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: resW(7),
+    borderTopRightRadius: resW(7),
+    paddingBottom: Platform.OS === 'ios' ? resW(9) : resW(6),
+    paddingHorizontal: resW(5),
+    paddingTop: resW(3),
+  },
+  pill: {
+    alignSelf: 'center',
+    backgroundColor: '#E5E7EB',
+    borderRadius: resW(1.5),
+    height: resW(1.2),
+    marginBottom: resW(4),
+    width: resW(12),
+  },
+  heading: {
+    color: T.textStrong,
+    fontFamily: typeBold,
+    fontSize: font18,
+    marginBottom: resW(4),
+  },
+  row: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: resW(3.5),
+    paddingVertical: resW(3),
+  },
+  rowIcon: {
+    alignItems: 'center',
+    borderRadius: resW(3),
+    height: resW(12),
+    justifyContent: 'center',
+    width: resW(12),
+  },
+  rowText: { flex: 1 },
+  rowTitle: { color: T.textStrong, fontFamily: typeSemiBold, fontSize: font15 },
+  rowSub:   { color: T.textMuted,  fontFamily: typeMedium,   fontSize: font12, marginTop: resW(0.5) },
+  divider:  { backgroundColor: T.divider, height: StyleSheet.hairlineWidth, marginVertical: resW(1) },
+  cancel: {
+    alignItems: 'center',
+    backgroundColor: T.inputBg,
+    borderRadius: resW(3),
+    marginTop: resW(5),
+    paddingVertical: resW(3.5),
+  },
+  cancelTxt: { color: T.textBody, fontFamily: typeSemiBold, fontSize: font15 },
+});
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+const EditProfile = ({ navigation, route }) => {
+  const { token: usertoken } = useStudentAuth();
+  const insets = useSafeAreaInsets();
+  const profileData = route.params.profileData;
+
+  // ── UI state ──
+  const [isVisiblPickerDialog, setIsVisiblPickerDialog] = useState(false);
+  const [certifModal,  setCertifModal]  = useState(false);
+  const [openPicker,   setOpenPicker]   = useState(false);
+  const [emptyLoader,  setEmptyLoader]  = useState(false);
+
+  // ── Form state ──
+  const [name,        setName]        = useState('');
+  const [email,       setEmail]       = useState('');
+  const [profilePic,  setProfilePic]  = useState('');
+  const [profilePicData, setProfilePicData] = useState([]);
+  const [isEdit,      setIsEdit]      = useState(false);
+  const [gender,      setGender]      = useState('');
+  const [dob,         setDob]         = useState('');
+  const [religious,   setReligious]   = useState('');
+  const [category,    setCategory]    = useState('');
+  const [bloodGroup,  setBloodGroup]  = useState('');
+  const [medicalCond, setMedicalCond] = useState('');
+  const [allergy,     setAllergy]     = useState('');
+  const [address,     setAddress]     = useState('');
+  const [city,        setCity]        = useState('');
+  const [state,       setState]       = useState('');
+  const [country,     setCountry]     = useState('');
+  const [pincode,     setPincode]     = useState('');
+  const [per_Address, setPer_Address] = useState('');
+  const [per_city,    setper_City]    = useState('');
+  const [per_state,   setPer_State]   = useState('');
+  const [per_country, setPer_Country] = useState('');
+  const [per_pincode, setper_Pincode] = useState('');
+  const [schoolName,  setSchoolName]  = useState('');
+  const [certif_Copy, setCertif_Copy] = useState('');
+  const [certifEdit,  setCertiEdit]   = useState(false);
+  const [certifData,  setCertifData]  = useState([]);
+
+  // ── Seed form from route params ──
+  useEffect(() => {
+    setName(profileData?.name ?? '');
+    setEmail(profileData?.email ?? '');
+    setDob(profileData?.dob ?? '');
+    setCategory(profileData?.category ?? '');
+    setReligious(profileData?.religious ?? '');
+    setMedicalCond(profileData?.medical_condition ?? '');
+    setAllergy(profileData?.allergy ?? '');
+    setAddress(profileData?.address ?? '');
+    setCity(profileData?.city ?? '');
+    setState(profileData?.state ?? '');
+    setCountry(profileData?.country ?? '');
+    setPincode(profileData?.pincode ?? '');
+    setPer_Address(profileData?.perm_address ?? '');
+    setper_City(profileData?.perm_city ?? '');
+    setPer_State(profileData?.perm_state ?? '');
+    setPer_Country(profileData?.perm_country ?? '');
+    setper_Pincode(profileData?.perm_pincode ?? '');
+    setSchoolName(profileData?.previous_scl_name ?? '');
+
+    if (profileData?.prev_certificate) {
+      setCertif_Copy('http://139.59.90.236:86/images/student_image/prev_certificate/' + profileData.prev_certificate);
+    }
+    if (profileData?.studentimage) {
+      setProfilePic('http://139.59.90.236:86/images/student_image/STUDENT/' + profileData.studentimage);
+    }
+    if (profileData?.bloodgroup) {
+      setBloodGroup(profileData.bloodgroup);
+    }
+    if (profileData?.gender) {
+      const g = profileData.gender;
+      const match = genderList.find(s => s.toLowerCase() === g.toLowerCase());
+      if (match) setGender(match);
+    }
+  }, []);
+
+  // ── Hardware back ──
+  const handleBackPress = useCallback(() => {
+    navigation.navigate('Profile');
+    return true;
+  }, [navigation]);
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+  }, [handleBackPress]);
+
+  // ── Image picker ──
+  const pickImage = (type, onSuccess, onDone) => {
+    const options = {
+      mediaType: 'photo', quality: 1,
+      maxWidth: 0, maxHeight: 0,
+      includeBase64: false, cameraType: 'back', selectionLimit: 1,
+    };
+    const launch = type === 'Camera' ? launchCamera : launchImageLibrary;
+    launch(options, (res) => {
+      try { onSuccess(res); } catch (e) { console.log(e); }
+      onDone();
+    });
+  };
+
+  const selectFile = (type) =>
+    pickImage(type,
+      (r) => { setProfilePic(r.assets[0].uri); setProfilePicData(r); setIsEdit(true); },
+      () => setIsVisiblPickerDialog(false),
+    );
+
+  const selectCertFile = (type) =>
+    pickImage(type,
+      (r) => { setCertif_Copy(r.assets[0].uri); setCertifData(r); setCertiEdit(true); },
+      () => setCertifModal(false),
+    );
+
+  // ── Submit ──
+  const fn_UpdateProfile = async () => {
+    setEmptyLoader(true);
+    const paramData = {
+      id: profileData?.id,
+      bloodgroup: bloodGroup,
+      phoneno: profileData?.phoneno,
+      address, religious, category, gender,
+      allergy, medical_condition: medicalCond,
+      city, state, pincode, country,
+      perm_address: per_Address, perm_pincode: per_pincode,
+      perm_city: per_city, perm_state: per_state, perm_country: per_country,
+      previous_scl_name: schoolName,
+      ...(isEdit && {
+        studentimage: {
+          uri:  profilePicData?.assets[0].uri,
+          type: profilePicData?.assets[0].type,
+          name: profilePicData?.assets[0].fileName,
+        },
+      }),
+      ...(certifEdit && {
+        prev_certificate: {
+          uri:  certifData?.assets[0].uri,
+          type: certifData?.assets[0].type,
+          name: certifData?.assets[0].fileName,
+        },
+      }),
+    };
+
+    const formData = new FormData();
+    Object.entries(paramData).forEach(([k, v]) => {
+      if (v !== null && v !== undefined) formData.append(k, v);
+    });
+
+    fetch(myConst.BASEURL + 'updateStudentProfile', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: usertoken,
+      },
+      body: formData,
+    })
+      .then(r => r.json())
+      .then(async (json) => {
+        if (json.status === true) {
+          await AsyncStorage.setItem('userData', JSON.stringify(json?.data));
+          navigation.goBack();
+        }
+      })
+      .catch(e => console.log(JSON.stringify(e)))
+      .finally(() => setEmptyLoader(false));
+  };
+
+  // ── Render ──
+  const avatarLetter = (name || 'S').charAt(0).toUpperCase();
+
+  return (
+    <View style={{ flex: 1, backgroundColor: T.pageBg }}>
+
+      {/* ── Gradient Header ─────────────────────────────────────────────── */}
+      <LinearGradient
+        colors={[T.gradStart, T.gradEnd]}
+        start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+        style={[hdr.gradient, { paddingTop: insets.top + 12 }]}
+      >
+        {/* Decorative circles */}
+        <View style={hdr.circleA} pointerEvents="none" />
+        <View style={hdr.circleB} pointerEvents="none" />
+
+        {/* Nav row */}
+        <View style={hdr.navRow}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={hdr.backBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <ArrowLeft color="#FFFFFF" size={22} strokeWidth={2.2} />
+          </TouchableOpacity>
+          <Text style={hdr.navTitle}>Edit Profile</Text>
+          <View style={{ width: 38 }} />
+        </View>
+
+        {/* Avatar hero — sits at bottom of gradient, overlaps card below */}
+        <View style={hdr.avatarHero}>
+          <Pressable
+            onPress={() => setIsVisiblPickerDialog(true)}
+            style={hdr.avatarPressable}
+          >
+            {profilePic ? (
+              <Image
+                source={{ uri: profilePic }}
+                style={hdr.avatarImg}
+                resizeMode="cover"
+              />
+            ) : (
+              <LinearGradient
+                colors={['rgba(255,255,255,0.35)', 'rgba(255,255,255,0.15)']}
+                style={[hdr.avatarImg, hdr.avatarFallback]}
+              >
+                <Text style={hdr.avatarLetter}>{avatarLetter}</Text>
+              </LinearGradient>
+            )}
+            {/* Edit badge */}
+            <View style={hdr.editBadge}>
+              <LinearGradient
+                colors={['#FFFFFF', '#EDE9FF']}
+                style={hdr.editBadgeGrad}
+              >
+                <Pencil color={T.primary} size={12} strokeWidth={2.5} />
+              </LinearGradient>
+            </View>
+          </Pressable>
+          <Text style={hdr.avatarName} numberOfLines={1}>{name || 'Student'}</Text>
+          <Text style={hdr.avatarRoll}>{profileData?.std_roll || ''}</Text>
+        </View>
+      </LinearGradient>
+
+      {/* ── Scrollable Form ─────────────────────────────────────────────── */}
+      <ScrollView
+        contentContainerStyle={[
+          scrl.content,
+          { paddingBottom: insets.bottom + resW(12) },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+
+        {/* ── Personal Info ── */}
+        <SectionCard title="Personal Info" Icon={User} accentColor={T.purple}>
+          <FormField label="Date of Birth" value={dob}  onChangeText={setDob}  editable={false} />
+          <FormField label="Email ID"      value={email} onChangeText={setEmail} keyboardType="email-address" />
+          <DropdownField label="Gender" value={gender} list={genderList}
+            onSelect={d => setGender(d)} />
+          <FormField label="Religious" value={religious} onChangeText={setReligious} editable={false} />
+          <FormField label="Category"  value={category}  onChangeText={setCategory}  editable={false} />
+          <DropdownField label="Blood Group" value={bloodGroup} list={bloodGroupList}
+            onSelect={d => setBloodGroup(d)} />
+          <FormField label="Medical Condition" value={medicalCond}
+            onChangeText={setMedicalCond} multiline />
+          <FormField label="Allergies" value={allergy} onChangeText={setAllergy} last />
+        </SectionCard>
+
+        {/* ── Correspondence Address ── */}
+        <SectionCard title="Correspondence Address" Icon={MapPin} accentColor={T.primary}>
+          <FormField label="Address" value={address} onChangeText={setAddress} multiline />
+          <FormField label="City"    value={city}    onChangeText={setCity} />
+          <FormField label="State"   value={state}   onChangeText={setState} />
+          <FormField label="Country" value={country} onChangeText={setCountry} />
+          <FormField label="Pincode" value={pincode} onChangeText={setPincode}
+            keyboardType="numeric" maxLength={6} last />
+        </SectionCard>
+
+        {/* ── Permanent Address ── */}
+        <SectionCard title="Permanent Address" Icon={MapPin} accentColor={T.purple}>
+          <FormField label="Address" value={per_Address} onChangeText={setPer_Address} multiline />
+          <FormField label="City"    value={per_city}    onChangeText={setper_City} />
+          <FormField label="State"   value={per_state}   onChangeText={setPer_State} />
+          <FormField label="Country" value={per_country} onChangeText={setPer_Country} />
+          <FormField label="Pincode" value={per_pincode} onChangeText={setper_Pincode}
+            keyboardType="numeric" maxLength={6} last />
+        </SectionCard>
+
+        {/* ── Previous School ── */}
+        <SectionCard title="Previous School" Icon={School} accentColor={T.primary}>
+          <FormField label="School Name" value={schoolName} onChangeText={setSchoolName} last />
+          <CertificateField uri={certif_Copy} onPress={() => setCertifModal(true)} />
+        </SectionCard>
+
+        {/* ── Save Button ── */}
+        <LinearGradient
+          colors={[T.gradStart, T.gradEnd]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+          style={btn.gradient}
+        >
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={fn_UpdateProfile}
+            style={btn.inner}
+          >
+            <Text style={btn.label}>Save Changes</Text>
+          </TouchableOpacity>
+        </LinearGradient>
+
+      </ScrollView>
+
+      {/* ── Modals ──────────────────────────────────────────────────────── */}
+      <PickerSheet
+        visible={isVisiblPickerDialog}
+        onCamera={() => selectFile('Camera')}
+        onGallery={() => selectFile('Gallery')}
+        onClose={() => setIsVisiblPickerDialog(false)}
+      />
+      <PickerSheet
+        visible={certifModal}
+        onCamera={() => selectCertFile('Camera')}
+        onGallery={() => selectCertFile('Gallery')}
+        onClose={() => setCertifModal(false)}
+      />
+
+      {/* Loading overlay */}
+      <Modal animationType="fade" transparent visible={emptyLoader} presentationStyle="overFullScreen">
+        <View style={ldr.overlay}>
+          <View style={ldr.card}>
+            <ActivityIndicator color={T.primary} size="large" />
+            <Text style={ldr.txt}>Saving changes…</Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Date Picker */}
+      <DatePicker
+        date={new Date()} open={openPicker} mode="date" modal
+        placeholder="Date Of Birth" format="YYYY-MM-DD"
+        confirmBtnText="Confirm" cancelBtnText="Cancel" showIcon={false}
+        onConfirm={date => { console.log(date); setOpenPicker(false); }}
+        onCancel={() => setOpenPicker(false)}
+      />
+    </View>
+  );
+};
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
+const font13 = resW(3.3); // local constant — not in the imported set
+
+const hdr = StyleSheet.create({
+  gradient: {
+    paddingHorizontal: 16,
+    paddingBottom: resW(10),
+    overflow: 'hidden',
+  },
+  circleA: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: resW(30),
+    height: resW(48),
+    position: 'absolute',
+    right: -resW(10),
+    top: -resW(10),
+    width: resW(48),
+  },
+  circleB: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: resW(20),
+    height: resW(32),
+    left: -resW(8),
+    position: 'absolute',
+    bottom: resW(8),
+    width: resW(32),
+  },
+  navRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: resW(5),
+  },
+  backBtn: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderRadius: 19,
+    height: 38,
+    justifyContent: 'center',
+    width: 38,
+  },
+  navTitle: {
+    color: '#FFFFFF',
+    flex: 1,
+    fontFamily: constant.typeBold,
+    fontSize: font18,
+    textAlign: 'center',
+  },
+  avatarHero: {
+    alignItems: 'center',
+  },
+  avatarPressable: {
+    alignItems: 'flex-end',
+  },
+  avatarImg: {
+    borderColor: 'rgba(255,255,255,0.5)',
+    borderRadius: resW(14),
+    borderWidth: 3,
+    height: resW(27),
+    width: resW(27),
+  },
+  avatarFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: {
+    color: '#FFFFFF',
+    fontFamily: constant.typeBold,
+    fontSize: font20,
+  },
+  editBadge: {
+    bottom: 0,
+    position: 'absolute',
+    right: -resW(1),
+  },
+  editBadgeGrad: {
+    alignItems: 'center',
+    borderRadius: resW(4),
+    height: resW(7.5),
+    justifyContent: 'center',
+    width: resW(7.5),
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+  },
+  avatarName: {
+    color: '#FFFFFF',
+    fontFamily: constant.typeBold,
+    fontSize: font16,
+    marginTop: resW(2.5),
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  avatarRoll: {
+    color: 'rgba(255,255,255,0.75)',
+    fontFamily: typeMedium,
+    fontSize: font13,
+    marginTop: resW(0.8),
+  },
+});
+
+const scrl = StyleSheet.create({
+  content: {
+    paddingTop: resW(6),
+  },
+});
+
+const btn = StyleSheet.create({
+  gradient: {
+    borderRadius: resW(3.5),
+    marginHorizontal: resW(4),
+    marginTop: resW(2),
+    overflow: 'hidden',
+  },
+  inner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: resW(4.2),
+  },
+  label: {
+    color: '#FFFFFF',
+    fontFamily: typeBold,
+    fontSize: font16,
+    letterSpacing: 0.4,
+  },
+});
+
+const ldr = StyleSheet.create({
+  overlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(15,10,40,0.4)',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  card: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: resW(4),
+    flexDirection: 'row',
+    gap: resW(3),
+    paddingHorizontal: resW(8),
+    paddingVertical: resW(5),
+    elevation: 8,
+    shadowColor: T.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+  },
+  txt: {
+    color: T.textStrong,
+    fontFamily: typeMedium,
+    fontSize: font15,
+  },
+});
 
 export default EditProfile;

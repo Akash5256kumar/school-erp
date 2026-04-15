@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, Platform } from 'react-native'
 import React from 'react'
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
@@ -15,7 +15,7 @@ const RoleSelectionScreen = () => {
 
                 <FastImage
                     style={styles.logoImage}
-                    source={require('../../assests/Icons/logo1.png')}
+                    source={require('../../assests/images/app_icon.png')}
                 />
 
             </View>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
         marginTop: Platform.OS === 'ios' ? resW(15) : resW(15),
         width: resW(60),
         height: resW(60),
-        resizeMode: "cover",
+        resizeMode: "contain",
         alignItems: "center",
            marginLeft:resW(5),
            justifyContent:"center"

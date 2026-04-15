@@ -7,45 +7,46 @@ export default styles = StyleSheet.create({
 
     MainContainer: {
         backgroundColor: 'white',
-         height: '100%',
-          width: '100%' 
+         width: '100%',
+         marginTop: resW(5),
     },
     buttonMainView:{
     justifyContent:'space-between',
     alignItems:'center',
     flexDirection:'row',
-    marginHorizontal:resW(5),
-    marginTop:resW(3),
-    // marginBottom:resW(4),
-    backgroundColor:'#F1ECEC'
+    marginHorizontal:resW(4),
+    marginBottom:resW(3),
+    backgroundColor:'#EEF3FF',
+    borderRadius: resW(4),
+    padding: resW(1),
     },
     buttonStyle:{
-    // backgroundColor:baseColor,
     flex:1,
     paddingVertical:resW(2.3),
     alignItems:'center',
     justifyContent:'center',
-    // borderRadius:5,
-    borderBottomWidth:1,
-    // borderColor:baseColor
+    borderRadius: resW(3),
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#1E3A8A',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
     },
     buttonStyle2:{
-        // backgroundColor:baseColor,
         flex:1,
         paddingVertical:resW(2.3),
         alignItems:'center',
         justifyContent:'center',
-        // borderRadius:5,
-        // borderBottomWidth:1,
-        // borderColor:blackColor
+        borderRadius: resW(3),
         },
     buttonTextStyle:{
-        color: blackColor,
+        color: '#111827',
         fontSize:font15,
         fontFamily:typeSemiBold
     },
     buttonTextStyle2:{
-        color:'#8D8282',
+        color:'#7A8699',
         fontSize:font15,
         fontFamily:typeSemiBold
     },
@@ -71,59 +72,74 @@ export default styles = StyleSheet.create({
         height: 25, width: 30
     },
 
-    TotalDaysText: {
-        color: 'black',
+    calendarCard: {
+        backgroundColor: '#F8FAFF',
+        borderColor: '#E2E8F4',
+        borderWidth: 1,
+        borderRadius: resW(3),
+        marginHorizontal: resW(4),
+        overflow: 'hidden',
+        shadowColor: '#0F172A',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 2,
+    },
+
+    summaryGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        marginHorizontal: resW(4),
+        marginTop: resW(3),
+    },
+
+    summaryCard: {
+        backgroundColor: '#F8FAFF',
+        borderColor: '#E2E8F4',
+        borderRadius: resW(3),
+        borderWidth: 1,
+        marginBottom: resW(2.5),
+        minHeight: resW(24),
+        paddingHorizontal: resW(3),
+        paddingVertical: resW(3),
+        width: '48.5%',
+    },
+
+    summaryCardWide: {
+        width: '100%',
+    },
+
+    summaryLabel: {
+        color: '#64748B',
+        fontSize: font14,
+        fontFamily: typeMedium,
+    },
+
+    summaryValuePill: {
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        backgroundColor: '#1D4ED8',
+        borderRadius: resW(10),
+        justifyContent: 'center',
+        marginTop: resW(2.2),
+        minWidth: resW(11),
+        paddingHorizontal: resW(3),
+        paddingVertical: resW(1.2),
+    },
+
+    summaryDangerPill: {
+        backgroundColor: '#EF4444',
+    },
+
+    summaryAccentPill: {
+        backgroundColor: '#A21CAF',
+    },
+
+    summaryValueText: {
+        color: '#FFFFFF',
         fontSize: font16,
         fontFamily: typeSemiBold,
-        // marginTop: 15,
-        // marginStart: 20
-    },
-
-    TodayDaysView: {
-        backgroundColor: '#f5f9fc',
-        shadowColor: '#000',
-        shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 1,
-        // marginStart: 12,
-        // marginEnd: 12,
-        // marginTop: 20,
-        borderRadius: 10,
-        flex:1,
-        paddingHorizontal:resW(2),
-        paddingVertical:resW(2),
-        // marginLeft:resW(3)
-        
-    },
-
-    CalendarView: {
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 5,
-        marginStart: 12,
-        marginEnd: 12,
-        // marginTop: 20,
-        borderRadius: 8,
-    },
-
-    WorkingDaysBlueBackground: {
-        backgroundColor: '#174ca2',
-        borderRadius: 10,
-        paddingHorizontal:resW(2),
-        alignItems:'center',
-        justifyContent:'center',
-        paddingVertical:resW(1)
-    },
-
-    WorkingDaysNumberText: {
-        color: 'white',
-        fontSize: 18,
-        // marginTop: 2,
-        // marginStart: 3
     },
 
     TotalAbsentBackground: {
@@ -168,7 +184,6 @@ export default styles = StyleSheet.create({
     PresentInnerView: { flex: 1, display: 'flex', flexDirection: 'column' ,alignItems: 'center', marginStart: 10},
 
     TotalWorkingDaysContainer: { 
-        // display: 'flex',
          flexDirection: 'row',
           justifyContent: 'space-between',
           flex:1,
@@ -180,37 +195,96 @@ export default styles = StyleSheet.create({
     daysText: { color: 'black', fontSize: 16, fontWeight: 'bold', marginStart: 20 },
 
     eventCardView:{
-    // marginHorizontal:resW(5),
-    // marginTop:resW(4),
     paddingHorizontal:resW(3),
-    borderRadius:5,
-    paddingVertical:resW(1),
-    elevation:1,
-    marginLeft:resW(2)
-
+    borderRadius:resW(2.2),
+    paddingVertical:resW(2.4),
+    borderWidth: 1,
     },
     eventCartText:{
-        color: '#fff',
+        color: '#111827',
         fontSize: font14,
         fontFamily: typeSemiBold,
       
     },
     eventCartDes:{
-        color: '#f4f4f4',
+        color: '#64748B',
         fontSize: font17,
         fontFamily: typeMedium,
        
     },
     noEventText:{
-        color: '#000',
-        fontSize: font15,
-        fontFamily: typeSemiBold,
+        color: '#64748B',
+        fontSize: font14,
+        fontFamily: typeMedium,
         alignSelf:'center'
     },
     dateStyle:{
         color: blackColor,
         fontSize: font16,
         fontFamily: typeSemiBold,
-    }
+    },
+
+    eventsPanel: {
+        backgroundColor: '#F8FAFF',
+        borderColor: '#E2E8F4',
+        borderRadius: resW(3),
+        borderWidth: 1,
+        marginHorizontal: resW(4),
+        marginTop: resW(3),
+        paddingHorizontal: resW(3),
+        paddingVertical: resW(3),
+        shadowColor: '#0F172A',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 2,
+    },
+
+    eventsPanelHeader: {
+        alignItems: 'baseline',
+        flexDirection: 'row',
+        marginBottom: resW(2.5),
+    },
+
+    eventsDayText: {
+        color: blackColor,
+        fontSize: font20,
+        fontFamily: typeSemiBold,
+        marginRight: resW(2),
+    },
+
+    eventsMonthText: {
+        color: '#64748B',
+        fontSize: font15,
+        fontFamily: typeMedium,
+    },
+
+    eventCardSuccess: {
+        backgroundColor: '#ECFDF5',
+        borderColor: '#A7F3D0',
+    },
+
+    eventCardHoliday: {
+        backgroundColor: '#FDF2F8',
+        borderColor: '#FBCFE8',
+    },
+
+    eventSeparator: {
+        height: resW(2),
+    },
+
+    eventFooter: {
+        height: resW(1),
+    },
+
+    emptyEventsCard: {
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: resW(2.2),
+        justifyContent: 'center',
+        minHeight: resW(16),
+        paddingHorizontal: resW(3),
+        paddingVertical: resW(3),
+    },
 
 })

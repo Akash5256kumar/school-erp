@@ -1,0 +1,2080 @@
+{
+  "info": {
+    "_postman_id": "8d45b7d8-f42e-4fa0-9b57-7c9f9b24f2c1",
+    "name": "School App API",
+    "description": "Importable Postman collection generated from the APIs currently used in this project.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url_86",
+      "value": "http://139.59.90.236:86/api"
+    },
+    {
+      "key": "base_url_84",
+      "value": "http://139.59.90.236:84/api"
+    },
+    {
+      "key": "auth_token",
+      "value": ""
+    },
+    {
+      "key": "std_roll",
+      "value": "1001"
+    },
+    {
+      "key": "student_id",
+      "value": "1"
+    },
+    {
+      "key": "staff_id",
+      "value": "1"
+    },
+    {
+      "key": "staff_info_id",
+      "value": "1"
+    },
+    {
+      "key": "class",
+      "value": "10"
+    },
+    {
+      "key": "section",
+      "value": "A"
+    },
+    {
+      "key": "date",
+      "value": "2026-03-26"
+    },
+    {
+      "key": "email",
+      "value": "teacher@example.com"
+    },
+    {
+      "key": "password",
+      "value": "secret"
+    },
+    {
+      "key": "term",
+      "value": "Term 1"
+    },
+    {
+      "key": "exam_type",
+      "value": "Mid Term"
+    },
+    {
+      "key": "performance_id",
+      "value": "1"
+    },
+    {
+      "key": "supportsystem_id",
+      "value": "1"
+    },
+    {
+      "key": "ticket_id",
+      "value": "1"
+    },
+    {
+      "key": "leave_id",
+      "value": "1"
+    },
+    {
+      "key": "assignment_id",
+      "value": "1"
+    },
+    {
+      "key": "notes_id",
+      "value": "1"
+    },
+    {
+      "key": "planner_id",
+      "value": "1"
+    },
+    {
+      "key": "user_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Student Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"std_roll\": \"{{std_roll}}\",\n  \"password\": \"2008-01-15\",\n  \"deviceName\": \"Android\",\n  \"deviceToken\": \"\",\n  \"deviceType\": \"Pixel\",\n  \"deviceVersion\": \"14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/login",
+            "description": "Student login/authentication."
+          }
+        },
+        {
+          "name": "Staff Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/staff_login",
+            "description": "Staff login/authentication."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student APIs",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"std_roll\": \"{{std_roll}}\",\n  \"class\": \"{{class}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/dashboard",
+            "description": "Fetch student dashboard/home summary data."
+          }
+        },
+        {
+          "name": "Login Devices",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/logindevices",
+            "description": "Fetch device-login history/details for a student account."
+          }
+        },
+        {
+          "name": "Student Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "{{student_id}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/studentprofile",
+            "description": "Fetch student profile/details."
+          }
+        },
+        {
+          "name": "Update Student Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "{{student_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "Student_name",
+                  "value": "Student Name",
+                  "type": "text"
+                },
+                {
+                  "key": "dob",
+                  "value": "2008-01-15",
+                  "type": "text"
+                },
+                {
+                  "key": "phoneno",
+                  "value": "9999999999",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "student@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "gender",
+                  "value": "Male",
+                  "type": "text"
+                },
+                {
+                  "key": "studentimage",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "prev_certificate",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/updateStudentProfile",
+            "description": "Update student profile information."
+          }
+        },
+        {
+          "name": "Update Parents Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "{{student_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "F_name",
+                  "value": "Father Name",
+                  "type": "text"
+                },
+                {
+                  "key": "F_mobile",
+                  "value": "9999999999",
+                  "type": "text"
+                },
+                {
+                  "key": "M_name",
+                  "value": "Mother Name",
+                  "type": "text"
+                },
+                {
+                  "key": "M_mobile",
+                  "value": "9999999998",
+                  "type": "text"
+                },
+                {
+                  "key": "fatherimage",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "motherimage",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/updateStudentProfile",
+            "description": "Update parent profile information."
+          }
+        },
+        {
+          "name": "Update Guardian Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "{{student_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "L_name",
+                  "value": "Guardian Name",
+                  "type": "text"
+                },
+                {
+                  "key": "L_mobile",
+                  "value": "9999999997",
+                  "type": "text"
+                },
+                {
+                  "key": "L_relation",
+                  "value": "Uncle",
+                  "type": "text"
+                },
+                {
+                  "key": "gaurdianimg",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/updateStudentProfile",
+            "description": "Update guardian profile information."
+          }
+        },
+        {
+          "name": "Need Help / Contact Us",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "url",
+                  "value": "statyug.url",
+                  "type": "text"
+                },
+                {
+                  "key": "login_user_id",
+                  "value": "{{student_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "mobile_no",
+                  "value": "9999999999",
+                  "type": "text"
+                },
+                {
+                  "key": "message",
+                  "value": "Need help with my account.",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/needhelp",
+            "description": "Submit a Contact Us / help request."
+          }
+        },
+        {
+          "name": "View Siblings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewsiblings",
+            "description": "Fetch sibling/student-linked accounts data."
+          }
+        },
+        {
+          "name": "View Holiday",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "url": "{{base_url_86}}/viewholiday",
+            "description": "Fetch holiday list/data."
+          }
+        },
+        {
+          "name": "View News",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "url": "{{base_url_86}}/viewnews",
+            "description": "Fetch school news list/data."
+          }
+        },
+        {
+          "name": "View Events",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewevents",
+            "description": "Fetch school event list/data."
+          }
+        },
+        {
+          "name": "View Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewnotifications",
+            "description": "Fetch student notifications."
+          }
+        },
+        {
+          "name": "View Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_section",
+                  "value": "{{section}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                },
+                {
+                  "key": "date",
+                  "value": "{{date}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewattendance",
+            "description": "Fetch student attendance summary/calendar data."
+          }
+        },
+        {
+          "name": "View Transport",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewtransport",
+            "description": "Fetch student transport/route data."
+          }
+        },
+        {
+          "name": "View Timetable",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_section",
+                  "value": "{{section}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewTimetable",
+            "description": "Fetch student timetable data."
+          }
+        },
+        {
+          "name": "View Achievements",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewachievements",
+            "description": "Fetch student achievements data."
+          }
+        },
+        {
+          "name": "View Library",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewlibrary",
+            "description": "Fetch library catalog data for students."
+          }
+        },
+        {
+          "name": "Issue Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/issueBook",
+            "description": "Fetch books issued to a student."
+          }
+        },
+        {
+          "name": "Fee Summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                },
+                {
+                  "key": "class",
+                  "value": "{{class}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/feesummary",
+            "description": "Fetch fee summary and related receipt/payment summary data."
+          }
+        },
+        {
+          "name": "Fee Due Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                },
+                {
+                  "key": "class",
+                  "value": "{{class}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/feeduedetail",
+            "description": "Fetch fee due details and payment-plan information for a student."
+          }
+        },
+        {
+          "name": "Encrypted Value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "userid",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                },
+                {
+                  "key": "class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "section",
+                  "value": "{{section}}",
+                  "type": "text"
+                },
+                {
+                  "key": "amount",
+                  "value": "1000",
+                  "type": "text"
+                },
+                {
+                  "key": "plan_type",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "month",
+                  "value": "0406",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/encryptedvalue",
+            "description": "Generate the encrypted payment payload used before fee payment."
+          }
+        },
+        {
+          "name": "View Syllabus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewsyllabus",
+            "description": "Fetch syllabus data/documents."
+          }
+        },
+        {
+          "name": "View Exam",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewexam",
+            "description": "Fetch exam schedule/exam document data."
+          }
+        },
+        {
+          "name": "View Notes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewnotes",
+            "description": "Fetch student notes data."
+          }
+        },
+        {
+          "name": "View Assignments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewassign",
+            "description": "Fetch student assignment/homework data."
+          }
+        },
+        {
+          "name": "View Fortnightly",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_roll",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewFortnightly",
+            "description": "Fetch student fortnightly planner data."
+          }
+        },
+        {
+          "name": "Mark All",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"English\",\n  \"std_roll\": \"{{std_roll}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/markAll",
+            "description": "Mark student content items such as assignments, notes, or planners as read/viewed."
+          }
+        },
+        {
+          "name": "View Video",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_section",
+                  "value": "{{section}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewvideo",
+            "description": "Fetch student multimedia/video content."
+          }
+        },
+        {
+          "name": "View Grade",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "url": "{{base_url_86}}/viewGrade?std_roll={{std_roll}}&term={{term}}&exam_type={{exam_type}}",
+            "description": "Fetch student grade/marks data for the selected term and exam type."
+          }
+        },
+        {
+          "name": "View Exam Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "url": "{{base_url_86}}/viewExamtype?class={{class}}&term={{term}}",
+            "description": "Fetch available exam types for a class and term."
+          }
+        },
+        {
+          "name": "Performance List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "url": "{{base_url_86}}/performance?std_roll={{std_roll}}",
+            "description": "Fetch student performance report list/data."
+          }
+        },
+        {
+          "name": "Performance PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "url": "{{base_url_86}}/performance-pdf?std_roll={{std_roll}}&performance_id={{performance_id}}",
+            "description": "Download a student performance report PDF."
+          }
+        },
+        {
+          "name": "Support Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "url": "{{base_url_86}}/supporttype",
+            "description": "Fetch support ticket category/type options."
+          }
+        },
+        {
+          "name": "Submit Support Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "admission_no",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Technical Issue",
+                  "type": "text"
+                },
+                {
+                  "key": "issue",
+                  "value": "Unable to open notes.",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/support",
+            "description": "Submit a student support/help ticket."
+          }
+        },
+        {
+          "name": "View Support Tickets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "admission_no",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/viewsupport2",
+            "description": "Fetch student support tickets grouped by status."
+          }
+        },
+        {
+          "name": "Ticket Response",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "{{ticket_id}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/ticketresponse",
+            "description": "Fetch response history/details for a student support ticket."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Staff APIs",
+      "item": [
+        {
+          "name": "Get Classes",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/getclasses",
+            "description": "Fetch available class options for attendance screens."
+          }
+        },
+        {
+          "name": "Get Sections",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/getsection",
+            "description": "Fetch available section options for attendance screens."
+          }
+        },
+        {
+          "name": "View Attendance Student List",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"class_name\": \"{{class}}\",\n  \"class_section\": \"{{section}}\",\n  \"date\": \"{{date}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/viewattendance_studentlist",
+            "description": "Fetch student list and attendance state for a class/section/date."
+          }
+        },
+        {
+          "name": "Submit Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendance\": \"{\\\"101\\\":1,\\\"102\\\":1}\",\n  \"class_name\": \"{{class}}\",\n  \"class_section\": \"{{section}}\",\n  \"date\": \"{{date}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/submit_attendance",
+            "description": "Submit student attendance for a class, section, and date."
+          }
+        },
+        {
+          "name": "View Leaves",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/viewleaves",
+            "description": "Fetch staff leave request list/history."
+          }
+        },
+        {
+          "name": "Leave Balance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{user_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/leavegetting",
+            "description": "Fetch staff leave-balance/leave-allocation details."
+          }
+        },
+        {
+          "name": "Leave Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{leave_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/leavedetail",
+            "description": "Fetch the details of a specific leave request."
+          }
+        },
+        {
+          "name": "Apply Leave",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"leave_type\": \"Casual\",\n  \"subject\": \"Family function\",\n  \"start_date\": \"2026-03-26\",\n  \"end_date\": \"2026-03-27\",\n  \"description\": \"Need leave for family function\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/applyleave",
+            "description": "Create or submit a staff leave request without file."
+          }
+        },
+        {
+          "name": "Apply Leave With File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "leave_type",
+                  "value": "Sick",
+                  "type": "text"
+                },
+                {
+                  "key": "subject",
+                  "value": "Medical leave",
+                  "type": "text"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-03-26",
+                  "type": "text"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-03-27",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Doctor advised rest",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/applyleave",
+            "description": "Create or submit a staff leave request with file."
+          }
+        },
+        {
+          "name": "Issue Types",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/issuedtypes",
+            "description": "Fetch issue type options for staff issue submission."
+          }
+        },
+        {
+          "name": "Student Profile By Admission No",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{std_roll}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/studentprofile",
+            "description": "Fetch student profile/details by admission number."
+          }
+        },
+        {
+          "name": "Submit Issue Raise",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "admission_no",
+                  "value": "{{std_roll}}",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Student Name",
+                  "type": "text"
+                },
+                {
+                  "key": "section",
+                  "value": "{{section}}",
+                  "type": "text"
+                },
+                {
+                  "key": "class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "Fee Issue",
+                  "type": "text"
+                },
+                {
+                  "key": "reason",
+                  "value": "Raised by teacher",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/issuedraise",
+            "description": "Submit an issue/request in the staff issue-submission flow."
+          }
+        },
+        {
+          "name": "View Raised Requests",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/issuedraisebyuser",
+            "description": "Fetch issues/requests raised by the current user."
+          }
+        },
+        {
+          "name": "Support System",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staff_id\": \"{{staff_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/supportsystem",
+            "description": "Fetch staff support tickets grouped by assigned/unsolved/solved states."
+          }
+        },
+        {
+          "name": "Support System Response",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supportsystem_id\": \"{{supportsystem_id}}\",\n  \"staff_id\": \"{{staff_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/supportsystemresponse",
+            "description": "Fetch response/details for a staff support ticket."
+          }
+        },
+        {
+          "name": "Support Deadline",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supportsystem_id\": \"{{supportsystem_id}}\",\n  \"deadline\": \"{{date}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/supportdeadline",
+            "description": "Set or update the deadline for an assigned support ticket."
+          }
+        },
+        {
+          "name": "Support Feedback",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "supportsystem_id",
+                  "value": "{{supportsystem_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "feedback",
+                  "value": "Resolved successfully.",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Teacher Name",
+                  "type": "text"
+                },
+                {
+                  "key": "feedbackfile",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/supportfeedback",
+            "description": "Submit feedback/status updates for a support ticket."
+          }
+        },
+        {
+          "name": "Get Departments",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/get_department",
+            "description": "Fetch department list for staff item requests."
+          }
+        },
+        {
+          "name": "Get Stock",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/get_stock",
+            "description": "Fetch stock/item master data for staff item requests."
+          }
+        },
+        {
+          "name": "Get Item Queries",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/get_item",
+            "description": "Fetch submitted staff item requests."
+          }
+        },
+        {
+          "name": "Add Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{user_id}}\",\n  \"item\": \"[{\\\"item_name\\\":\\\"Notebook\\\",\\\"quantity\\\":\\\"5\\\",\\\"cost\\\":\\\"50\\\",\\\"purpose\\\":\\\"Classroom use\\\"}]\",\n  \"justification\": \"Need supplies\",\n  \"department\": \"Science\",\n  \"department_head\": \"HOD Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url_86}}/add_item",
+            "description": "Submit a staff item purchase/request entry."
+          }
+        },
+        {
+          "name": "Staff Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/staff_profile?staff_info_id={{staff_info_id}}",
+            "description": "Fetch staff profile data and teaching assignments."
+          }
+        },
+        {
+          "name": "Teacher Assignments",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/teacher-assignments?staff_id={{staff_info_id}}",
+            "description": "Fetch teacher homework/assignment list."
+          }
+        },
+        {
+          "name": "Store Teacher Assignment",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "staff_id",
+                  "value": "{{staff_info_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_section",
+                  "value": "{{section}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject",
+                  "value": "English",
+                  "type": "text"
+                },
+                {
+                  "key": "topic",
+                  "value": "Essay Writing",
+                  "type": "text"
+                },
+                {
+                  "key": "book",
+                  "value": "Main Book",
+                  "type": "text"
+                },
+                {
+                  "key": "chapter",
+                  "value": "Chapter 1",
+                  "type": "text"
+                },
+                {
+                  "key": "as_date",
+                  "value": "{{date}}",
+                  "type": "text"
+                },
+                {
+                  "key": "assignment_id",
+                  "value": "{{assignment_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "as_file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/store-teacher-assignments",
+            "description": "Create or update teacher homework/assignment entries with optional file upload."
+          }
+        },
+        {
+          "name": "Teacher Notes",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/teacher-notes?staff_id={{staff_info_id}}",
+            "description": "Fetch teacher notes list."
+          }
+        },
+        {
+          "name": "Store Teacher Notes",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "staff_id",
+                  "value": "{{staff_info_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "std_section",
+                  "value": "{{section}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject",
+                  "value": "English",
+                  "type": "text"
+                },
+                {
+                  "key": "topic",
+                  "value": "Grammar",
+                  "type": "text"
+                },
+                {
+                  "key": "book",
+                  "value": "Notes Book",
+                  "type": "text"
+                },
+                {
+                  "key": "as_date",
+                  "value": "{{date}}",
+                  "type": "text"
+                },
+                {
+                  "key": "notes_id",
+                  "value": "{{notes_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "as_file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/store-teacher-notes",
+            "description": "Create or update teacher notes with optional file upload."
+          }
+        },
+        {
+          "name": "Teacher Fortnightly Planner",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/teacher-fortnightly-planner?teacher_id={{staff_id}}",
+            "description": "Fetch teacher fortnightly planner list."
+          }
+        },
+        {
+          "name": "Store Teacher Fortnightly Planner",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "staff_id",
+                  "value": "{{staff_info_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "class",
+                  "value": "{{class}}",
+                  "type": "text"
+                },
+                {
+                  "key": "section",
+                  "value": "{{section}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject",
+                  "value": "English",
+                  "type": "text"
+                },
+                {
+                  "key": "to_date",
+                  "value": "2026-03-30",
+                  "type": "text"
+                },
+                {
+                  "key": "from_date",
+                  "value": "2026-03-24",
+                  "type": "text"
+                },
+                {
+                  "key": "date_of_publish",
+                  "value": "{{date}}",
+                  "type": "text"
+                },
+                {
+                  "key": "id",
+                  "value": "{{planner_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "schedule_file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/teacher-fortnightly-planner-store",
+            "description": "Create or update a teacher fortnightly planner entry with optional file upload."
+          }
+        },
+        {
+          "name": "Common Status",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "table",
+                  "value": "Assig",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "status",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{base_url_86}}/CommanStatus",
+            "description": "Update publish/delete status for teacher content such as homework, notes, and planners."
+          }
+        },
+        {
+          "name": "Staff Multimedia",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/multimedia?class={{class}}&Subject=English&staff_id={{staff_id}}",
+            "description": "Fetch multimedia records for a teacher by class and subject."
+          }
+        },
+        {
+          "name": "Get Library Books",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/getLibraryBooks",
+            "description": "Fetch the library catalog for staff library screens."
+          }
+        },
+        {
+          "name": "Get Teacher Issued Books",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url_86}}/getTeacherIssuedBooks?staff_id={{staff_id}}",
+            "description": "Fetch books currently issued to a teacher."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy Upload APIs",
+      "item": [
+        {
+          "name": "Purpose Image Upload",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{base_url_84}}/purposeimage",
+            "description": "Upload an item-purpose image in the staff item-request flow."
+          }
+        }
+      ]
+    }
+  ]
+}

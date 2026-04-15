@@ -1,242 +1,124 @@
-import React, { Component } from 'react';
-import { Image, Text, View, TouchableOpacity, BackHandler, FlatList } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { BackHandler } from "react-native";
 import AsyncStorage from "@react-native-community/async-storage";
-import styles from './style';
-const baseColor = '#0747a6'
-import * as myConst from '../../Baseurl';
-import Snackbar from 'react-native-snackbar';
-import StaffViewSupportDetails from '../StaffSupportSolvedDetails/StaffSupportSolvedDetails';
-import CommonHeader from '../../CommonHeader';
-import { Blue, whiteColor } from '../../../Utils/Constant';
+import Snackbar from "react-native-snackbar";
 
+import staffApiClient from "../../../api/staffClient";
+import { colors } from "../../../constants";
+import usePullToRefresh from "../../../hooks/usePullToRefresh";
+import SupportSystemScreenView from "../../common/SupportSystemScreenView";
 
-class StaffSupportSystem extends Component {
+const StaffSupportSystem = ({ navigation }) => {
+  const [activeTab, setActiveTab] = useState("assigned");
+  const [assignedData, setAssignedData] = useState([]);
+  const [solvedData, setSolvedData] = useState([]);
+  const [unsolvedData, setUnsolvedData] = useState([]);
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false,
-            id: '',
-            dataSource: [], 
-            assignedData: [],
-            solvedData: [],
-            unsolvedData: [],
-            type: ''
+  const handleBackPress = useCallback(() => {
+    navigation.navigate("StaffHome");
+    return true;
+  }, [navigation]);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackPress
+    );
+
+    return () => subscription.remove();
+  }, [handleBackPress]);
+
+  const showMessage = (message) => {
+    Snackbar.show({
+      backgroundColor: colors.danger,
+      duration: Snackbar.LENGTH_SHORT,
+      text: message,
+    });
+  };
+
+  const supportSystemApi = useCallback(async (staffId, options = {}) => {
+    const { resetActiveTab = false } = options;
+
+    try {
+      const responseJson = await staffApiClient.post("supportsystem", { staff_id: staffId });
+
+      if (responseJson.status === true) {
+        setAssignedData(responseJson.assigned || []);
+        setUnsolvedData(responseJson.unSolved || []);
+        setSolvedData(responseJson.solved || []);
+        if (resetActiveTab) {
+          setActiveTab("assigned");
         }
+        return;
+      }
 
+      showMessage(responseJson.message);
+    } catch (error) {
+      console.log(error);
     }
-    componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
+  }, []);
 
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-    }
+  const loadSupportData = useCallback(
+    async (options = {}) => {
+      const value = await AsyncStorage.getItem("@id");
 
-    handleBackPress = () => {
-        this.props.navigation.navigate('StaffHome')
-        return true;
-    };
+      if (!value) {
+        setAssignedData([]);
+        setUnsolvedData([]);
+        setSolvedData([]);
+        return;
+      }
 
+      await supportSystemApi(value, options);
+    },
+    [supportSystemApi]
+  );
 
-    async componentDidMount() {
-        const value = await AsyncStorage.getItem('@id')
-        console.log(value)
-        this.setState({
-            id: value
-        })
-        this.supportSystemApi()
-    }
+  useEffect(() => {
+    loadSupportData({ resetActiveTab: true });
+  }, [loadSupportData]);
 
+  const { onRefresh, refreshing } = usePullToRefresh(loadSupportData);
 
-    showMessage(message) {
-        Snackbar.show({
-            text: message,
-            duration: Snackbar.LENGTH_SHORT,
-            backgroundColor: '#f15270'
-        });
-    }
-
-
-    buttonClicked(type) {
-        if (type === 'solved') {
-            this.setState({
-                type : 'solved',
-                dataSource: this.state.solvedData
-            })
-        } else if (type === 'assigned') {
-            this.setState({
-                type : 'assigned',
-                dataSource: this.state.assignedData
-            })
-        } else if (type === 'unsolved') {
-            this.setState({
-                type : 'unsolved',
-                dataSource: this.state.unsolvedData
-            })
-        }
+  const tickets = useMemo(() => {
+    if (activeTab === "solved") {
+      return solvedData;
     }
 
-
-    async viewMoreDetails(item){
-        console.log(this.state.type)
-        console.log(item)
-        if (this.state.type == 'assigned') {
-            await AsyncStorage.setItem('@MyItem:key', JSON.stringify(item));
-            this.props.navigation.navigate('StaffSupportAssignedDetails')
-        } else if (this.state.type == 'solved') {
-            await AsyncStorage.setItem('@MyItem:key', JSON.stringify(item));
-            this.props.navigation.navigate('StaffSupportSolvedDetails')
-        } else if (this.state.type == 'unsolved') {
-            await AsyncStorage.setItem('@MyItem:key', JSON.stringify(item));
-            this.props.navigation.navigate('StaffSupportUnSolvedDetails')
-        }
+    if (activeTab === "unsolved") {
+      return unsolvedData;
     }
 
+    return assignedData;
+  }, [activeTab, assignedData, solvedData, unsolvedData]);
 
-    supportSystemApi() {
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "staff_id": this.state.id
-            })
-        }
-        fetch(myConst.BASEURL + 'supportsystem', data)
-            .then((response) => response.json())
-            .then(async (responseJson) => {
-                if (responseJson.status === true) {
-                    console.log('responseJson-->', responseJson)
+  const openTicket = async (item) => {
+    await AsyncStorage.setItem("@MyItem:key", JSON.stringify(item));
 
-                    this.setState({
-                        type : 'assigned',
-                        dataSource: responseJson.assigned,
-                        unsolvedData: responseJson.unSolved,
-                        assignedData: responseJson.assigned,
-                        solvedData: responseJson.solved
-                    })
-
-                } else if (responseJson.status === false) {
-                    this.showMessage(responseJson.message)
-                }
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
+    if (activeTab === "assigned") {
+      navigation.navigate("StaffSupportAssignedDetails");
+      return;
     }
 
-
-
-    render() {
-        return (
-            <View style={styles.MainContainer}>
-                {/* <View style={styles.HeaderBackground}>
-                    <View style={styles.HeaderStyle}>
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate('StaffHome')}>
-                            <Image style={styles.HeaderArrowImage}
-                                source={require('../../../assests/images/leftarrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.HeaderText}>Support System</Text>
-                        <View></View>
-                    </View>
-                </View> */}
-                <CommonHeader
-                title="Support System"
-                backgroundColor={Blue}
-                textColor={whiteColor}
-                IconColor={whiteColor}
-                onLeftClick={() => this.props.navigation.navigate('StaffHome')}/>
-
-                <View style={styles.TabBackground}>
-                    <View style={styles.RowCardStyle}>
-
-                        <View style={styles.TabCardView}>
-                            <TouchableOpacity
-                            onPress={() => this.buttonClicked('assigned')}
-                            >
-                                <Text style={styles.CardviewText}>Assigned</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.TabCardView}>
-                            <TouchableOpacity
-                             onPress={() => this.buttonClicked('unsolved')}
-                            >
-                                <Text style={styles.CardviewText}>UnSolved</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.TabCardView}>
-                            <TouchableOpacity
-                            onPress={() => this.buttonClicked('solved')}
-                            >
-                                <Text style={styles.CardviewText}>Solved</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                </View>
-
-                <FlatList
-                    data={this.state.dataSource}
-
-                    renderItem={({ item }) =>
-                        <View style={styles.FlatListView}>
-                            <View style={styles.CardView}>
-
-                                <View style={styles.BottomRowStyle}>
-                                    <View><Text style={styles.TextLeft}>Ticketno.</Text></View>
-                                    <View><Text style={styles.TextRight}>{item.ticketno}</Text></View>
-                                    <View>
-                                        <TouchableOpacity
-                                        onPress={() => this.viewMoreDetails(item)}
-                                        >
-                                            <Image style={styles.ViewMoreImage}
-                                                source={require('../../../assests/images/view_more.png')} />
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-
-                                <View style={styles.BottomRowStyle}>
-                                    <View><Text style={styles.TextLeft}>Date</Text></View>
-                                    <View><Text style={styles.TextRight}>{item.created_at}</Text></View>
-                                </View>
-
-                                <View style={styles.BottomRowStyle}>
-                                    <View><Text style={styles.TextLeft}>Name</Text></View>
-                                    <View><Text style={styles.TextRight}>{item.name}</Text></View>
-                                </View>
-
-                                <View style={styles.BottomRowStyle}>
-                                    <View><Text style={styles.TextLeft}>Class</Text></View>
-                                    <View><Text style={styles.TextRight}>{item.std_class}</Text></View>
-                                </View>
-
-                                <View style={styles.BottomRowStyle}>
-                                    <View><Text style={styles.TextLeft}>Section</Text></View>
-                                    <View><Text style={styles.TextRight}>{item.std_section}</Text></View>
-                                </View>
-
-                                <View style={styles.BottomRowStyle}>
-                                    <View><Text style={styles.TextLeft}>Issue</Text></View>
-                                    <View><Text style={styles.TextRight}>{item.issue}</Text></View>
-                                </View>
-
-                            </View>
-                        </View>
-                    }
-                    keyExtractor={(item, index) => index}
-                />
-
-            </View>
-
-        )
+    if (activeTab === "solved") {
+      navigation.navigate("StaffSupportSolvedDetails");
+      return;
     }
 
-}
+    navigation.navigate("StaffSupportUnSolvedDetails");
+  };
+
+  return (
+    <SupportSystemScreenView
+      activeTab={activeTab}
+      onBackPress={() => navigation.navigate("StaffHome")}
+      onOpenTicket={openTicket}
+      onRefresh={onRefresh}
+      onTabChange={setActiveTab}
+      refreshing={refreshing}
+      tickets={tickets}
+    />
+  );
+};
 
 export default StaffSupportSystem;

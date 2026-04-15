@@ -23,7 +23,7 @@ class DrawerNavigation extends Component {
       }}
         // drawerType='slide'
         drawerContent={(props) => <SideBar {...props} />}>
-        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="StudentHome" component={HomeScreen} />
       </Drawer.Navigator>
     );
   }

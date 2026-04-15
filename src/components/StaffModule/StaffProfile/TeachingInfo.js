@@ -1,85 +1,233 @@
-import { StyleSheet, Text, View, FlatList } from 'react-native';
-import React from 'react';
-import CommonHeader from '../../CommonHeader';
-import { Blue, whiteColor, SilverColor, resH, resW, BattleshipGrey, font16, blackColor, font15, font14 } from '../../../Utils/Constant';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  FlatList,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
+
+import CommonHeader from "../../CommonHeader";
+import { STRINGS } from "../../../constants";
+import { fetchStaffProfileTeachingInfo } from "../../../Utils/teachingInfo";
+import TeachingAssignmentCard from "./TeachingAssignmentCard";
+import createStaffProfileTheme from "./profileTheme";
 
 const TeachingInfo = () => {
   const navigation = useNavigation();
-  const teachingData = [
-    { id: '1', class: '10', section: 'A', subject: 'Mathematics', teacher: 'Riya Sharma' },
-    { id: '2', class: '9', section: 'B', subject: 'Science', teacher: 'Ankit Kumar' },
-    { id: '3', class: '8', section: 'C', subject: 'English', teacher: 'Neha Singh' },
-  ];
-  const renderCard = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.row}>
-        <Text style={styles.label}>Class</Text>
-        <Text style={styles.value}>{item.class}</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Section</Text>
-        <Text style={styles.value}>{item.section}</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Subject</Text>
-        <Text style={styles.value}>{item.subject}</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Teacher Name</Text>
-        <Text style={styles.value}>{item.teacher}</Text>
-      </View>
-    </View>
+  const insets = useSafeAreaInsets();
+  const userData = useSelector((state) => state.userSlice.userData);
+  const { height, width } = useWindowDimensions();
+  const theme = useMemo(
+    () => createStaffProfileTheme({ height, width }),
+    [height, width]
   );
+  const screenStrings = STRINGS.staffProfile.teachingInformation;
+  const [teachingInfo, setTeachingInfo] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const getTeachingInfo = async () => {
+      try {
+        setLoading(true);
+        const info = await fetchStaffProfileTeachingInfo(userData?.staff_info_id);
+        setTeachingInfo(info);
+      } catch (error) {
+        console.log("TeachingInfo API Error", error);
+        setTeachingInfo([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userData?.staff_info_id) {
+      getTeachingInfo();
+    } else {
+      setTeachingInfo([]);
+    }
+  }, [userData?.staff_info_id]);
+
+  const cards = useMemo(() => {
+    const gradients = [
+      {
+        end: theme.colors.teachingInfoBlueEnd,
+        start: theme.colors.teachingInfoBlueStart,
+      },
+      {
+        end: theme.colors.teachingInfoPurpleEnd,
+        start: theme.colors.teachingInfoPurpleStart,
+      },
+      {
+        end: theme.colors.teachingInfoGreenEnd,
+        start: theme.colors.teachingInfoGreenStart,
+      },
+    ];
+    const teacherName =
+      userData?.name ||
+      userData?.staff_name ||
+      userData?.full_name ||
+      userData?.teacher ||
+      "-";
+
+    return (teachingInfo || [])
+      .filter(
+        (item) => item?.class || item?.section || item?.subject || teacherName
+      )
+      .map((item, index) => ({
+        class: item?.class || "-",
+        gradient: gradients[index % gradients.length],
+        id:
+          item?.id ||
+          `${item?.class || "class"}-${item?.section || "section"}-${
+            item?.subject || "subject"
+          }-${index}`,
+        section: item?.section || "-",
+        subject: item?.subject || "-",
+        teacher:
+          item?.teacher ||
+          item?.teacher_name ||
+          item?.staff_name ||
+          teacherName,
+      }));
+  }, [
+    theme.colors.teachingInfoBlueEnd,
+    theme.colors.teachingInfoBlueStart,
+    theme.colors.teachingInfoGreenEnd,
+    theme.colors.teachingInfoGreenStart,
+    theme.colors.teachingInfoPurpleEnd,
+    theme.colors.teachingInfoPurpleStart,
+    teachingInfo,
+    userData?.full_name,
+    userData?.name,
+    userData?.staff_name,
+    userData?.teacher,
+  ]);
+
+  const renderItem = ({ item }) => (
+    <TeachingAssignmentCard
+      item={item}
+      theme={{
+        cardTheme: theme,
+        iconGradient: [item.gradient.start, item.gradient.end],
+        labels: screenStrings.labels,
+      }}
+    />
+  );
+
   return (
-    <View style={{ flex: 1, backgroundColor: whiteColor }}>
-      <CommonHeader
-        title="Teaching Information"
-        backgroundColor={Blue}
-        textColor={whiteColor}
-        IconColor={whiteColor}
-        onLeftClick={() => navigation.goBack()}
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: theme.colors.headerGradientEnd,
+        },
+      ]}
+    >
+      <StatusBar
+        backgroundColor={theme.colors.headerGradientEnd}
+        barStyle="light-content"
       />
 
-      <FlatList
-        data={teachingData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCard}
-        contentContainerStyle={{ paddingHorizontal: resW(5), paddingVertical: resH(2), marginTop: resH(2) }}
-        ItemSeparatorComponent={() => <View style={{ height: resH(1.3) }} />}
-      />
-    </View>
+      <View
+        style={[
+          styles.screen,
+          {
+            backgroundColor: theme.colors.screenBackground,
+          },
+        ]}
+      >
+        <CommonHeader
+          IconColor={theme.colors.headerText}
+          backgroundColor={theme.colors.headerGradientEnd}
+          compact
+          extStyle={{
+            height: theme.sizing.headerHeight,
+            marginTop: 0,
+          }}
+          onLeftClick={() => navigation.goBack()}
+          textColor={theme.colors.headerText}
+          title={screenStrings.title}
+          titleStyle={theme.typography.headerTitle}
+        />
+
+        <FlatList
+          contentContainerStyle={[
+            styles.listContent,
+            {
+              minHeight: theme.sizing.scrollMinHeight + insets.bottom,
+              paddingBottom: theme.spacing.formBottom + insets.bottom,
+              paddingHorizontal: theme.spacing.contentHorizontal,
+              paddingTop: theme.spacing.formTop + theme.spacing.labelGap,
+            },
+          ]}
+          data={cards}
+          keyExtractor={(item, index) =>
+            `${String(item?.id ?? item?.key ?? "teaching")}-${index}`
+          }
+          renderItem={renderItem}
+          ListEmptyComponent={
+            <View
+              style={[
+                styles.emptyState,
+                {
+                  backgroundColor: theme.colors.profileCardBackground,
+                  borderRadius: theme.radii.profileCard,
+                  paddingHorizontal: theme.spacing.teachingCardHorizontal,
+                  paddingVertical: theme.spacing.teachingCardHorizontal,
+                },
+                theme.shadows.profileCard,
+              ]}
+            >
+              <Text style={theme.typography.profileName}>
+                {loading ? STRINGS.common.loading : STRINGS.common.noDataTitle}
+              </Text>
+              <Text
+                style={[
+                  theme.typography.profileSubtitle,
+                  {
+                    marginTop: theme.spacing.labelGap,
+                  },
+                ]}
+              >
+                {loading
+                  ? "Fetching teaching assignments..."
+                  : STRINGS.common.noDataDescription}
+              </Text>
+            </View>
+          }
+          showsVerticalScrollIndicator={false}
+          style={styles.list}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: theme.spacing.teachingCardGap }} />
+          )}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default TeachingInfo;
-
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: SilverColor,
-    borderRadius: 8,
-    paddingHorizontal: resW(3),
-    paddingVertical:resW(1),
-    shadowColor: '#000',
-    shadowOffset: { width: 1, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  list: {
+    flex: 1,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: resH(0.4),
-    // borderBottomWidth: 0.5,
-    // borderBottomColor: BattleshipGrey,
+  listContent: {
+    flexGrow: 1,
+    width: "100%",
   },
-  label: {
-    fontSize: font14,
-    color: blackColor,
-    fontWeight: '600',
+  emptyState: {
+    width: "100%",
   },
-  value: {
-    fontSize: font14,
-    color: blackColor,
+  safeArea: {
+    flex: 1,
+  },
+  screen: {
+    flex: 1,
   },
 });
+
+export default TeachingInfo;

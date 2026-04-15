@@ -1,74 +1,82 @@
-import React from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
-import { font12, font15, font18, font26, font32, font36, resH, resW } from '../../../Utils/Constant';
+import { font15, font18, font26, resH, resW } from '../../../Utils/Constant';
 const deviceHeight=Dimensions.get('window').height;
 const deviceWidth=Dimensions.get('window').width;
-// const baseColor = 'white'
 
 export default styles = StyleSheet.create({
+    scrollContent: {
+        flexGrow: 1,
+        paddingBottom: resH(5),
+    },
 
-    // container: {
-    //     backgroundColor: "white",
-    //     alignItems: 'center',
-    // },
+    container: {
+        flexGrow: 1,
+        paddingBottom: resH(3),
+    },
+
+    heroSection: {
+        alignItems: 'center',
+        marginTop: resH(1),
+        paddingHorizontal: resW(4),
+    },
 
     loginImage: {
-        height: deviceHeight*0.4,
-        width: deviceWidth*1,
-         marginTop:resH(0),
-     
-        alignItems: 'center',
-        // backgroundColor: "white"
+        height: deviceHeight * 0.28,
+        width: deviceWidth * 0.8,
     },
 
     HomeScreenView: {
-        // backgroundColor: baseColor, 
         height: deviceHeight,
-         width: deviceWidth,
-         display: 'flex'
+        width: deviceWidth,
+        display: 'flex'
     },
 
-loginForm: {
-//   backgroundColor: 'white',
-  width: '100%',
-  paddingVertical: resH(5),
-  alignItems: 'center',
-
-  justifyContent:"flex-end"
-  // position: 'absolute',  // ❌ remove
-  // bottom: resH(3),       // ❌ remove
-},
-
-
-container: {
-    flex: 1,  // 👈 makes it take full height
-    // backgroundColor: "white",
-    // justifyContent: "flex-end", // 👈 push children down
-    // alignItems: 'center',
-},
+    loginForm: {
+        width: '100%',
+        marginTop: resH(1.5),
+        paddingHorizontal: resW(5),
+        alignItems: 'center',
+    },
 
     loginText: {
         color: '#635d83',
         fontSize: font26,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: resH(5),
-        marginBottom: resH(1)
+        marginBottom: resH(2.2),
     },
 
     TextInputStyleClass: {
-        height: resH(7),
-        marginLeft: resW(4),
-        marginRight: resW(4),
-        marginTop: resH(1),
-        marginBottom: resH(1),
-        padding: resW(2),
-         paddingLeft: resW(4),
+        height: resH(7.8),
+        marginBottom: resH(2),
+        paddingHorizontal: resW(5),
         fontSize: font15,
-        borderRadius: resW(2.5),
+        borderRadius: resW(4.5),
         backgroundColor: 'white',
+        elevation: 4,
+        shadowColor: '#8578ab',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.12,
+        shadowRadius: 10,
         color: '#635d83',
-        width: '90%',
+        width: '100%',
+    },
+
+    loginButton: {
+        marginTop: resH(2),
+        width: '100%',
+        minHeight: resH(7.4),
+        shadowColor: '#6f55d9',
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 14,
+        elevation: 5,
     },
 
     button: {

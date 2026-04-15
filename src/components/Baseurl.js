@@ -1,3 +1,3 @@
-// export const BASEURL = 'https://myskool.sdvonline.in/api/';
-export const BASEURL = 'http://139.59.90.236:86/api/';
+import {API_BASE_URL} from '../constants';
 
+export const BASEURL = API_BASE_URL;

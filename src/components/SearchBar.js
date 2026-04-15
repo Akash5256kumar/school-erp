@@ -1,129 +1,32 @@
-import React, { useState, useEffect, Component } from 'react';
-import {
-    SafeAreaView,
-    StyleSheet,
-    ScrollView,
-    View,
-    Text,
-    StatusBar,
-    FlatList,
-    TouchableOpacity,
-    TextInput, Image
-} from 'react-native';
-import { resW } from '../Utils/Constant';
-const baseColor = '#0747a6'
+import React from "react";
+import { StyleSheet, View } from "react-native";
 
+import { colors, componentSizes, radii, spacing } from "../constants";
+import AppInput from "./common/AppInput";
+import * as constant from "../Utils/Constant";
 
-class Searchbar extends Component {
-
-    render(){
-    return (
-        <View style={[styles.container]}>
-            <View style={styles.searchContainer}>
-                <View style={styles.vwSearch}>
-                    <Image
-                        style={styles.icSearch}
-                        source={require('../assests/images/search.png')} />
-                </View>
-
-                <TextInput
-                    // value={query}
-                    placeholder="Search here..."
-                    style={styles.textInput}
-                    placeholderTextColor={'#888888'}
-                    onChangeText={(text) => {
-                        console.log('text ->', text);
-                        this.props.onChangeSearch(text.toLowerCase())
-                    }}
-                />
-
-            </View>
-        </View >
-    )}
-}
+const Searchbar = ({ onChangeSearch }) => (
+  <View style={styles.container}>
+    <AppInput
+      containerStyle={styles.field}
+      inputStyle={styles.inputStyle}
+      leftIcon={constant.Icons.Search}
+      onChangeText={(text) => onChangeSearch(text.toLowerCase())}
+      placeholder="Search here..."
+    />
+  </View>
+);
 
 const styles = StyleSheet.create({
-    txtError: {
-        marginTop: '2%',
-        width: '89%',
-        color: 'white',
-
-    },
-    vwClear: {
-        flex: 0.2,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    textInput: {
-        // backgroundColor: 'green',
-        flex: 1,
-        color:'#000000'
-    },
-
-    vwSearch: {
-        flex: 0.2,
-        justifyContent: 'center',
-        alignItems: 'center',
-        // width: 40,
-        // backgroundColor: 'red'
-    },
-    icSearch: {
-        height: 18, width: 18
-    },
-    searchContainer:
-    {
-        backgroundColor: 'white',
-        width: '90%',
-        height: 40,
-        flexDirection: 'row'
-
-    },
-    container: {
-        height: 80,
-        alignItems: 'center',
-        // height: '100%', width: '100%' 
-    },
-    txtError: {
-        marginTop: '2%',
-        width: '89%',
-        color: 'white',
-
-    },
-    vwClear: {
-        flex: 0.2,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    // textInput: {
-    //     // backgroundColor: 'green',
-    //     flex: 1,
-    // },
-
-    vwSearch: {
-        flex: 0.2,
-        justifyContent: 'center',
-        alignItems: 'center',
-        // width: 40,
-        // backgroundColor: 'red'
-    },
-    icSearch: {
-        height: 25, width: 25
-    },
-    searchContainer:{
-        backgroundColor: 'white',
-        // width: '92%',
-        height: 50,
-        flexDirection: 'row',
-        borderWidth: 1,
-        borderRadius: 4,
-        marginTop: 8,
-        borderColor: baseColor,
-        marginHorizontal:resW(4)
-    },
-    container: {
-        height: 60,
-        alignItems: 'center',
-    },
+  container: {
+    paddingHorizontal: spacing.lg,
+  },
+  field: {
+    width: "100%",
+  },
+  inputStyle: {
+    minHeight: componentSizes.searchHeight,
+  },
 });
 
 export default Searchbar;

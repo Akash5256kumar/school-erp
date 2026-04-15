@@ -1,256 +1,354 @@
-import { StyleSheet, Text, View, TouchableOpacity, Platform,Image } from 'react-native';
-import React, { useState } from 'react';
-import CommonHeader from '../../CommonHeader';
-import { useNavigation } from '@react-navigation/native';
-import LabelHeader from '../../labelHeader';
-import { blackColor, resH, resW, whiteColor, font15, Blue } from '../../../Utils/Constant';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import CustomInputField from '../../CommonInputField/CommonTextField';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import CommonButton from '../../Button/CommonButton';
-import CommonModal from '../../CommonModal/CommonModal';
-import * as constant from '../../../Utils/Constant';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-const DatePickerField = ({ label, date, setDate }) => {
-  const [showPicker, setShowPicker] = useState(false);
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {StyleSheet, View, useWindowDimensions} from 'react-native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {useSelector} from 'react-redux';
 
-  const onChange = (event, selectedDate) => {
-    setShowPicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
+import CommonModal from '../../CommonModal/CommonModal';
+import {useAppToast} from '../../common/AppToast';
+import * as constant from '../../../Utils/Constant';
+import {getPersistedAuthToken} from '../../../Utils/authSession';
+import {uploadFile} from '../../../Utils';
+import {
+  fetchTeachingInfo,
+  sortTeachingClasses,
+  sortTeachingValues,
+} from '../../../Utils/teachingInfo';
+import StaffContentScaffold from '../StaffContentShared/StaffContentScaffold';
+import {
+  StaffContentPrimaryButton,
+  StaffContentUploadPreview,
+} from '../StaffContentShared/StaffContentPrimitives';
+import {
+  StaffContentDateField,
+  StaffContentSelectField,
+  StaffContentUploadAction,
+} from '../StaffContentShared/StaffContentFields';
+import {STAFF_CONTENT_TEXT} from '../StaffContentShared/staffContentConfig';
+import createStaffContentTheme from '../StaffContentShared/staffContentTheme';
+
+const MODULE_TEXT = STAFF_CONTENT_TEXT.planner;
+
+const StaffEditFornightlyPlanner = props => {
+  const {planner} = props?.route?.params;
+  const navigation = useNavigation();
+  const userData = useSelector(state => state.userSlice.userData);
+  const {showSuccessToast} = useAppToast();
+  const {height, width} = useWindowDimensions();
+  const theme = createStaffContentTheme({height, width, variant: 'planner'});
+  const [publishDate, setPublishDate] = useState(
+    new Date(planner?.date_of_publish),
+  );
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [toDate, setToDate] = useState(new Date(planner?.to_date));
+  const [fromDate, setFromDate] = useState(new Date(planner?.from_date));
+  const [stdClass, setStdClass] = useState(planner?.class || null);
+  const [section, setSection] = useState(planner?.section || null);
+  const [subject, setSubject] = useState(planner?.subject || null);
+
+  const [teachingInfo, setTeachingInfo] = useState(
+    Array.isArray(userData?.teaching_info) ? userData.teaching_info : [],
+  );
+
+  useEffect(() => {
+    setTeachingInfo(Array.isArray(userData?.teaching_info) ? userData.teaching_info : []);
+  }, [userData?.teaching_info]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const loadTeachingInfo = async () => {
+        try {
+          const latestTeachingInfo = await fetchTeachingInfo();
+
+          if (isActive) {
+            setTeachingInfo(latestTeachingInfo);
+          }
+        } catch (error) {
+          console.log('fetchTeachingInfo Error:', error);
+        }
+      };
+
+      loadTeachingInfo();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
+
+  const classOptions = useMemo(
+    () => sortTeachingClasses([...new Set(teachingInfo.map(item => item.class).filter(Boolean))]),
+    [teachingInfo],
+  );
+  const sectionOptions = useMemo(() => {
+    if (!stdClass) {
+      return [];
+    }
+
+    return [
+      ...sortTeachingValues(
+        [
+          ...new Set(
+            teachingInfo
+              .filter(item => item.class === stdClass)
+              .map(item => item.section)
+              .filter(Boolean),
+          ),
+        ],
+      ),
+    ];
+  }, [stdClass, teachingInfo]);
+  const subjectOptions = useMemo(() => {
+    if (!stdClass || !section) {
+      return [];
+    }
+
+    return [
+      ...new Set(
+        teachingInfo
+          .filter(item => item.class === stdClass && item.section === section)
+          .map(item => item.subject),
+      ),
+    ];
+  }, [section, stdClass, teachingInfo]);
+
+  const prevClassRef = useRef(stdClass);
+  const prevSectionRef = useRef(section);
+
+  useEffect(() => {
+    if (prevClassRef.current && prevClassRef.current !== stdClass) {
+      setSection(null);
+      setSubject(null);
+    }
+    prevClassRef.current = stdClass;
+  }, [stdClass]);
+
+  useEffect(() => {
+    if (prevSectionRef.current && prevSectionRef.current !== section) {
+      setSubject(null);
+    }
+    prevSectionRef.current = section;
+  }, [section]);
+
+  useEffect(() => {
+    if (section && !sectionOptions.includes(section)) {
+      setSection(null);
+      setSubject(null);
+    }
+  }, [section, sectionOptions]);
+
+  useEffect(() => {
+    if (subject && !subjectOptions.includes(subject)) {
+      setSubject(null);
+    }
+  }, [subject, subjectOptions]);
+
+  const openCamera = async () => {
+    setModalVisible(false);
+    try {
+      const result = await launchCamera({
+        includeBase64: false,
+        mediaType: 'photo',
+        saveToPhotos: true,
+      });
+
+      if (result?.assets?.length) {
+        setSelectedImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.log('Camera launch error:', error);
     }
   };
 
-  const formattedDate = date ? date.toLocaleDateString() : 'Select Date';
+  const openGallery = async () => {
+    setModalVisible(false);
+    try {
+      const result = await launchImageLibrary({
+        includeBase64: false,
+        mediaType: 'photo',
+      });
+
+      if (result?.assets?.length) {
+        setSelectedImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.log('Gallery launch error:', error);
+    }
+  };
+
+  const updatePlanner = async () => {
+    if (!publishDate || !stdClass || !section || !subject || !toDate || !fromDate) {
+      constant.showAlert('Please fill all required fields');
+      return;
+    }
+
+    try {
+      const payload = {
+        class: stdClass,
+        date_of_publish: publishDate.toISOString().split('T')[0],
+        from_date: fromDate.toISOString().split('T')[0],
+        id: planner?.id,
+        section,
+        staff_id: userData?.staff_info_id,
+        subject,
+        to_date: toDate.toISOString().split('T')[0],
+      };
+      const authToken = await getPersistedAuthToken();
+
+      const response = await uploadFile(
+        'teacher-fortnightly-planner-store',
+        selectedImage
+          ? {
+              name: 'planner.jpg',
+              type: 'image/jpeg',
+              uri: selectedImage,
+            }
+          : null,
+        payload,
+        'schedule_file',
+        authToken ? {Authorization: authToken} : {},
+      );
+
+      if (response?.status) {
+        showSuccessToast({
+          message: 'The planner has been updated successfully.',
+          title: 'Planner Updated',
+        });
+        navigation.pop(2);
+      } else {
+        constant.showAlert(response?.message || 'Update failed');
+      }
+    } catch (error) {
+      console.log('Edit Planner Error:', error);
+      constant.showAlert(error?.message || 'Something went wrong');
+    }
+  };
+
+  const stackColumns = width < theme.layout.fullWidthBreakpoint;
 
   return (
-    <View style={{ marginBottom: resH(2) }}>
-      {label && <LabelHeader label={label} />}
-      <View style={styles.dateInputContainer}>
-        <Text style={[styles.dateText, !date && { color: blackColor }]}>{formattedDate}</Text>
-        <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setShowPicker(true)}
-        >
-          <Text style={styles.dateButtonText}>▼</Text>
-        </TouchableOpacity>
-      </View>
-      {showPicker && (
-        <DateTimePicker
-          value={date || new Date()}
-          mode="date"
-          display="default"
-          onChange={onChange}
-        />
-      )}
-    </View>
-  );
-};
-
-// --- Main Component ---
-const StaffEditFornightlyPlanner = () => {
-  const navigation = useNavigation();
-  const [publishDate, setPublishDate] = useState(null);
-  const [toDate, setToDate] = useState(null);
-  const [fromDate, setFromDate] = useState(null);
-   const [modalVisible, setModalVisible] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-          const openCamera = async () => {
-                setModalVisible(false);
-                try {
-                    const result = await launchCamera({
-                        mediaType: 'photo',
-                        includeBase64: false,
-                        saveToPhotos: true,
-                    });
-        
-                    if (result.didCancel) {
-                        console.log('User cancelled camera');
-                        return;
-                    }
-                    if (result.errorCode) {
-                        console.log('Camera error: ', result.errorMessage);
-                        return;
-                    }
-        
-                    if (result?.assets && result.assets.length > 0) {
-                        const imageUri = result.assets[0].uri;
-                        console.log('Captured image: ', imageUri);
-                        setSelectedImage(imageUri);
-                    }
-                } catch (error) {
-                    console.log('Camera launch error:', error);
-                }
-            };
-        
-            // --- Gallery Picker ---
-            const openGallery = async () => {
-                setModalVisible(false);
-                try {
-                    const result = await launchImageLibrary({
-                        mediaType: 'photo',
-                        includeBase64: false,
-                    });
-        
-                    if (result.didCancel) {
-                        console.log('User cancelled gallery picker');
-                        return;
-                    }
-                    if (result.errorCode) {
-                        console.log('Gallery error: ', result.errorMessage);
-                        return;
-                    }
-        
-                    if (result?.assets && result.assets.length > 0) {
-                        const imageUri = result.assets[0].uri;
-                        console.log('Selected image: ', imageUri);
-                        setSelectedImage(imageUri);
-                    }
-                } catch (error) {
-                    console.log('Gallery launch error:', error);
-                }
-            };
-  return (
-    <View style={{ flex: 1, backgroundColor: whiteColor }}>
-      <CommonHeader
-        title={"Edit Planner"}
-        backgroundColor={Blue}
-        textColor={whiteColor}
-        IconColor={whiteColor}
-        onLeftClick={() => navigation.goBack()}
-      />
-
+    <StaffContentScaffold
+      onBackPress={() => navigation.goBack()}
+      theme={theme}
+      title={MODULE_TEXT.editTitle}>
       <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: resW(4), paddingBottom: resH(5) }}
-        enableOnAndroid={true}
+        bounces={false}
+        contentContainerStyle={{
+          paddingBottom: theme.spacing.footerSafeBottom,
+          paddingTop: theme.spacing.screenTop,
+        }}
+        enableOnAndroid
         keyboardOpeningTime={0}
         keyboardShouldPersistTaps="handled"
-      >
-        <View style={{ marginTop: resH(1) }} />
-        <DatePickerField label="Date of Publish" date={publishDate} setDate={setPublishDate} />
-
-        <LabelHeader label={"Class"} />
-        <CustomInputField inputStyle={styles.inputStyle} />
-
-        <LabelHeader label={"Section"} />
-        <CustomInputField inputStyle={styles.inputStyle} />
-
-        <LabelHeader label={"Subject"} />
-        <CustomInputField inputStyle={styles.inputStyle} />
-
-        {/* To Date and From Date Pickers */}
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <View style={{ flex: 1, marginRight: resW(2) }}>
-            <DatePickerField label="To Date" date={toDate} setDate={setToDate} />
+        showsVerticalScrollIndicator={false}>
+        <StaffContentDateField
+          date={publishDate}
+          label={MODULE_TEXT.labels.dateOfPublish}
+          onChange={setPublishDate}
+          theme={theme}
+        />
+        <View style={{height: theme.spacing.fieldGap}} />
+        <StaffContentSelectField
+          label={MODULE_TEXT.labels.class}
+          onSelect={setStdClass}
+          options={classOptions}
+          placeholder={MODULE_TEXT.placeholders.class}
+          selected={stdClass}
+          theme={theme}
+        />
+        <View style={{height: theme.spacing.fieldGap}} />
+        <StaffContentSelectField
+          label={MODULE_TEXT.labels.section}
+          onSelect={setSection}
+          options={sectionOptions}
+          placeholder={MODULE_TEXT.placeholders.section}
+          selected={section}
+          theme={theme}
+        />
+        <View style={{height: theme.spacing.fieldGap}} />
+        <StaffContentSelectField
+          label={MODULE_TEXT.labels.subject}
+          onSelect={setSubject}
+          options={subjectOptions}
+          placeholder={MODULE_TEXT.placeholders.subject}
+          selected={subject}
+          theme={theme}
+        />
+        <View style={{height: theme.spacing.fieldGap}} />
+        <View
+          style={[
+            styles.formRow,
+            {flexDirection: stackColumns ? 'column' : 'row'},
+          ]}>
+          <View
+            style={[
+              styles.formCell,
+              !stackColumns ? {marginRight: theme.spacing.columnGap / 2} : null,
+            ]}>
+            <StaffContentDateField
+              date={fromDate}
+              label={MODULE_TEXT.labels.fromDate}
+              onChange={setFromDate}
+              theme={theme}
+            />
           </View>
-          <View style={{ flex: 1, marginLeft: resW(2) }}>
-            <DatePickerField label="From Date" date={fromDate} setDate={setFromDate} />
+          <View
+            style={[
+              styles.formCell,
+              !stackColumns
+                ? {marginLeft: theme.spacing.columnGap / 2}
+                : {marginTop: theme.spacing.fieldGap},
+            ]}>
+            <StaffContentDateField
+              date={toDate}
+              label={MODULE_TEXT.labels.toDate}
+              onChange={setToDate}
+              theme={theme}
+            />
           </View>
         </View>
-
-        <View style={{ marginTop: resH(5) }} />
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
-                    <LabelHeader label={'Add file +'} />
-                </TouchableOpacity>
-                   {selectedImage && (
-                    <View style={styles.imagePreviewContainer}>
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={styles.imagePreview}
-                            resizeMode="cover"
-                        />
-                        <TouchableOpacity
-                            onPress={() => setSelectedImage(null)}
-                            style={styles.removeImageButton}
-                        >
-                            <Image source={constant.Icons.CrossIcon} style={{
-                                width: resW(12), height
-                                    : resW(12), resizeMode: "contain"
-                            }} />
-                        </TouchableOpacity>
-                    </View>
-                )}
+        <StaffContentUploadAction
+          onPress={() => setModalVisible(true)}
+          theme={theme}
+          title={STAFF_CONTENT_TEXT.common.upload}
+        />
+        <StaffContentUploadPreview
+          onRemove={() => setSelectedImage(null)}
+          theme={theme}
+          uri={selectedImage}
+        />
+        <StaffContentPrimaryButton
+          onPress={updatePlanner}
+          style={{marginTop: theme.spacing.buttonTop}}
+          theme={theme}
+          title={STAFF_CONTENT_TEXT.common.update}
+        />
       </KeyboardAwareScrollView>
-<CommonModal
-  visible={modalVisible}
-  onClose={() => setModalVisible(false)}
-  title="Select Option"
-  options={[
-    { label: '📷 Open Camera', onPress: openCamera },
-    { label: '🖼️ Choose from Gallery', onPress: openGallery },
-  ]}
-/>
-      <View style={styles.fixedButton}>
-        <CommonButton title="Update" buttonClick={() => console.log("Update pressed")} />
-      </View>
-    </View>
+
+      <CommonModal
+        onClose={() => setModalVisible(false)}
+        options={[
+          {label: '📷 Open Camera', onPress: openCamera},
+          {label: '🖼️ Choose from Gallery', onPress: openGallery},
+        ]}
+        title="Select Option"
+        visible={modalVisible}
+      />
+    </StaffContentScaffold>
   );
 };
 
-export default StaffEditFornightlyPlanner;
-
 const styles = StyleSheet.create({
-  dateInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 0.1,
-    marginTop:resH(1),
-    borderColor: blackColor,
-    borderRadius: resH(0.3),
-    overflow: 'hidden',
-    height: resH(5.5),
-  },
-  inputStyle: {
-    height: resH(5.5),
-    color: blackColor,
-  },
-  dateText: {
+  formCell: {
     flex: 1,
-    paddingHorizontal: resW(2),
-    color: blackColor,
-    fontSize: font15,
   },
-  dateButton: {
-    paddingHorizontal: resW(3),
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: resH(5.5),
+  formRow: {
+    width: '100%',
   },
-  dateButtonText: {
-    color: blackColor,
-    fontSize: font15,
-  },
-  fixedButton: {
-    // Optional: position button at bottom
-  },
-   imagePreviewContainer: {
-        marginTop: resH(2),
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: "row"
-    },
-
-    imagePreview: {
-        width: resW(70),
-        height: resH(20),
-        borderRadius: resH(1),
-        borderWidth: 1,
-        borderColor: '#ccc',
-    },
-
-    removeImageButton: {
-        //   marginTop: resH(1),
-
-        paddingVertical: resH(0.8),
-        paddingHorizontal: resW(4),
-        borderRadius: resH(1),
-    },
-
-    removeImageText: {
-        color: whiteColor,
-        fontSize: font15,
-        fontWeight: '500',
-    },
-
 });
+
+export default StaffEditFornightlyPlanner;

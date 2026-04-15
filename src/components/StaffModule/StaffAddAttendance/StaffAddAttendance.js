@@ -1,219 +1,454 @@
-import React, { Component } from 'react';
-import { Text, View, Image, TouchableOpacity, Switch, FlatList } from 'react-native';
-import styles from './style';
-const baseColor = '#0747a6'
-import * as myConst from '../../Baseurl';
-import AsyncStorage from "@react-native-community/async-storage";
-import Snackbar from 'react-native-snackbar';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Snackbar from "react-native-snackbar";
 
+import staffApiClient from "../../../api/staffClient";
+import { useAppToast } from "../../common/AppToast";
+import { STRINGS } from "../../../constants";
+import AttendancePickerField from "../AttendanceShared/AttendancePickerField";
+import AttendanceScreen, {
+  AttendanceSurfaceCard,
+} from "../AttendanceShared/AttendanceScreen";
+import AttendanceSelectField from "../AttendanceShared/AttendanceSelectField";
+import AttendanceStudentRow from "../AttendanceShared/AttendanceStudentRow";
+import AttendanceStudentsCard from "../AttendanceShared/AttendanceStudentsCard";
+import {
+  formatAttendanceApiDate,
+  formatAttendanceDate,
+  formatAttendanceTime,
+} from "../AttendanceShared/attendanceHelpers";
+import attendanceTheme from "../AttendanceShared/attendanceTheme";
+import {
+  buildClassSectionMap,
+  fetchTeachingInfo,
+  filterAttendanceTeachingInfo,
+  getTeachingInfoClassOptions,
+  getTeachingSectionsForClass,
+} from "../../../Utils/teachingInfo";
 
-class StaffAddAttendance extends Component {
+const StaffAddAttendance = ({ navigation }) => {
+  const { showSuccessToast } = useAppToast();
+  const [loadingClasses, setLoadingClasses] = useState(false);
+  const [loadingSections, setLoadingSections] = useState(false);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [classSectionMap, setClassSectionMap] = useState({});
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [studentsFeedback, setStudentsFeedback] = useState(null);
+  const classOptions = useMemo(
+    () => getTeachingInfoClassOptions(classSectionMap),
+    [classSectionMap]
+  );
+  const sectionOptions = useMemo(
+    () => getTeachingSectionsForClass(classSectionMap, selectedClass),
+    [classSectionMap, selectedClass]
+  );
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false,
-            assignClass: '',
-            assignSection: '',
-            currentDate: '',
-            currentTime: '',
-            dataSource: [],
-            toggle: true,
-        }
+  const attendanceStrings = STRINGS.attendance;
+  const presentCount = students.filter((student) => student.isPresent).length;
+  const presentSummaryLabel =
+    students.length > 0
+      ? `${presentCount}/${students.length} ${attendanceStrings.status.present}`
+      : `0/0 ${attendanceStrings.status.present}`;
+  const emptyStateTitle =
+    studentsFeedback?.title || attendanceStrings.emptyStates.add.title;
+  const emptyStateDescription =
+    studentsFeedback?.description ||
+    attendanceStrings.emptyStates.add.description;
+  const emptyStateVariant = studentsFeedback?.variant || "default";
+
+  const handleClassSelect = useCallback((value) => {
+    console.log("[StaffAddAttendance] selectedClass:", value);
+    setSelectedClass(value);
+    setSelectedSection("");
+    setStudents([]);
+    setStudentsFeedback(null);
+  }, []);
+
+  const handleSectionSelect = useCallback((value) => {
+    console.log("[StaffAddAttendance] selectedSection:", value);
+    setSelectedSection(value);
+    setStudents([]);
+    setStudentsFeedback(null);
+  }, []);
+
+  const showMessage = useCallback((message) => {
+    Snackbar.show({
+      backgroundColor: attendanceTheme.colors.absent,
+      duration: Snackbar.LENGTH_SHORT,
+      text: message,
+    });
+  }, []);
+
+  const getTeachingInfoApi = useCallback(async () => {
+    try {
+      setLoadingClasses(true);
+      setLoadingSections(true);
+      const allTeachingInfo = await fetchTeachingInfo();
+      // Attendance: restrict to classes where this teacher is the class teacher
+      const teachingInfo = filterAttendanceTeachingInfo(allTeachingInfo);
+      const nextClassSectionMap = buildClassSectionMap(teachingInfo);
+
+      console.log("[StaffAddAttendance] classSectionMap:", nextClassSectionMap);
+      setClassSectionMap(nextClassSectionMap);
+    } catch (error) {
+      console.log(error);
+      showMessage("Unable to load teaching information right now.");
+    } finally {
+      setLoadingClasses(false);
+      setLoadingSections(false);
     }
+  }, [showMessage]);
 
+  useEffect(() => {
+    getTeachingInfoApi();
+  }, [getTeachingInfoApi]);
 
-    async componentDidMount() {
-        const assignclass = await AsyncStorage.getItem('@aclass')
-        const assignsection = await AsyncStorage.getItem('@asection')
+  useEffect(() => {
+    console.log("[StaffAddAttendance] sectionOptions:", {
+      selectedClass,
+      sectionOptions,
+    });
+  }, [sectionOptions, selectedClass]);
 
-        var today = new Date()
-        var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-        console.log('date', date)
-        console.log('time', time)
-
-        this.setState({
-            assignClass: assignclass,
-            assignSection: assignsection,
-            currentDate: date,
-            currentTime: time
-        })
-
-        this.getViewAttendanceApi()
+  useEffect(() => {
+    if (selectedSection && !sectionOptions.includes(selectedSection)) {
+      setSelectedSection("");
+      setStudents([]);
+      setStudentsFeedback(null);
     }
+  }, [sectionOptions, selectedSection]);
 
+  const getAddStudentsAttendanceApi = useCallback(
+    async (className, section, date) => {
+      try {
+        setLoadingStudents(true);
+        setStudentsFeedback(null);
 
-    showMessage(message) {
-        Snackbar.show({
-            text: message,
-            duration: Snackbar.LENGTH_SHORT,
-            backgroundColor: '#f15270'
+        const responseJson = await staffApiClient.post("addstudents_attendance", {
+          class_name: className,
+          class_section: section,
+          date,
         });
-    }
 
-
-
-    getViewAttendanceApi() {
-        console.log('called', this.state.assignClass)
-        console.log('called', this.state.assignSection)
-        console.log('called', this.state.currentDate)
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "class_name": this.state.assignClass,
-                "class_section": this.state.assignSection,
-                "date": this.state.currentDate,
+        if (responseJson.status) {
+          const normalizedStudents = (responseJson.data || []).map(
+            (student) => ({
+              ...student,
+              isPresent: true,
             })
+          );
+
+          setStudents(normalizedStudents);
+          return;
         }
-        fetch(myConst.BASEURL + 'viewattendance_studentlist', data)
-            .then((response) => response.json())
-            .then(async (responseJson) => {
-                if (responseJson.status === true) {
-                    console.log('responseJson-->>>', responseJson.data)
 
-                    let response = responseJson.data;
+        const responseMessage =
+          typeof responseJson.message === "string"
+            ? responseJson.message.trim()
+            : "";
 
-                    const newArray  = response.map(v => ({...v, isPresent: true}))
-                    console.log('newArray',newArray)
+        setStudents([]);
 
-                    this.setState({
-                        dataSource: newArray
-                    })
+        if (responseMessage.toLowerCase().includes("already marked")) {
+          setStudentsFeedback({
+            description: attendanceStrings.messages.alreadyMarkedDescription,
+            title: attendanceStrings.messages.alreadyMarkedTitle,
+            variant: "warning",
+          });
+          return;
+        }
 
-                } else if (responseJson.status === false) {
-                    this.showMessage(responseJson.message)
-                }
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
-    }
-
-
-
-    getSubmitAttendanceApi() {
-        let object = {}
-        this.state.dataSource.map(obj => {
-            if(obj.isPresent === true){
-                object[obj.std_roll] = 1
-            }
+        setStudentsFeedback({
+          description:
+            responseMessage || attendanceStrings.unableToLoadStudents,
+          title: attendanceStrings.messages.loadStudentsTitle,
+          variant: "warning",
         });
+      } catch (error) {
+        console.log(error);
+        setStudents([]);
+        setStudentsFeedback({
+          description: attendanceStrings.unableToLoadStudents,
+          title: attendanceStrings.messages.loadStudentsTitle,
+          variant: "warning",
+        });
+      } finally {
+        setLoadingStudents(false);
+      }
+    },
+    [attendanceStrings.messages, attendanceStrings.unableToLoadStudents]
+  );
 
-        console.log('called', object)
-        let data = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "class_name": this.state.assignClass,
-                "class_section": this.state.assignSection,
-                "date": this.state.currentDate,
-                "attendance" : JSON.stringify(object)
-            })
+  useEffect(() => {
+    if (!selectedClass || !selectedSection || !selectedDate) {
+      setStudents([]);
+      setStudentsFeedback(null);
+      return;
+    }
+
+    getAddStudentsAttendanceApi(
+      selectedClass,
+      selectedSection,
+      formatAttendanceApiDate(selectedDate)
+    );
+  }, [
+    getAddStudentsAttendanceApi,
+    selectedClass,
+    selectedDate,
+    selectedSection,
+  ]);
+
+  const toggleStudentAttendance = useCallback((studentRoll) => {
+    setStudents((currentStudents) =>
+      currentStudents.map((student) =>
+        student.std_roll === studentRoll
+          ? { ...student, isPresent: !student.isPresent }
+          : student
+      )
+    );
+  }, []);
+
+  const getSubmitAttendanceApi = useCallback(async () => {
+    try {
+      setSubmitting(true);
+
+      const payload = {};
+
+      students.forEach((student) => {
+        if (student.isPresent) {
+          payload[student.std_roll] = 1;
         }
-        console.log('entered')
-        fetch(myConst.BASEURL + 'submit_attendance', data)
-            .then((response) => response.json())
-            .then(async (responseJson) => {
-                if (responseJson.status === true) {
-                    console.log('responseJson-->', responseJson)
-                    this.showMessage(responseJson.message)
-                    this.props.navigation.navigate('StaffHome')
-                } else if (responseJson.status === false) {
-                    this.showMessage(responseJson.message)
+      });
+
+      const responseJson = await staffApiClient.post("submit_attendance", {
+        attendance: JSON.stringify(payload),
+        class_name: selectedClass,
+        class_section: selectedSection,
+        date: formatAttendanceApiDate(selectedDate),
+      });
+
+      if (responseJson.status) {
+        showSuccessToast({
+          message: attendanceStrings.successDescription,
+          title: attendanceStrings.successTitle,
+        });
+        navigation.navigate("StaffViewStudentAttendance", {
+          selectedClass,
+          selectedDate: selectedDate ? selectedDate.toISOString() : null,
+          selectedSection,
+        });
+        return;
+      }
+
+      showMessage(responseJson.message || attendanceStrings.submitFailed);
+    } catch (error) {
+      console.log(error);
+      showMessage(attendanceStrings.submitFailed);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [
+    selectedClass,
+    selectedDate,
+    selectedSection,
+    attendanceStrings.submitFailed,
+    navigation,
+    showSuccessToast,
+    showMessage,
+    students,
+  ]);
+
+  return (
+    <AttendanceScreen
+      onBackPress={() => navigation.goBack()}
+      title={attendanceStrings.addTitle}
+    >
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <AttendanceSurfaceCard style={styles.formCard}>
+          <View style={styles.fieldStack}>
+            <AttendanceSelectField
+              disabled={loadingClasses || classOptions.length === 0}
+              label={attendanceStrings.fields.class}
+              onSelect={handleClassSelect}
+              options={classOptions}
+              placeholder={
+                classOptions.length > 0
+                  ? attendanceStrings.placeholders.class
+                  : attendanceStrings.noClasses
+              }
+              value={selectedClass}
+            />
+
+            <AttendanceSelectField
+              disabled={!selectedClass || loadingSections || sectionOptions.length === 0}
+              label={attendanceStrings.fields.section}
+              onSelect={handleSectionSelect}
+              options={sectionOptions}
+              placeholder={
+                !selectedClass
+                  ? "Select Section"
+                  : sectionOptions.length > 0
+                  ? attendanceStrings.placeholders.section
+                  : "No Section Available"
+              }
+              value={selectedSection}
+            />
+
+            <AttendancePickerField
+              label={attendanceStrings.fields.date}
+              maximumDate={new Date()}
+              mode="date"
+              onConfirmValue={setSelectedDate}
+              pickerDate={selectedDate}
+              placeholder={attendanceStrings.placeholders.date}
+              value={formatAttendanceDate(selectedDate)}
+            />
+
+            <AttendancePickerField
+              label={attendanceStrings.fields.time}
+              mode="time"
+              onConfirmValue={setSelectedTime}
+              pickerDate={selectedTime}
+              placeholder={attendanceStrings.placeholders.time}
+              value={formatAttendanceTime(selectedTime)}
+            />
+          </View>
+        </AttendanceSurfaceCard>
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            {attendanceStrings.sectionTitle}
+          </Text>
+
+          <View style={styles.summaryPill}>
+            <Text style={styles.summaryText}>{presentSummaryLabel}</Text>
+          </View>
+        </View>
+
+        <AttendanceStudentsCard
+          description={emptyStateDescription}
+          emptyStateVariant={emptyStateVariant}
+          emptyTitle={emptyStateTitle}
+          hasContent={students.length > 0}
+          interactiveList
+          loading={loadingStudents}
+        >
+          <View>
+            {students.map((student, index) => (
+              <AttendanceStudentRow
+                compact
+                interactive
+                isLast={index === students.length - 1}
+                key={String(student.std_roll)}
+                name={student.Student_name}
+                onPress={() => toggleStudentAttendance(student.std_roll)}
+                statusKey={student.isPresent ? "present" : "absent"}
+                statusLabel={
+                  student.isPresent
+                    ? attendanceStrings.status.present
+                    : attendanceStrings.status.absent
                 }
-            })
-            .catch((error) => console.log(error))
-            .finally(() => {
-                this.setState({ isLoading: false });
-            })
-    }
+              />
+            ))}
+          </View>
+        </AttendanceStudentsCard>
 
+        {students.length > 0 ? (
+          <Pressable
+            accessibilityRole="button"
+            android_ripple={{
+              color: attendanceTheme.colors.ripple,
+              borderless: false,
+            }}
+            disabled={submitting}
+            onPress={getSubmitAttendanceApi}
+            style={({ pressed }) => [
+              styles.submitButton,
+              (pressed || submitting) && styles.submitButtonPressed,
+            ]}
+          >
+            <Text style={styles.submitButtonText}>
+              {attendanceStrings.submit}
+            </Text>
+          </Pressable>
+        ) : (
+          <View style={styles.footerSpacer} />
+        )}
+      </ScrollView>
+    </AttendanceScreen>
+  );
+};
 
-    selectToggleSwitch(value, index){
-        console.log(index, value)
-        let arr = this.state.dataSource
-        arr[index].isPresent = value
-        this.setState({dataSource: arr})
-    }
-
-
-    render() {
-        return (
-            <View style={styles.MainContainer}>
-                <View style={styles.HeaderBackground}>
-                    <View style={styles.HeaderStyle}>
-                        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                            <Image style={styles.HeaderArrowImage}
-                                source={require('../../../assests/images/leftarrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.HeaderText}>Add Attendance</Text>
-                        <View></View>
-                    </View>
-                </View>
-
-                <View style={styles.RowStyle}>
-                    <View style={styles.RowStyle}>
-                        <Text style={styles.TextStyle}>Class : </Text>
-                        <Text style={styles.NormalTextStyle}>{this.state.assignClass}</Text>
-                    </View>
-                    <View style={styles.RowStyle}>
-                        <Text style={styles.TextStyle}>Section : </Text>
-                        <Text style={styles.NormalTextStyle}>{this.state.assignSection}</Text>
-                    </View>
-                </View>
-                <View style={styles.RowStyle}>
-                    <View style={styles.RowStyle}>
-                        <Text style={styles.TextStyle}>Date : </Text>
-                        <Text style={styles.NormalTextStyle}>{this.state.currentDate}</Text>
-                    </View>
-                    <View style={styles.RowStyle}>
-                        <Text style={styles.TextStyle}>Time : </Text>
-                        <Text style={styles.NormalTextStyle}>{this.state.currentTime}</Text>
-                    </View>
-                </View>
-
-                <FlatList
-
-                    data={this.state.dataSource}
-
-                    renderItem={({ item, index }) =>
-                        <View style={styles.FlatStyle}>
-
-                            <View style={styles.CardviewStyle}>
-                                <Text style={styles.FlatListTextStyle}>{item.Student_name}</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={"#f4f3f4"}
-                                    onValueChange={(value) => this.selectToggleSwitch(value,index)}
-                                    value={item.isPresent}
-                                />
-                            </View>
-                            <View style={styles.HorizontalLine}></View>
-                        </View>
-                    }
-                    keyExtractor={(item, index) => index}
-                />
-
-                <TouchableOpacity
-                 style={styles.submitButton2}
-                    onPress={() => this.getSubmitAttendanceApi()}
-                >
-                    <Text style={styles.submitButton}>Submit</Text>
-                </TouchableOpacity>
-
-            </View>
-        )
-    }
-
-}
+const styles = StyleSheet.create({
+  listContent: {
+    paddingBottom: attendanceTheme.spacing.screenBottom,
+  },
+  formCard: {
+    marginBottom: attendanceTheme.spacing.sectionGap,
+  },
+  fieldStack: {
+    gap: attendanceTheme.spacing.fieldGap,
+  },
+  sectionTitle: {
+    color: attendanceTheme.colors.textPrimary,
+    fontFamily: attendanceTheme.fontFamily.label,
+    fontSize: attendanceTheme.typography.fieldLabel,
+  },
+  sectionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: Math.round(attendanceTheme.spacing.fieldGap * 0.72),
+    marginTop: Math.round(attendanceTheme.spacing.sectionTitleTop * 0.6),
+  },
+  summaryPill: {
+    alignItems: "center",
+    backgroundColor: attendanceTheme.colors.attendanceSummarySurface,
+    borderRadius: Math.round(
+      attendanceTheme.layout.summaryPillMinHeight * 0.38
+    ),
+    justifyContent: "center",
+    minHeight: Math.round(attendanceTheme.layout.summaryPillMinHeight * 0.76),
+    paddingHorizontal: Math.round(
+      attendanceTheme.spacing.summaryPillHorizontal * 0.78
+    ),
+    paddingVertical: Math.round(
+      attendanceTheme.spacing.summaryPillVertical * 0.5
+    ),
+  },
+  summaryText: {
+    color: attendanceTheme.colors.headerStart,
+    fontFamily: attendanceTheme.fontFamily.label,
+    fontSize: attendanceTheme.typography.fieldLabel,
+  },
+  submitButton: {
+    alignItems: "center",
+    backgroundColor: attendanceTheme.colors.headerStart,
+    borderRadius: attendanceTheme.radius.button,
+    height: attendanceTheme.layout.submitButtonHeight,
+    justifyContent: "center",
+    marginTop: attendanceTheme.spacing.buttonTop,
+  },
+  submitButtonPressed: {
+    opacity: 0.94,
+  },
+  submitButtonText: {
+    color: attendanceTheme.colors.headerText,
+    fontFamily: attendanceTheme.fontFamily.button,
+    fontSize: attendanceTheme.typography.button,
+  },
+  footerSpacer: {
+    height: attendanceTheme.spacing.screenBottom,
+  },
+});
 
 export default StaffAddAttendance;

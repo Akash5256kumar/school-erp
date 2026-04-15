@@ -1,0 +1,70 @@
+export const LIBRARY_COPY = {
+  title: "Library",
+  detailsTitle: "Book Details",
+  detailsHeading: "Details of the Book :",
+  tabs: {
+    issued: "Issued Book",
+    library: "Library Book",
+  },
+  searchPlaceholder: "Search here",
+  writtenByPrefix: "Written by",
+  emptyLibrary: "No books found.",
+  emptyIssued: "No issued books found.",
+  emptyDetails: "No book details found.",
+};
+
+export const LEAVE_COPY = {
+  listTitle: "Leaves",
+  emptyList: "No leave requests found.",
+  detailsTitle: "Leave Details",
+  detailsHeading: "Details of the Leave :",
+  addTitle: "New Leave",
+  summaryLabels: {
+    casual: "Casual",
+    earn: "Earn",
+    sick: "Sick",
+    suffix: "Leaves",
+  },
+  status: {
+    pending: "Pending",
+    approved: "Approved",
+    cancelled: "Cancelled",
+  },
+  fields: {
+    leaveType: "Leave Type",
+    userName: "Username",
+    subject: "Subject",
+    startDate: "Start Date",
+    endDate: "End Date",
+    description: "Description",
+    status: "Status",
+    createdAt: "Created At",
+    attachment: "Attachment",
+    remark: "Remark",
+    type: "Type",
+    from: "From",
+    to: "To",
+    attachFile: "Attach a file",
+  },
+  form: {
+    leaveTypePlaceholder: "Select Leave Type",
+    subjectPlaceholder: "Please enter Subject..",
+    descriptionPlaceholder: "Please enter Description...",
+    applyAction: "Apply Leave",
+    options: ["Casual Leave", "Earn Leave", "Sick Leave"],
+  },
+  picker: {
+    camera: "Choose from Camera",
+    gallery: "Pick from Gallery",
+    cancel: "Cancel",
+  },
+  validation: {
+    leaveType: "Please select leave Type.",
+    startDate: "Please select start Date.",
+    endDate: "Please select end Date.",
+    subject: "Please enter subject.",
+    description: "Please enter description.",
+    network:
+      "Network error. Please check your internet connection and try again.",
+  },
+};

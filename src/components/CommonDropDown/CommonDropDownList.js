@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { blackColor, font10, font15, font16, font17, font18, font20, resH, resW, whiteColor } from '../../Utils/Constant';
+import React, { useRef, useState } from "react";
+import {
+  Dimensions,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  colors,
+  componentSizes,
+  radii,
+  shadows,
+  spacing,
+  typography,
+} from "../../constants";
+import { blackColor, whiteColor } from "../../Utils/Constant";
 
-const complaintTypes = [
-  { label: "Service", value: "service" },
-  { label: "Product", value: "product" },
-  { label: "Delivery", value: "delivery" },
-  { label: "Other", value: "other" }
-];
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 export const CustomDropdown = ({
-  data,
+  data = [],
   selected,
   onSelect,
   placeholder = "",
@@ -19,117 +31,201 @@ export const CustomDropdown = ({
   isOpen: controlledIsOpen,
   toggleOpen: controlledToggleOpen,
 }) => {
-  // Use internal state only if parent does not control the dropdown
   const [internalOpen, setInternalOpen] = useState(false);
+  const [anchorFrame, setAnchorFrame] = useState(null);
+  const triggerRef = useRef(null);
 
-  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
-  const toggleOpen = controlledToggleOpen !== undefined
-    ? controlledToggleOpen
-    : () => setInternalOpen(prev => !prev);
+  const isDisabled = !data || data.length === 0;
+
+  const isOpen =
+    controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
+  const shouldShowDropdown = !isDisabled && isOpen && Boolean(anchorFrame);
+
+  const setOpenState = (nextOpen) => {
+    if (controlledToggleOpen !== undefined) {
+      if (Boolean(isOpen) !== nextOpen) {
+        controlledToggleOpen();
+      }
+      return;
+    }
+
+    setInternalOpen(nextOpen);
+  };
+
+  const closeDropdown = () => {
+    setOpenState(false);
+  };
+
+  const openDropdown = () => {
+    if (isDisabled || !triggerRef.current?.measureInWindow) {
+      return;
+    }
+
+    triggerRef.current.measureInWindow((x, y, width, height) => {
+      const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
+      const horizontalInset = spacing.md;
+      const dropdownWidth = clamp(width, 160, windowWidth - horizontalInset * 2);
+      const estimatedHeight = componentSizes.inputHeight * 4.5;
+      const belowTop = y + height + spacing.xs;
+      const openAbove = belowTop + estimatedHeight > windowHeight - horizontalInset;
+      const top = openAbove
+        ? Math.max(horizontalInset, y - estimatedHeight - spacing.xs)
+        : belowTop;
+      const left = clamp(
+        x,
+        horizontalInset,
+        windowWidth - horizontalInset - dropdownWidth
+      );
+
+      setAnchorFrame({
+        height,
+        maxHeight: Math.max(componentSizes.inputHeight * 2, windowHeight - horizontalInset * 2),
+        top,
+        width: dropdownWidth,
+        x: left,
+        y,
+      });
+      setOpenState(true);
+    });
+  };
+
+  const toggleOpen = () => {
+    if (isOpen) {
+      closeDropdown();
+      return;
+    }
+
+    openDropdown();
+  };
 
   return (
     <View style={styles.wrapper}>
-      <TouchableOpacity
-        style={[styles.inputStyle, inputWidth, isOpen && { borderColor: blackColor }]}
-        activeOpacity={0.7}
-        onPress={toggleOpen}
-      >
-        <Text style={[styles.selectedText, !selected && styles.placeholderText]} numberOfLines={1} ellipsizeMode="tail">
-          {selected ? selected.label : placeholder}
-        </Text>
-        <Text style={styles.arrow}>▼</Text>
-      </TouchableOpacity>
+      <View collapsable={false} ref={triggerRef}>
+        <TouchableOpacity
+          activeOpacity={isDisabled ? 1 : 0.7}
+          onPress={toggleOpen}
+          style={[
+            styles.inputStyle,
+            inputWidth,
+            isOpen && { borderColor: blackColor },
+            isDisabled && styles.disabledInput,
+          ]}
+        >
+          <Text
+            style={[
+              styles.selectedText,
+              !selected && styles.placeholderText,
+              isDisabled && styles.disabledText,
+            ]}
+            numberOfLines={1}
+          >
+            {selected ? selected : placeholder}
+          </Text>
 
-      {isOpen && (
-        <ScrollView style={[styles.dropdown, dropWidth]} keyboardShouldPersistTaps="handled">
-          {data.map(item => (
-            <TouchableOpacity
-              key={item.value}
-              style={styles.option}
-              onPress={() => {
-                onSelect(item);
-                toggleOpen(); // close after selection
-              }}
+          <Text style={[styles.arrow, isDisabled && styles.disabledText]}>▼</Text>
+        </TouchableOpacity>
+      </View>
+
+      {shouldShowDropdown ? (
+        <Modal animationType="fade" transparent visible>
+          <View style={styles.modalRoot}>
+            <Pressable onPress={closeDropdown} style={styles.backdrop} />
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              style={[
+                styles.dropdown,
+                dropWidth,
+                {
+                  left: anchorFrame.x,
+                  maxHeight: anchorFrame.maxHeight,
+                  top: anchorFrame.top,
+                  width: anchorFrame.width,
+                },
+              ]}
             >
-              <Text style={styles.optionText}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      )}
+              {data.map((item, index) => (
+                <TouchableOpacity
+                  key={`${String(item)}-${index}`}
+                  style={styles.option}
+                  onPress={() => {
+                    onSelect(item);
+                    closeDropdown();
+                  }}
+                >
+                  <Text numberOfLines={2} style={styles.optionText}>{item}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </Modal>
+      ) : null}
     </View>
   );
 };
 
-
-// export default function App() {
-//   const [selected, setSelected] = useState(null);
-
-//   return (
-//     <CustomDropdown
-//       data={complaintTypes}
-//       selected={selected}
-//       onSelect={setSelected}
-//       placeholder="Select Complaint Type"
-//     />
-//   );
-// }
-
 const styles = StyleSheet.create({
-  wrapper: {
-    // marginHorizontal: 16,
-    marginTop: resH(1),
+  disabledInput: {
+    backgroundColor: "#f2f2f2",
+    borderColor: colors.border,
   },
-  label: {
-    marginBottom: resH(0.5),
-    fontSize: 14,
-    color: "#222",
-    fontWeight: "bold",
+
+  disabledText: {
+    color: "#999",
+  },
+
+  wrapper: {
+    marginTop: spacing.sm,
+  },
+  modalRoot: {
+    flex: 1,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
   },
   inputStyle: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    height: resH(5.5),
+    minHeight: componentSizes.inputHeight,
     backgroundColor: whiteColor,
-    borderColor: blackColor,
-    borderWidth: 0.2,
-    borderRadius: resW(1),
-    paddingHorizontal: resW(4),
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radii.pill,
+    paddingHorizontal: componentSizes.controlHorizontalPadding,
   },
   selectedText: {
     color: "black",
-    fontSize: font15,
+    fontSize: typography.fontRegular,
     flex: 1,
+    minWidth: 0,
     textAlign: "left",
   },
   placeholderText: {
     color: blackColor,
-    fontSize:font15
+    fontSize: typography.fontRegular,
   },
   arrow: {
     color: blackColor,
-    marginLeft: resW(1),
-    fontSize: font17,
+    marginLeft: spacing.sm,
+    fontSize: typography.fontMedium,
   },
   dropdown: {
     position: "absolute",
-    top: resH(6),
-    left: 0,
-    right: 0,
     backgroundColor: whiteColor,
-    borderRadius: 8,
-    borderColor: blackColor,
-    borderWidth: 0.2,
-    maxHeight: resH(20),
+    borderRadius: radii.md,
+    borderColor: colors.border,
+    borderWidth: 1,
+    maxHeight: componentSizes.inputHeight * 4.5,
     zIndex: 100,
-    // elevation: 2,
+    ...shadows.light,
   },
   option: {
-    paddingVertical: resW(2),
-    paddingHorizontal: resW(4),
+    paddingVertical: spacing.md,
+    paddingHorizontal: componentSizes.controlHorizontalPadding,
   },
   optionText: {
     color: "black",
-    fontSize: font15,
-  }
+    flexShrink: 1,
+    fontSize: typography.fontRegular,
+  },
 });

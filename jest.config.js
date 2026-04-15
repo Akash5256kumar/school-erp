@@ -1,3 +1,52 @@
 module.exports = {
   preset: 'react-native',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  clearMocks: true,
+  collectCoverageFrom: [
+    'App.tsx',
+    'src/api/**/*.js',
+    'src/hooks/**/*.js',
+    'src/store/**/*.js',
+    'src/navigation/AppNavigator.js',
+    'src/Utils/errorMessages.js',
+    'src/Utils/index.js',
+    'src/Utils/storage.js',
+    'src/constants/**/*.js',
+    'src/components/common/**/*.js',
+    'src/components/CommonHeader.js',
+    'src/components/Splash.js',
+    'src/components/RoleScreen/RoleSelectionScreen.js',
+    'src/components/StudentModule/Login/Login.js',
+    '!src/**/style.js',
+    '!src/**/styles.js',
+    '!src/**/Styles.js',
+    '!src/navigation/screenRegistry.js',
+  ],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/android/',
+    '/ios/',
+    '/vendor/',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+  moduleNameMapper: {
+    '\\.(gif|jpg|jpeg|png|svg|ttf)$': '<rootDir>/test-utils/fileMock.js',
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!((jest-)?react-native|@react-native|@react-navigation|react-redux|@react-native-community)/)',
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/android/',
+    '/ios/',
+    '/vendor/',
+    '/__tests__/__mocks__/',
+  ],
 };

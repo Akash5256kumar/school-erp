@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, ScrollView, Image, BackHandler, Pressable, FlatList, ActivityIndicator } from 'react-native';
-import { Calendar } from 'react-native-calendars';
-import AsyncStorage from "@react-native-community/async-storage";
+import { Text, View, Pressable, FlatList } from 'react-native';
 import styles from './HomeScreenStyle';
-import Header from '../../Header/Header';
 import { LocaleConfig } from 'react-native-calendars';
 import * as myConst from '../../Baseurl';
 import moment from 'moment';
 import { resW } from '../../../Utils/Constant';
-import { useSelector } from 'react-redux';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
 import AppCalender from '../../UIComponent/AppCalender';
 
 LocaleConfig.locales['en'] = {
@@ -25,9 +22,7 @@ LocaleConfig.locales['en'] = {
 LocaleConfig.defaultLocale = 'en';
 
 const HomeCalender = ({ navigation }) => {
-    const userData = useSelector(state=>state.userSlice.userData)
-    const usertoken = useSelector(state=>state.userSlice.token)
-
+    const {token: usertoken, userData} = useStudentAuth();
     const [markedDates, setMarkedDates] = useState({});
     const [strClass, setStrClass] = useState('');
     const [strSection, setStrSection] = useState('');
@@ -49,6 +44,10 @@ const HomeCalender = ({ navigation }) => {
  
     // Load data on mount
     useEffect(() => {
+        if (!usertoken || !userData?.Student_class || !userData?.Student_section || !userData?.std_roll) {
+            return;
+        }
+
         (async () => {
             const classes = userData?.Student_class;
             const sectionn = userData?.Student_section;
@@ -60,7 +59,7 @@ const HomeCalender = ({ navigation }) => {
 
             attendanceApi(moment().format("YYYY-MM-DD"),1, classes, sectionn, rollno);
         })();
-    }, []);
+    }, [usertoken, userData?.Student_class, userData?.Student_section, userData?.std_roll]);
 
     const attendanceApi = useCallback((dateString,type, cls = strClass, sec = strSection, roll = strRollNo) => {
         setLoader(true)
@@ -83,7 +82,7 @@ const HomeCalender = ({ navigation }) => {
             .then(res => res.json())
             .then(responseJson => {
                 console.log('eventres',JSON.stringify(responseJson))
-                const { attendancedate, holidays, absent_dates, event_dates, events, holiday_details } = responseJson;
+                const { attendancedate = [], holidays = [], absent_dates = [], event_dates = [], events = [], holiday_details = [], totalworkindays_inmonth, monthtotal_presentdata } = responseJson;
 
                 let rv = {};
                 let rv2 = {};
@@ -95,9 +94,9 @@ const HomeCalender = ({ navigation }) => {
                 event_dates.forEach(d => { rv2[d] = { marked: true, dotColor: '#01C7AE' }; });
 
                 setMarkedDates(rv);
-                setTotalWorkingDays(responseJson.totalworking_days);
-                setTotalPresentDays(responseJson.totalpresentday);
-                setTotalAbsentDays(responseJson.totalworking_days - responseJson.totalpresentday);
+                setTotalWorkingDays(totalworkindays_inmonth);
+                setTotalPresentDays(monthtotal_presentdata);
+                setTotalAbsentDays(totalworkindays_inmonth - monthtotal_presentdata);
                 setEventMarkDate(rv2);
                 setEventData(events);
                 setHolidayData(holiday_details);
@@ -180,11 +179,6 @@ const HomeCalender = ({ navigation }) => {
       function formatDate(dateString) {
         const date = new Date(dateString);
         const day = getOrdinal(date.getDate());
-        const month = date.toLocaleString("en-US", { month: "long" });
-      
-        // if (dateString === "2025-08-23") {
-        //   return `${day} `; // Special day
-        // }
         return `${day} `;
       }
 
@@ -211,96 +205,93 @@ const HomeCalender = ({ navigation }) => {
                 </Pressable>
             </View>
 
-            <ScrollView>
-                {active ? (
+            {active ? (
                     <View>
-                        <AppCalender
-                         markData={markedDates}
-                         current={selectedDate}
-                         monthString={currentDate}
-                         fn_ClickLeftArrow={(d)=>fnMonthClick(d)}
-                         fn_ClickRightArrow={(d)=>fnMonthClick(d)}
-                         onDateClick={(d)=>setSelectedDate(d?.dateString)}
-                         loader={loader}
-                        />
-                      
-                      <View style={{marginHorizontal:resW(4),flexDirection:'row',marginTop:resW(2),marginBottom:resW(2)}}>
-                        {/* <Text style={styles.dateStyle}>{formatDate(selectedDate)}{'\n'}{moment(selectedDate).format("MMMM")}</Text> */}
-                        <View  style={{flex:1}}>
-
-                        <View style={styles.TodayDaysView}>
-                                <View style={styles.TotalWorkingDaysContainer}>
-                                    <Text style={styles.TotalDaysText}>Total Present</Text>
-                                    {totalPresentDays && 
-                                    <View style={[styles.WorkingDaysBlueBackground]}>
-                                        <Text style={styles.WorkingDaysNumberText}>{totalPresentDays}</Text>
-                                    </View>}
-                                </View>
-                            </View> 
-
-                             <View style={[styles.TodayDaysView,{marginTop:resW(2)}]}>
-                                <View style={styles.TotalWorkingDaysContainer}>
-                                    <Text style={styles.TotalDaysText}>Total Absent</Text>
-                                    {totalAbsentDays && 
-                                    <View style={[styles.WorkingDaysBlueBackground,{backgroundColor:'red'}]}>
-                                        <Text style={styles.WorkingDaysNumberText}>{totalAbsentDays}</Text>
-                                    </View>}
-                                </View>
-                            </View>    
-
-                            <View style={[styles.TodayDaysView,{marginTop:resW(2)}]}>
-                                <View style={styles.TotalWorkingDaysContainer}>
-                                    <Text style={styles.TotalDaysText}>Total Working Days</Text>
-                                   {totalWorkingDays && 
-                                   <View style={[styles.WorkingDaysBlueBackground,{backgroundColor:'#A902FE'}]}>
-                                        <Text style={styles.WorkingDaysNumberText}>{totalWorkingDays}</Text>
-                                    </View>}
-                                </View>
-                            </View>  
+                        <View style={styles.calendarCard}>
+                            <AppCalender
+                             markData={markedDates}
+                             current={selectedDate}
+                             monthString={currentDate}
+                             fn_ClickLeftArrow={(d)=>fnMonthClick(d)}
+                             fn_ClickRightArrow={(d)=>fnMonthClick(d)}
+                             onDateClick={(d)=>setSelectedDate(d?.dateString)}
+                             loader={loader}
+                            />
                         </View>
-                      </View>
+
+                        <View style={styles.summaryGrid}>
+                            <View style={styles.summaryCard}>
+                                <Text style={styles.summaryLabel}>Present Days</Text>
+                                <View style={styles.summaryValuePill}>
+                                    <Text style={styles.summaryValueText}>{totalPresentDays || 0}</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.summaryCard}>
+                                <Text style={styles.summaryLabel}>Absent Days</Text>
+                                <View style={[styles.summaryValuePill, styles.summaryDangerPill]}>
+                                    <Text style={styles.summaryValueText}>{totalAbsentDays || 0}</Text>
+                                </View>
+                            </View>
+
+                            <View style={[styles.summaryCard, styles.summaryCardWide]}>
+                                <Text style={styles.summaryLabel}>Working Days</Text>
+                                <View style={[styles.summaryValuePill, styles.summaryAccentPill]}>
+                                    <Text style={styles.summaryValueText}>{totalWorkingDays || 0}</Text>
+                                </View>
+                            </View>
+                        </View>
                     </View>
                 ) : (
                     <View>          
-                        <AppCalender
-                         markData={getMarkedDatesForEventCalendar()}
-                         current={selectedDate}
-                         monthString={currentDate}
-                         fn_ClickLeftArrow={(d)=>fnMonthClick(d)}
-                         fn_ClickRightArrow={(d)=>fnMonthClick(d)}
-                         loader={loader}
-                         onDateClick={(d)=>{
-                            setSelectedDate(d?.dateString)
-                            fnDayClick(d?.dateString)
-                         }}
-                        />
-                      { eventsResult.length >0 && <View style={{marginHorizontal:resW(4),flexDirection:'row',marginTop:resW(2),marginBottom:resW(2)}}>
-                       <Text style={styles.dateStyle}>{formatDate(selectedDate)}{'\n'}{moment(selectedDate).format("MMMM")}</Text>
+                        <View style={styles.calendarCard}>
+                            <AppCalender
+                             markData={getMarkedDatesForEventCalendar()}
+                             current={selectedDate}
+                             monthString={currentDate}
+                             fn_ClickLeftArrow={(d)=>fnMonthClick(d)}
+                             fn_ClickRightArrow={(d)=>fnMonthClick(d)}
+                             loader={loader}
+                             onDateClick={(d)=>{
+                                setSelectedDate(d?.dateString)
+                                fnDayClick(d?.dateString)
+                             }}
+                            />
+                        </View>
 
-                        <View style={{flex:1}}>
+                        <View style={styles.eventsPanel}>
+                            <View style={styles.eventsPanelHeader}>
+                                <Text style={styles.eventsDayText}>{formatDate(selectedDate)}</Text>
+                                <Text style={styles.eventsMonthText}>{moment(selectedDate).format("MMMM")}</Text>
+                            </View>
 
-                           
+                            {eventsResult.length > 0 ? (
                                 <FlatList
                                     data={eventsResult}
                                     renderItem={({ item }) => (
-                                        <View style={[styles.eventCardView, { backgroundColor: item?.type === 'event' ? '#01C7AE' : "#E35FAA" }]}>
+                                        <View style={[
+                                            styles.eventCardView,
+                                            item?.type === 'event' ? styles.eventCardSuccess : styles.eventCardHoliday,
+                                        ]}>
                                             <Text numberOfLines={1} style={styles.eventCartText}>
-                                                {item?.type === 'event' ? capitalizeFirstLetter(item?.event_name) : capitalizeFirstLetter(item?.title)}
+                                                {item?.type === 'event'
+                                                    ? capitalizeFirstLetter(item?.event_name)
+                                                    : capitalizeFirstLetter(item?.title)}
                                             </Text>
-                                            {/* <Text style={styles.eventCartDes}>
-                                                {item?.type === 'event' ? capitalizeFirstLetter(item?.event_description) : capitalizeFirstLetter(item?.holiday_de)}
-                                            </Text> */}
                                         </View>
                                     )}
-                                    ItemSeparatorComponent={()=><View style={{ height: resW(2) }} />}
-                                    ListFooterComponent={() => <View style={{ height: resW(3) }} />}
+                                    ItemSeparatorComponent={() => <View style={styles.eventSeparator} />}
+                                    ListFooterComponent={() => <View style={styles.eventFooter} />}
+                                    scrollEnabled={false}
                                 />
-                          
+                            ) : (
+                                <View style={styles.emptyEventsCard}>
+                                    <Text style={styles.noEventText}>No holiday or event scheduled for this day.</Text>
+                                </View>
+                            )}
                         </View>
-                        </View>}
                     </View>
                 )}
-            </ScrollView>
         </View>
     );
 };

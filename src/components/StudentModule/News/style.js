@@ -10,6 +10,10 @@ export default styles = StyleSheet.create({
         // backgroundColor: '#FFFFFF'
     },
 
+    listContent: {
+        paddingBottom: constant.resW(8),
+    },
+
     FlatListView: {
         // overflow: 'hidden',
         // paddingBottom: 5,
@@ -44,21 +48,23 @@ export default styles = StyleSheet.create({
     },
 
     CardViewStyle: {
-        flex: 3, display: 'flex', flexDirection: 'row', justifyContent: 'space-around',alignItems:'center'
+        alignItems:'center',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        minHeight: constant.resW(22),
+        paddingHorizontal: constant.resW(5),
+        paddingVertical: constant.resW(5),
     },
 
     CardView: {
         backgroundColor: '#fff',
-        // height: 140,
         shadowColor: '#000',
         shadowOffset: { width: 1 , height: 1 },
         shadowOpacity: 0.2,
         shadowRadius: 9,
         elevation: 1,
-        // marginStart: 5,
-        // marginEnd: 15,
         borderRadius: 8,
-       
     },
 
     TextViewStyle: {
@@ -84,8 +90,11 @@ export default styles = StyleSheet.create({
         marginEnd: 10
     },
 
-    DateText: {
-        fontSize: 16, color: 'grey'
+    summaryText: {
+        color: constant.baseTextColor,
+        fontFamily: constant.typeRegular,
+        fontSize: constant.font13,
+        marginTop: constant.resW(1.5),
     },
 
     LinkText: {
@@ -93,22 +102,17 @@ export default styles = StyleSheet.create({
     },
 
     DocImageAndTextStyle: {
-        flex: 2, display: 'flex', flexDirection: 'row',
-         justifyContent: 'space-between',alignItems:'center',
-         paddingVertical:'4.5%'
+        alignItems:'center',
+        display: 'flex',
+        flex: 1,
+        flexDirection: 'row',
     },
 
     GreenStatusBackground: {
         alignItems:'center',
         justifyContent:'center',
-        paddingHorizontal:'4%'
-        // backgroundColor: '#28a745',
-        // borderRadius: 15,
-        // height: 35,
-        // marginTop: 10,
-        // marginEnd: 10,
-        // paddingStart: 12,
-        // paddingEnd: 12
+        marginStart: constant.resW(3),
+        paddingHorizontal:'1%',
     },
 
     RedStatusBackground: {
@@ -147,6 +151,20 @@ export default styles = StyleSheet.create({
     eyeIcon:{
         height: constant.resW(6),
         width: constant.resW(6),
+    },
+
+    newsListIcon: {
+        height: constant.resW(9),
+        marginEnd: constant.resW(4),
+        width: constant.resW(9),
+    },
+
+    emptyText: {
+        color: constant.baseTextColor,
+        fontFamily: constant.typeMedium,
+        fontSize: constant.font15,
+        marginTop: constant.resW(18),
+        textAlign: 'center',
     },
 
 })

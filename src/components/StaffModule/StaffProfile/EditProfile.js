@@ -1,205 +1,579 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
-import CommonHeader from '../../CommonHeader';
-import { Blue, whiteColor } from '../../../Utils/Constant';
-import * as constant from '../../../Utils/Constant';
-import CustomInputField from '../../CommonInputField/CommonTextField';
-import LabelHeader from '../../labelHeader';
-import CommonButton from '../../Button/CommonButton';
-import CommonModal from '../../CommonModal/CommonModal';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import AsyncStorage from "@react-native-community/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { Camera, Image as ImageIcon } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+
+import CommonHeader from "../../CommonHeader";
+import { useAppToast } from "../../common/AppToast";
+import {
+  REMOTE_FILE_BASE_URL,
+  STORAGE_KEYS,
+  STRINGS,
+} from "../../../constants";
+import { uploadFile } from "../../../Utils";
+import * as constant from "../../../Utils/Constant";
+import { updateProfileRequestSuccess } from "../../../store/slices/userSlice";
+import ProfileFormField from "./ProfileFormField";
+import ProfileHeroCircle from "./ProfileHeroCircle";
+import ProfileOptionModal from "./ProfileOptionModal";
+import ProfilePrimaryButton from "./ProfilePrimaryButton";
+import createStaffProfileTheme from "./profileTheme";
+
+const CONTACT_KEYS = ["mobile", "phone", "phone_no", "contact_no", "phoneno"];
+const IMAGE_KEYS = ["image", "staff_image", "staffimage", "profile_image"];
+
+const sanitizeMobileNumber = (value) =>
+  String(value || "")
+    .replace(/\D/g, "")
+    .slice(0, 10);
+
+const resolveFirstAvailableValue = (source, keys = []) => {
+  if (!source || typeof source !== "object") {
+    return "";
+  }
+
+  const matchedKey = keys.find((key) => source?.[key]);
+  return matchedKey ? source[matchedKey] : "";
+};
+
+const resolveRemoteImageUri = (value) => {
+  const normalized = String(value || "").trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (
+    normalized.startsWith("http://") ||
+    normalized.startsWith("https://") ||
+    normalized.startsWith("file://") ||
+    normalized.startsWith("content://")
+  ) {
+    return normalized;
+  }
+
+  return `${REMOTE_FILE_BASE_URL}${normalized.replace(/^\/+/, "")}`;
+};
+
+const buildUpdatedUserData = ({ currentUserData, image, mobile, name }) => ({
+  ...(currentUserData || {}),
+  contact_no: mobile,
+  image: image || currentUserData?.image || currentUserData?.staff_image || "",
+  mobile,
+  name: name || currentUserData?.name || "",
+  phone: mobile,
+  phone_no: mobile,
+  phoneno: mobile,
+  staff_image:
+    image || currentUserData?.staff_image || currentUserData?.image || "",
+  staffimage:
+    image || currentUserData?.staffimage || currentUserData?.image || "",
+});
+
 const EditStaffProfile = () => {
-  const [teacherEmail, setTeacherEmail] = useState('');
-  const [teacherRole, setTeacherRole] = useState('');
-  const [assignClass, setAssignClass] = useState('');
-  const [assignSection, setAssignSection] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-const [selectedImage, setSelectedImage] = useState(null);
-const navigation=useNavigation()
-  const [isVisible, setVisible] = useState(false)
-  const openCamera = async () => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
+  const userData = useSelector((state) => state.userSlice.userData);
+  const { showSuccessToast } = useAppToast();
+  const { height, width } = useWindowDimensions();
+  const theme = useMemo(
+    () => createStaffProfileTheme({ height, width }),
+    [height, width]
+  );
+  const screenTheme = theme.screens.editProfile;
+  const screenStrings = STRINGS.staffProfile.editProfile;
+
+  const [teacherEmail, setTeacherEmail] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [initialMobileNumber, setInitialMobileNumber] = useState("");
+  const [teacherName, setTeacherName] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImageAsset, setSelectedImageAsset] = useState(null);
+  const [isVisible, setVisible] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+
+  const openCamera = useCallback(async () => {
     setVisible(false);
+
     try {
       const result = await launchCamera({
-        mediaType: 'photo',
         includeBase64: false,
+        mediaType: "photo",
         saveToPhotos: true,
       });
 
-      if (result.didCancel) {
-        console.log('User cancelled camera');
-        return;
-      }
-      if (result.errorCode) {
-        console.log('Camera error: ', result.errorMessage);
+      if (result.didCancel || result.errorCode) {
         return;
       }
 
-      if (result?.assets && result.assets.length > 0) {
-        const imageUri = result.assets[0].uri;
-        console.log('Captured image: ', imageUri);
-        setSelectedImage(imageUri);
+      if (result?.assets?.length) {
+        setSelectedImage(result.assets[0].uri);
+        setSelectedImageAsset(result.assets[0]);
       }
     } catch (error) {
-      console.log('Camera launch error:', error);
+      console.log("Camera launch error:", error);
     }
-  };
-  const openGallery = async () => {
+  }, []);
+
+  const openGallery = useCallback(async () => {
     setVisible(false);
+
     try {
       const result = await launchImageLibrary({
-        mediaType: 'photo',
         includeBase64: false,
+        mediaType: "photo",
       });
 
-      if (result.didCancel) {
-        console.log('User cancelled gallery picker');
-        return;
-      }
-      if (result.errorCode) {
-        console.log('Gallery error: ', result.errorMessage);
+      if (result.didCancel || result.errorCode) {
         return;
       }
 
-      if (result?.assets && result.assets.length > 0) {
-        const imageUri = result.assets[0].uri;
-        console.log('Selected image: ', imageUri);
-        setSelectedImage(imageUri);
+      if (result?.assets?.length) {
+        setSelectedImage(result.assets[0].uri);
+        setSelectedImageAsset(result.assets[0]);
       }
     } catch (error) {
-      console.log('Gallery launch error:', error);
+      console.log("Gallery launch error:", error);
     }
-  };
-  const loadData = async () => {
+  }, []);
+
+  const loadData = useCallback(async () => {
     try {
-      const name = await AsyncStorage.getItem('@name');
-      const email = await AsyncStorage.getItem('@email');
-      const role = await AsyncStorage.getItem('@role');
-      const assignclass = await AsyncStorage.getItem('@aclass');
-      const assignsection = await AsyncStorage.getItem('@asection');
+      const [storedName, storedEmail, rawUserData] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.name),
+        AsyncStorage.getItem(STORAGE_KEYS.email),
+        AsyncStorage.getItem(STORAGE_KEYS.userData),
+      ]);
+      const persistedUserData = rawUserData ? JSON.parse(rawUserData) : {};
+      const source =
+        userData && typeof userData === "object" ? userData : persistedUserData;
+      const resolvedName =
+        source?.name ||
+        source?.staff_name ||
+        source?.full_name ||
+        storedName ||
+        "";
+      const resolvedEmail = source?.email || storedEmail || "";
+      const resolvedMobile = sanitizeMobileNumber(
+        resolveFirstAvailableValue(source, CONTACT_KEYS)
+      );
+      const resolvedImage = resolveRemoteImageUri(
+        resolveFirstAvailableValue(source, IMAGE_KEYS)
+      );
 
-      if (name) {
-        const first = name.split(' ').slice(0, -1).join(' ');
-        const last = name.split(' ').slice(-1).join(' ');
-        setFirstName(first);
-        setLastName(last);
-      }
-
-      setTeacherEmail(email || '');
-      setTeacherRole(role || '');
-      setAssignClass(assignclass || '');
-      setAssignSection(assignsection || '');
+      setTeacherName(resolvedName);
+      setTeacherEmail(resolvedEmail);
+      setMobileNumber(resolvedMobile);
+      setInitialMobileNumber(resolvedMobile);
+      setSelectedImage(resolvedImage);
+      setSelectedImageAsset(null);
     } catch (error) {
-      console.error('Error loading profile data:', error);
+      console.error("Error loading profile data:", error);
     }
-  };
+  }, [userData]);
 
   useEffect(() => {
     loadData();
+  }, [loadData]);
+
+  const imageOptions = useMemo(
+    () => [
+      {
+        backgroundColor: theme.colors.cameraOptionBackground,
+        Icon: Camera,
+        iconGradient: [
+          theme.colors.cameraOptionIconStart,
+          theme.colors.cameraOptionIconEnd,
+        ],
+        key: "camera",
+        label: screenStrings.imagePicker.camera,
+        onPress: openCamera,
+      },
+      {
+        backgroundColor: theme.colors.galleryOptionBackground,
+        Icon: ImageIcon,
+        iconGradient: [
+          theme.colors.galleryOptionIconStart,
+          theme.colors.galleryOptionIconEnd,
+        ],
+        key: "gallery",
+        label: screenStrings.imagePicker.gallery,
+        onPress: openGallery,
+      },
+    ],
+    [
+      openCamera,
+      openGallery,
+      screenStrings.imagePicker.camera,
+      screenStrings.imagePicker.gallery,
+      theme.colors.cameraOptionBackground,
+      theme.colors.cameraOptionIconEnd,
+      theme.colors.cameraOptionIconStart,
+      theme.colors.galleryOptionBackground,
+      theme.colors.galleryOptionIconEnd,
+      theme.colors.galleryOptionIconStart,
+    ]
+  );
+
+  const handleMobileChange = useCallback((value) => {
+    setMobileNumber(sanitizeMobileNumber(value));
   }, []);
 
+  const handleUpdate = useCallback(async () => {
+    const normalizedMobile = sanitizeMobileNumber(mobileNumber);
+    const hasImageChanged = Boolean(selectedImageAsset?.uri);
+    const hasMobileChanged = normalizedMobile !== initialMobileNumber;
+
+    if (!normalizedMobile) {
+      constant.showAlert(screenStrings.validation.missingMobile);
+      return;
+    }
+
+    if (normalizedMobile.length !== 10) {
+      constant.showAlert(screenStrings.validation.invalidMobile);
+      return;
+    }
+
+    if (!userData?.staff_info_id) {
+      constant.showAlert(
+        "Staff profile details are missing. Please log in again."
+      );
+      return;
+    }
+
+    if (!hasImageChanged && !hasMobileChanged) {
+      constant.showAlert(screenStrings.validation.noChanges);
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const response = await uploadFile(
+        "updateStaffProfile",
+        selectedImageAsset?.uri
+          ? {
+              uri: selectedImageAsset.uri,
+              name: selectedImageAsset.fileName || "staff-profile.jpg",
+              type: selectedImageAsset.type || "image/jpeg",
+            }
+          : null,
+        {
+          id: String(userData?.staff_info_id),
+          mobile: normalizedMobile,
+        },
+        "image"
+      );
+
+      if (!response?.status) {
+        constant.showAlert(response?.message || "Profile update failed");
+        return;
+      }
+
+      const responseData = response?.data || {};
+      const nextUserData = buildUpdatedUserData({
+        currentUserData: userData,
+        image: responseData?.image,
+        mobile: responseData?.mobile || normalizedMobile,
+        name: responseData?.name || teacherName,
+      });
+
+      await AsyncStorage.multiSet([
+        [STORAGE_KEYS.name, nextUserData?.name || teacherName || ""],
+        [STORAGE_KEYS.email, nextUserData?.email || teacherEmail || ""],
+        [STORAGE_KEYS.userData, JSON.stringify(nextUserData)],
+      ]);
+
+      dispatch(updateProfileRequestSuccess(nextUserData));
+
+      setMobileNumber(responseData?.mobile || normalizedMobile);
+      setInitialMobileNumber(responseData?.mobile || normalizedMobile);
+      setSelectedImage(
+        resolveRemoteImageUri(responseData?.image) || selectedImage
+      );
+      setSelectedImageAsset(null);
+
+      showSuccessToast({
+        message: response?.message || screenStrings.validation.successMessage,
+        title: screenStrings.validation.successTitle,
+      });
+      navigation.goBack();
+    } catch (error) {
+      console.log("Update staff profile error:", error);
+      constant.showAlert(error?.message || "Profile update failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [
+    dispatch,
+    initialMobileNumber,
+    mobileNumber,
+    navigation,
+    screenStrings.validation.invalidMobile,
+    screenStrings.validation.missingMobile,
+    screenStrings.validation.noChanges,
+    screenStrings.validation.successMessage,
+    screenStrings.validation.successTitle,
+    selectedImage,
+    selectedImageAsset,
+    showSuccessToast,
+    teacherEmail,
+    teacherName,
+    userData,
+  ]);
+
   return (
-    <View style={{ flex: 1, backgroundColor: whiteColor }}>
-      <CommonHeader
-        title="Edit Profile"
-        backgroundColor={Blue}
-        textColor={whiteColor}
-        IconColor={whiteColor}
-                     onLeftClick={() => navigation.goBack()} 
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: theme.colors.headerGradientEnd,
+        },
+      ]}
+    >
+      <StatusBar
+        backgroundColor={theme.colors.headerGradientEnd}
+        barStyle="light-content"
       />
-      <KeyboardAwareScrollView
-        contentContainerStyle={{ paddingBottom: constant.resH(5), paddingTop: constant.resH(2) }}
-        enableOnAndroid={true}
-        keyboardOpeningTime={0}
-        keyboardShouldPersistTaps="handled"
-        extraScrollHeight={constant.resH(10)}
+
+      <View
+        style={[
+          styles.screen,
+          {
+            backgroundColor: theme.colors.screenBackground,
+          },
+        ]}
       >
-        <View style={styles.profileContainer}>
-          <View style={styles.imageWrapper}>
-  <Image
-    source={selectedImage ? { uri: selectedImage } : constant.Icons.profileimg}
-    style={styles.profileImage}
-  />
-  <TouchableOpacity style={styles.edit} onPress={() => setVisible(true)}>
-    <Image
-      source={constant.Icons.edit}
-      style={{
-        width: constant.resW(4),
-        height: constant.resW(4),
-        tintColor: Blue,
-      }}
-    />
-  </TouchableOpacity>
-</View>
+        <CommonHeader
+          IconColor={theme.colors.headerText}
+          backgroundColor={theme.colors.headerGradientEnd}
+          compact
+          extStyle={{
+            height: screenTheme.headerHeight,
+            marginTop: 0,
+          }}
+          iconStyle={{
+            height: screenTheme.headerIconSize,
+            marginTop: 0,
+            width: screenTheme.headerIconSize,
+          }}
+          onLeftClick={() => navigation.goBack()}
+          textColor={theme.colors.headerText}
+          title={screenStrings.title}
+          titleStyle={[
+            theme.typography.headerTitle,
+            {
+              fontSize: screenTheme.headerTitleFontSize,
+            },
+          ]}
+        />
 
-        </View>
+        <KeyboardAwareScrollView
+          alwaysBounceVertical={false}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              minHeight: theme.sizing.scrollMinHeight + insets.bottom,
+              paddingBottom: theme.spacing.formBottom + insets.bottom,
+              paddingHorizontal: theme.spacing.contentHorizontal,
+              paddingTop: screenTheme.formTop,
+            },
+          ]}
+          enableAutomaticScroll
+          enableOnAndroid
+          extraScrollHeight={theme.spacing.sectionGap}
+          keyboardOpeningTime={0}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          style={styles.scrollView}
+        >
+          <View
+            style={[
+              styles.content,
+              {
+                maxWidth: theme.sizing.formMaxWidth,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.heroSection,
+                {
+                  marginBottom: screenTheme.heroGap,
+                },
+              ]}
+            >
+              <ProfileHeroCircle
+                imageUri={selectedImage}
+                onOverlayPress={() => setVisible(true)}
+                overlayColors={[
+                  theme.colors.headerGradientStart,
+                  theme.colors.headerGradientEnd,
+                ]}
+                overlayIconSize={theme.sizing.avatarHeroActionIconSize}
+                OverlayIcon={Camera}
+                size={theme.sizing.avatarHeroSize}
+                theme={theme}
+              />
+            </View>
 
-        <View style={styles.formContainer}>
+            <View
+              style={[
+                styles.formFields,
+                {
+                  gap: screenTheme.fieldGap,
+                },
+              ]}
+            >
+              <ProfileFormField
+                editable={false}
+                inputShellStyle={{
+                  borderRadius: screenTheme.fieldRadius,
+                  height: screenTheme.fieldHeight,
+                }}
+                inputTopGap={screenTheme.inputTopGap}
+                inputStyle={{
+                  fontSize: screenTheme.fieldValueFontSize,
+                }}
+                label={screenStrings.fields.name}
+                labelStyle={{
+                  fontSize: screenTheme.fieldLabelFontSize,
+                }}
+                placeholder={screenStrings.placeholders.name}
+                theme={theme}
+                value={teacherName}
+              />
 
+              <ProfileFormField
+                editable={false}
+                inputShellStyle={{
+                  borderRadius: screenTheme.fieldRadius,
+                  height: screenTheme.fieldHeight,
+                }}
+                inputTopGap={screenTheme.inputTopGap}
+                inputStyle={{
+                  fontSize: screenTheme.fieldValueFontSize,
+                }}
+                keyboardType="email-address"
+                label={screenStrings.fields.email}
+                labelStyle={{
+                  fontSize: screenTheme.fieldLabelFontSize,
+                }}
+                placeholder={screenStrings.placeholders.email}
+                theme={theme}
+                value={teacherEmail}
+              />
 
-          <LabelHeader label="Name" textstyle={{ marginTop: constant.resW(2) }} />
-          <CustomInputField value={lastName} onChangeText={setLastName} inputStyle={{ height: constant.resH(6) }} />
+              <ProfileFormField
+                inputShellStyle={{
+                  borderRadius: screenTheme.fieldRadius,
+                  height: screenTheme.fieldHeight,
+                }}
+                inputTopGap={screenTheme.inputTopGap}
+                inputStyle={{
+                  fontSize: screenTheme.fieldValueFontSize,
+                }}
+                keyboardType="phone-pad"
+                label={screenStrings.fields.contact}
+                labelStyle={{
+                  fontSize: screenTheme.fieldLabelFontSize,
+                }}
+                onChangeText={handleMobileChange}
+                placeholder={screenStrings.placeholders.contact}
+                theme={theme}
+                value={mobileNumber}
+              />
+            </View>
 
-          <LabelHeader label="Email" textstyle={{ marginTop: constant.resW(2) }} />
-          <CustomInputField value={teacherEmail} editable={false} inputStyle={{ height: constant.resH(6) }} />
+            <View
+              style={[
+                styles.buttonWrapper,
+                {
+                  marginTop: screenTheme.buttonTop,
+                },
+              ]}
+            >
+              <ProfilePrimaryButton
+                onPress={isSubmitting ? undefined : handleUpdate}
+                theme={{
+                  ...theme,
+                  radii: {
+                    ...theme.radii,
+                    primaryButton: screenTheme.buttonRadius,
+                  },
+                  sizing: {
+                    ...theme.sizing,
+                    primaryButtonHeight: screenTheme.buttonHeight,
+                  },
+                  typography: {
+                    ...theme.typography,
+                    buttonLabel: {
+                      ...theme.typography.buttonLabel,
+                      fontSize: screenTheme.buttonLabelFontSize,
+                    },
+                  },
+                }}
+                title={screenStrings.updateAction}
+              />
+            </View>
+          </View>
+        </KeyboardAwareScrollView>
 
-          <LabelHeader label="Contact" textstyle={{ marginTop: constant.resW(2) }} />
-          <CustomInputField value={assignClass} onChangeText={setAssignClass} inputStyle={{ height: constant.resH(6) }} />
-
-          <View style={{ marginTop: constant.resW(5) }} />
-          <CommonButton title="Update" buttonClick={() => console.log("update")} />
-        </View>
-
-        <CommonModal visible={isVisible} onClose={() => setVisible(false)}
-          title="Select Option"
-          options={[
-            { label: '📷 Open Camera', onPress: openCamera },
-            { label: '🖼️ Choose from Gallery', onPress: openGallery },
-          ]} />
-      </KeyboardAwareScrollView>
-
-    </View>
+        <ProfileOptionModal
+          closeLabel={screenStrings.imagePicker.close}
+          modalTheme={screenTheme.imagePicker}
+          onClose={() => setVisible(false)}
+          options={imageOptions}
+          theme={theme}
+          title={screenStrings.imagePicker.title}
+          visible={isVisible}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default EditStaffProfile;
-
 const styles = StyleSheet.create({
-  profileContainer: {
-    alignItems: 'center',
-    marginVertical: constant.resH(4),
+  buttonWrapper: {
+    width: "100%",
   },
-  imageWrapper: {
-    position: 'relative',
+  content: {
+    alignSelf: "center",
+    width: "100%",
   },
-  formContainer: {
-    marginHorizontal: constant.resW(5),
+  formFields: {
+    width: "100%",
   },
-  profileImage: {
-    width: constant.resW(35),
-    height: constant.resW(35),
-    borderRadius: constant.resW(17.5),
-    // borderWidth: 2,
-    // borderColor: Blue,
+  heroSection: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
   },
-  edit: {
-    position: 'absolute',
-    bottom: -constant.resH(0.5),
-    right: constant.resW(6),
-    width: constant.resW(8),
-    height: constant.resW(8),
-    backgroundColor: whiteColor,
-    borderRadius: constant.resW(4),
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
+  safeArea: {
+    flex: 1,
   },
-  horizontalSpace: {
-    marginHorizontal: constant.resW(5),
-    height: constant.resW(18)
-  }
+  screen: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    width: "100%",
+  },
+  scrollView: {
+    flex: 1,
+  },
 });
+
+export default EditStaffProfile;

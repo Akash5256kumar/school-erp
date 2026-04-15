@@ -6,12 +6,12 @@ import * as myConst from '../../Baseurl';
 import * as constant from '../../../Utils/Constant';
 import CommonHeader from '../../CommonHeader';
 import style from './style';
-import { useSelector } from 'react-redux';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
 const Notification = ({ navigation }) => {
   const [dataSource, setDataSource] = useState([]);
   const [stdRoll, setStdRoll] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const usertoken = useSelector(state=>state.userSlice.token)
+  const {token: usertoken} = useStudentAuth()
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Window background shown instantly when the app launches.
+  Persists until React Native draws its first frame (including the entire
+  Metro "Bundling X%..." period in dev mode).
+  Uses the actual app logo PNG — works on all API levels (no adaptive-icon issue).
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+
+    <!-- White background -->
+    <item>
+        <color android:color="@color/launch_background" />
+    </item>
+
+    <!-- Medium-sized logo centered on the white launch screen -->
+    <item
+        android:width="132dp"
+        android:height="132dp"
+        android:gravity="center">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/app_logo" />
+    </item>
+
+</layer-list>

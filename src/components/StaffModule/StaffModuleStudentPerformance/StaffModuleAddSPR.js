@@ -1,514 +1,788 @@
-import { StyleSheet, Text, View, TouchableOpacity, Pressable } from 'react-native'
-import React, { useState } from 'react'
-import { useNavigation ,useRoute} from '@react-navigation/native';
-import CommonHeader from '../../CommonHeader';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-    blackColor,
-    font12,
-    font14,
-    font15_5,
-    font16,
-    resH,
-    resW,
-    SilverColor,
-    whiteColor,
-    Blue
-} from '../../../Utils/Constant';
-import * as constant from '../../../Utils/Constant';
-import LabelHeader from '../../labelHeader';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { CustomDropdown } from '../../CommonDropDown/CommonDropDownList';
-import CustomInputField from '../../CommonInputField/CommonTextField';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import CommonButton from '../../Button/CommonButton';
-const classOptions = [
-    { label: 'Class 9', value: 'class9' },
-    { label: 'Class 10', value: 'class10' },
-];
-const sectionOptions = [
-    { label: 'Section A', value: 'A' },
-    { label: 'Section B', value: 'B' },
-];
-const DatePickerField = ({ date, setDate }) => {
-    const [showPicker, setShowPicker] = useState(false);
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
-    const onChange = (event, selectedDate) => {
-        setShowPicker(Platform.OS === 'ios');
-        if (selectedDate) {
-            setDate(selectedDate);
-        }
-    };
+import { apiRequest } from "../../../Utils";
+import {
+  fetchStaffProfileTeachingInfo,
+  filterAttendanceTeachingInfo,
+  sortTeachingClasses,
+  sortTeachingValues,
+} from "../../../Utils/teachingInfo";
+import { apiClient } from "../../../api";
+import StaffAcademicScaffold from "../StaffAcademicShared/StaffAcademicScaffold";
+import {
+  StaffAcademicDateField,
+  StaffAcademicSelectField,
+  StaffAcademicTextField,
+} from "../StaffAcademicShared/StaffAcademicFields";
+import { useAppToast } from "../../common/AppToast";
+import {
+  AcademicActionButton,
+  AcademicChoiceGrid,
+  AcademicSurfaceCard,
+} from "../StaffAcademicShared/StaffAcademicPrimitives";
+import { ACADEMIC_TEXT } from "../StaffAcademicShared/staffAcademicConfig";
+import createAcademicTheme from "../StaffAcademicShared/staffAcademicTheme";
 
-    const formattedDate = date ? date.toLocaleDateString() : 'Select Date';
+const SPR_TEXT = ACADEMIC_TEXT.spr;
+const COMMON_TEXT = ACADEMIC_TEXT.common;
+const PERFORMANCE_GROUPS = ACADEMIC_TEXT.sprPerformanceGroups;
 
-    return (
-        <View style={{ marginBottom: resH(1) }}>
-            <View style={styles.dateInputContainer}>
-                <Text style={[styles.dateText, !date && { color: blackColor }]}>{formattedDate}</Text>
-                <TouchableOpacity
-                    style={styles.dateButton}
-                    onPress={() => setShowPicker(true)}
-                >
-                    <Text style={styles.dateButtonText}>▼</Text>
-                </TouchableOpacity>
-            </View>
-            {showPicker && (
-                <DateTimePicker
-                    value={date || new Date()}
-                    mode="date"
-                    display="default"
-                    onChange={onChange}
-                />
-            )}
-        </View>
-    );
-};
-const CommonRadioGroup = ({ label, options, selected, onSelect }) => {
-    return (
-        <View style={{ marginTop: resH(1) }}>
-            <View style={styles.radioGroupContainer}>
-                {options.map((option, index) => (
-                    <TouchableOpacity
-                        key={index}
-                        style={styles.radioOption}
-                        onPress={() => {
-                            // Toggle selection: if already selected, deselect it
-                            if (selected === option.value) {
-                                onSelect(null); // or onSelect('') depending on your state
-                            } else {
-                                onSelect(option.value);
-                            }
-                        }}
-                        activeOpacity={0.8}
-                    >
-                        <View style={styles.radioOuter}>
-                            {selected === option.value && <View style={styles.radioInner} />}
-                        </View>
-                        <Text style={styles.radioText}>{option.label}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-        </View>
-    );
-};
+const buildSubjectsFromNames = (names = []) =>
+  names.map((subject) => ({
+    remarks: "",
+    status: "",
+    subject,
+  }));
+
+const createInitialRatings = () => ({
+  punctuality: "",
+  uniform: "",
+  homework: "",
+  classwork: "",
+  classInteraction: "",
+  discipline: "",
+  performanceAcademics: "",
+  performanceSports: "",
+  performanceCultural: "",
+  strength: "",
+});
+
+const getPerformanceGroupTitleStyle = (theme) => ({
+  color: theme.colors.secondaryText,
+  fontFamily: theme.typography.sectionTitle.fontFamily,
+  fontSize: theme.typography.body.fontSize,
+  marginBottom: theme.spacing.labelGap,
+});
+
+const getSubjectsTitleStripStyle = (theme) => ({
+  backgroundColor: theme.colors.apply,
+  paddingHorizontal: theme.spacing.cardHorizontal,
+  paddingVertical: theme.spacing.labelGap * 1.1,
+});
+
+const getSubjectsTitleStyle = (theme) => ({
+  color: theme.colors.white,
+  fontFamily: theme.typography.sectionTitle.fontFamily,
+  fontSize: theme.typography.sectionTitle.fontSize,
+});
+
+const getSubjectTableHeaderStyle = (theme) => ({
+  backgroundColor: theme.colors.tableHeader,
+  flexDirection: "row",
+  paddingHorizontal: theme.spacing.cardHorizontal * 0.65,
+  paddingVertical: theme.spacing.labelGap,
+});
+
+const getSubjectHeaderCellStyle = (theme, index) => ({
+  color: theme.colors.white,
+  fontFamily: theme.typography.tableHeader.fontFamily,
+  fontSize: theme.typography.tableHeader.fontSize,
+  paddingHorizontal: index === 0 ? 0 : theme.spacing.tableCellPadding * 0.4,
+  textAlign: index === 0 ? "center" : "left",
+});
+
+const getSubjectRowStyle = (theme) => ({
+  alignItems: "center",
+  borderBottomColor: theme.colors.subtleDivider,
+  borderBottomWidth: theme.borderWidth.hairline,
+  flexDirection: "row",
+  paddingHorizontal: theme.spacing.cardHorizontal * 0.65,
+  paddingVertical: theme.spacing.labelGap,
+});
+
+const getSubjectInputStyle = (theme) => ({
+  backgroundColor: theme.colors.surface,
+  borderColor: theme.colors.border,
+  borderRadius: theme.radius.action * 0.8,
+  borderWidth: theme.borderWidth.regular,
+  color: theme.colors.fieldText,
+  fontFamily: theme.typography.fieldValue.fontFamily,
+  fontSize: theme.typography.fieldValue.fontSize,
+  height: theme.layout.tableInputHeight,
+  marginHorizontal: theme.spacing.tableCellPadding * 0.2,
+  paddingHorizontal: theme.spacing.tableCellPadding,
+  textAlign: "left",
+});
 
 const StaffModuleAddSPR = () => {
-    const [publishDate, setPublishDate] = useState(null);
-    const [classVal, setClassVal] = useState(null);
-    const [openDropdown, setOpenDropdown] = useState(null);
-    const [section, setSection] = useState(null);
-    const [punctuality, setPunctuality] = useState('');
-    const [uniform, setuniform] = useState('')
-    const navigation = useNavigation();
+  const navigation = useNavigation();
+  const route = useRoute();
+  const userData = useSelector((state) => state.userSlice.userData);
+  const { showSuccessToast } = useAppToast();
+  const { height, width } = useWindowDimensions();
+  const theme = createAcademicTheme({ height, width, variant: "spr" });
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const isEdit = route.params?.isEdit || false;
 
-    // Additional state for all fields
-    const [homework, setHomework] = useState('');
-    const [classwork, setClasswork] = useState('');
-    const [classInteraction, setClassInteraction] = useState('');
-    const [discipline, setDiscipline] = useState('');
-    const [performance, setPerformance] = useState('');
-    const [performanceOverall, setPerformanceOverall] = useState('');
-    const [strength, setStrength] = useState('');
-    const [sports, setSports] = useState('');
-    const [cultural, setCultural] = useState('');
+  const teacherName =
+    userData?.name ||
+    userData?.staff_name ||
+    userData?.full_name ||
+    userData?.teacher ||
+    "";
 
+  const [publishDate, setPublishDate] = useState(null);
+  const [classValue, setClassValue] = useState("");
+  const [section, setSection] = useState("");
+  const [teachingInfo, setTeachingInfo] = useState([]);
+  const [studentList, setStudentList] = useState([]); // [{ label, std_roll, name }]
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
+  const [basicInfo, setBasicInfo] = useState({
+    admissionNo: "",
+    areasOfConcern: "",
+    classTeacher: teacherName,
+    studentName: "",
+    wardensComment: "",
+  });
+  const [ratings, setRatings] = useState(createInitialRatings);
+  const [subjects, setSubjects] = useState([]);
 
-    // Options for all fields
-    const homeworkOptions = [
-        { label: 'Always Complete', value: 'always_complete' },
-        { label: 'Partially Complete', value: 'partially_complete' },
-        { label: 'Complete', value: 'complete' },
-        { label: 'Not Complete', value: 'not_complete' },
-        { label: 'No Response', value: 'no_response' },
-    ];
-
-    const classworkOptions = [
-        { label: 'Always Complete', value: 'always_complete' },
-        { label: 'Average', value: 'average' },
-        { label: 'Not Regular', value: 'not_regular' },
-        { label: 'Non Attentive', value: 'non_attentive' },
-    ];
-
-    const classInteractionOptions = [
-        { label: 'Regular, Attentive & Sincere', value: 'regular_attentive' },
-        { label: 'Average', value: 'average' },
-        { label: 'No Interaction', value: 'no_interaction' },
-    ];
-
-    const disciplineOptions = [
-        { label: 'Disciplined & Obedient', value: 'disciplined_obedient' },
-        { label: 'Good', value: 'good' },
-        { label: 'Average', value: 'average' },
-        { label: 'Needs to Improve', value: 'needs_to_improve' },
-    ];
-
-    const performanceOptions = [
-        { label: 'Overall Good/Academically', value: 'good_academic' },
-        { label: 'Average', value: 'average' },
-        { label: 'Needs to Work Hard', value: 'needs_work_hard' },
-    ];
-
-    const performanceOverallOptions = [
-        { label: 'Overall Good Academically/Otherwise', value: 'good_academic_otherwise' },
-        { label: 'Average', value: 'average' },
-        { label: 'Needs to Work Hard', value: 'needs_work_hard' },
-    ];
-
-    const strengthOptions = [
-        { label: 'Intellectually Balanced & Socialized', value: 'balanced_socialized' },
-        { label: 'Regular and Punctual', value: 'regular_punctual' },
-        { label: 'Attentive in Class', value: 'attentive_class' },
-        { label: 'Follows Instructions', value: 'follows_instructions' },
-    ];
-    const subjectsInitial = [
-        { subject: 'English', status: '', remarks: '' },
-        { subject: 'Hindi', status: '', remarks: '' },
-        { subject: 'Science', status: '', remarks: '' },
-        { subject: 'Social Science', status: '', remarks: '' },
-        { subject: 'Computer', status: '', remarks: '' },
-        { subject: 'Sanskrit', status: '', remarks: '' },
-        { subject: 'French', status: '', remarks: '' },
-        { subject: 'Maths', status: '', remarks: '' },
-    ];
-
-    const [subjects, setSubjects] = useState(subjectsInitial);
-
-    const handleSubjectChange = (index, field, value) => {
-        const updatedSubjects = [...subjects];
-        updatedSubjects[index][field] = value;
-        setSubjects(updatedSubjects);
+  useEffect(() => {
+    const getTeachingInfo = async () => {
+      try {
+        const info = await fetchStaffProfileTeachingInfo(userData?.staff_info_id);
+        setTeachingInfo(filterAttendanceTeachingInfo(info));
+      } catch (error) {
+        console.log("getTeachingInfo API Error", error);
+      }
     };
 
-    const toggleDropdown = (key) => {
-        setOpenDropdown((prev) => (prev === key ? null : key));
-    };
-        const route = useRoute();
-    const isEdit = route.params?.isEdit || false;
-    return (
-        <View style={{ flex: 1, backgroundColor: whiteColor }}>
-            <CommonHeader
-                  title={isEdit ? "Edit SPR" : "Add SPR"}  
-                backgroundColor={Blue}
-                textColor={whiteColor}
-                IconColor={whiteColor}
-                onLeftClick={() => {
-                    navigation.goBack();
-                }} />
-            <KeyboardAwareScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={{ paddingBottom: resH(5) }}
-                enableOnAndroid={true}
-                keyboardOpeningTime={0}
-                keyboardShouldPersistTaps="handled"
+    if (userData?.staff_info_id) {
+      getTeachingInfo();
+    }
+  }, [userData?.staff_info_id]);
+
+  useEffect(() => {
+    if (teacherName) {
+      setBasicInfo((prev) => ({
+        ...prev,
+        classTeacher: prev.classTeacher || teacherName,
+      }));
+    }
+  }, [teacherName]);
+
+  const classOptions = useMemo(
+    () =>
+      sortTeachingClasses([
+        ...new Set(
+          (teachingInfo || []).map((item) => item?.class).filter(Boolean)
+        ),
+      ]),
+    [teachingInfo]
+  );
+
+  const sectionOptions = useMemo(() => {
+    if (!classValue) {
+      return [];
+    }
+
+    return sortTeachingValues([
+      ...new Set(
+        (teachingInfo || [])
+          .filter((item) => item?.class === classValue)
+          .map((item) => item?.section)
+          .filter(Boolean)
+      ),
+    ]);
+  }, [classValue, teachingInfo]);
+
+  useEffect(() => {
+    if (classValue && !classOptions.includes(classValue)) {
+      setClassValue("");
+    }
+  }, [classOptions, classValue]);
+
+  useEffect(() => {
+    setSection("");
+    setStudentList([]);
+    setBasicInfo((prev) => ({ ...prev, admissionNo: "", studentName: "" }));
+  }, [classValue]);
+
+  useEffect(() => {
+    if (section && !sectionOptions.includes(section)) {
+      setSection("");
+    }
+    setStudentList([]);
+    setBasicInfo((prev) => ({ ...prev, admissionNo: "", studentName: "" }));
+  }, [section, sectionOptions]);
+
+  const fetchStudents = useCallback(async (cls, sec) => {
+    try {
+      setLoadingStudents(true);
+      setStudentList([]);
+      setBasicInfo((prev) => ({ ...prev, admissionNo: "", studentName: "" }));
+
+      const res = await apiRequest(
+        `class-data?class=${encodeURIComponent(cls)}&section=${encodeURIComponent(sec)}`,
+        "GET"
+      );
+      const records = res?.data?.students?.records || [];
+      console.log("[fetchStudents] sample record:", JSON.stringify(records[0]));
+      const mapped = records.map((s) => {
+        const studentName =
+          s.Student_name ||
+          s.student_name ||
+          s.name ||
+          s.full_name ||
+          s.Name ||
+          "";
+        const roll = String(s.std_roll || s.roll_no || s.roll || "");
+        const label = studentName && roll
+          ? `${studentName} (${roll})`
+          : studentName || roll;
+        return { label, name: studentName, std_roll: roll };
+      }).filter((s) => s.label);
+      setStudentList(mapped);
+    } catch (error) {
+      console.log("fetchStudents Error", error);
+      setStudentList([]);
+    } finally {
+      setLoadingStudents(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (classValue && section) {
+      fetchStudents(classValue, section);
+    }
+  }, [classValue, section, fetchStudents]);
+
+  const fetchSubjects = useCallback(async (cls) => {
+    try {
+      setLoadingSubjects(true);
+      setSubjects([]);
+      const res = await apiRequest(
+        `view-subjects?class=${encodeURIComponent(cls)}`,
+        "GET"
+      );
+      const names = (res?.subjects || [])
+        .map((s) => s?.name || s?.subject_name || s?.subject || "")
+        .filter(Boolean);
+      setSubjects(buildSubjectsFromNames(names));
+    } catch (error) {
+      console.log("fetchSubjects Error", error);
+      setSubjects([]);
+    } finally {
+      setLoadingSubjects(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (classValue) {
+      fetchSubjects(classValue);
+    } else {
+      setSubjects([]);
+    }
+  }, [classValue, fetchSubjects]);
+
+  const getFirstValidationMessage = (error) => {
+    const nestedErrors = error?.data?.errors;
+
+    if (!nestedErrors || typeof nestedErrors !== "object") {
+      return error?.userMessage || error?.message || "Something went wrong";
+    }
+
+    for (const value of Object.values(nestedErrors)) {
+      if (Array.isArray(value) && value.length > 0) {
+        return value[0];
+      }
+
+      if (typeof value === "string" && value.trim()) {
+        return value;
+      }
+    }
+
+    return error?.userMessage || error?.message || "Something went wrong";
+  };
+
+  const updateBasicInfo = (key, value) => {
+    setBasicInfo((previous) => ({
+      ...previous,
+      [key]: value,
+    }));
+  };
+
+  const updateRating = (key, value) => {
+    setRatings((previous) => ({
+      ...previous,
+      [key]: value,
+    }));
+  };
+
+  const updateSubjectField = (index, field, value) => {
+    setSubjects((previous) =>
+      previous.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
+  const resetForm = () => {
+    setPublishDate(null);
+    setClassValue("");
+    setSection("");
+    setStudentList([]);
+    setBasicInfo({
+      admissionNo: "",
+      areasOfConcern: "",
+      classTeacher: teacherName,
+      contactNo: "",
+      studentName: "",
+      wardensComment: "",
+    });
+    setRatings(createInitialRatings());
+    setSubjects([]);
+  };
+
+  const saveSpr = async () => {
+    if (
+      !publishDate ||
+      !classValue ||
+      !section ||
+      !basicInfo.admissionNo.trim()
+    ) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      const formattedDate = publishDate.toISOString().split("T")[0];
+
+      formData.append("admission_number", basicInfo.admissionNo.trim());
+      formData.append(
+        "master_id",
+        String(userData?.id || userData?.staff_info_id || "")
+      );
+      formData.append("month", String(publishDate.getMonth() + 1));
+      formData.append("date", formattedDate);
+      formData.append("class", classValue);
+      formData.append("section", section);
+      formData.append("class_teacher", basicInfo.classTeacher.trim());
+      formData.append("student_name", basicInfo.studentName.trim());
+      formData.append("pdf_file", "");
+      formData.append("punctuality", ratings.punctuality);
+      formData.append("uniform", ratings.uniform);
+      formData.append("homework", ratings.homework);
+      formData.append("classwork", ratings.classwork);
+      formData.append("discipline", ratings.discipline);
+      formData.append("academics_performance", ratings.performanceAcademics);
+      formData.append("sport_performance", ratings.performanceSports);
+      formData.append("cultural_performance", ratings.performanceCultural);
+      formData.append("strength", ratings.strength);
+      formData.append("warden_comment", basicInfo.wardensComment.trim());
+      formData.append("interaction", ratings.classInteraction);
+      formData.append("area_concern", basicInfo.areasOfConcern.trim());
+      formData.append("isActive", "1");
+
+      subjects.forEach((item) => {
+        formData.append(`subject[${item.subject}][status]`, item.status.trim());
+        formData.append(
+          `subject[${item.subject}][remark]`,
+          item.remarks.trim()
+        );
+      });
+
+      await apiClient.upload("storePerformance", formData);
+
+      showSuccessToast({
+        message: "The SPR has been added successfully.",
+        title: "SPR Added",
+      });
+      resetForm();
+      navigation.goBack();
+    } catch (error) {
+      console.log("Add SPR Error:", error);
+      alert(getFirstValidationMessage(error));
+    }
+  };
+
+  return (
+    <StaffAcademicScaffold
+      onBackPress={() => navigation.goBack()}
+      theme={theme}
+      title={isEdit ? SPR_TEXT.titles.edit : SPR_TEXT.titles.add}
+    >
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <AcademicSurfaceCard theme={theme}>
+          <Text style={[theme.typography.sectionTitle, styles.cardTitle]}>
+            {SPR_TEXT.basicInfo}
+          </Text>
+
+          <StaffAcademicDateField
+            date={publishDate}
+            label={SPR_TEXT.fields.selectDate}
+            onChange={setPublishDate}
+            theme={theme}
+          />
+
+          <View style={styles.fieldGap} />
+
+          <StaffAcademicSelectField
+            label={SPR_TEXT.fields.class}
+            onSelect={setClassValue}
+            optionAppearance="attendance"
+            options={classOptions}
+            placeholder={SPR_TEXT.placeholders.class}
+            selected={classValue}
+            theme={theme}
+          />
+
+          <View style={styles.fieldGap} />
+
+          <StaffAcademicSelectField
+            disabled={!classValue}
+            label={SPR_TEXT.fields.section}
+            mutedWhenDisabled={false}
+            onSelect={setSection}
+            optionAppearance="attendance"
+            options={sectionOptions}
+            placeholder={SPR_TEXT.placeholders.section}
+            selected={section}
+            theme={theme}
+          />
+
+          <View style={styles.fieldGap} />
+
+          {/* ── Student Dropdown (auto-loaded from class + section) ── */}
+          {loadingStudents ? (
+            <View style={styles.studentLoaderRow}>
+              <ActivityIndicator color={theme.colors.accent} size="small" />
+              <Text style={[theme.typography.fieldLabel, styles.studentLoaderText]}>
+                Loading students…
+              </Text>
+            </View>
+          ) : (
+            <StaffAcademicSelectField
+              disabled={!section || studentList.length === 0}
+              label={SPR_TEXT.fields.admissionNo}
+              onSelect={(label) => {
+                const found = studentList.find((s) => s.label === label);
+                if (found) {
+                  updateBasicInfo("admissionNo", found.std_roll);
+                  updateBasicInfo("studentName", found.name);
+                }
+              }}
+              optionAppearance="attendance"
+              options={
+                studentList.length > 0
+                  ? studentList.map((s) => s.label)
+                  : ["No Students Available"]
+              }
+              placeholder={
+                !classValue || !section
+                  ? "Select Class & Section first"
+                  : studentList.length === 0
+                  ? "No Students Available"
+                  : "Select Student (Name / Roll No)"
+              }
+              selected={
+                basicInfo.admissionNo
+                  ? studentList.find((s) => s.std_roll === basicInfo.admissionNo)?.label || ""
+                  : ""
+              }
+              theme={theme}
+            />
+          )}
+
+          <View style={styles.fieldGap} />
+
+          <StaffAcademicTextField
+            label={SPR_TEXT.fields.classTeacher}
+            onChangeText={(value) => updateBasicInfo("classTeacher", value)}
+            placeholder={SPR_TEXT.placeholders.classTeacher}
+            theme={theme}
+            value={basicInfo.classTeacher}
+          />
+
+
+          <StaffAcademicTextField
+            label={SPR_TEXT.fields.studentName}
+            onChangeText={(value) => updateBasicInfo("studentName", value)}
+            placeholder={SPR_TEXT.placeholders.studentName}
+            theme={theme}
+            value={basicInfo.studentName}
+          />
+        </AcademicSurfaceCard>
+
+        {SPR_TEXT.sectionCards
+          .filter((sectionCard) => sectionCard.key !== "strength")
+          .map((sectionCard) => (
+            <AcademicSurfaceCard
+              key={sectionCard.key}
+              style={styles.sectionCard}
+              theme={theme}
             >
-                <View style={styles.Container}>
-                    <LabelHeader label={"Select Date"} textstyle={{ marginTop: resW(2) }} />
+              <Text style={[theme.typography.sectionTitle, styles.cardTitle]}>
+                {sectionCard.title}
+              </Text>
+              <AcademicChoiceGrid
+                onSelect={(value) => updateRating(sectionCard.key, value)}
+                options={sectionCard.options}
+                selected={ratings[sectionCard.key]}
+                theme={theme}
+              />
+            </AcademicSurfaceCard>
+          ))}
 
-                    <View style={{ marginTop: resW(2) }}>
-                        <DatePickerField
-                            date={publishDate}
-                            setDate={setPublishDate}
-                        />
-                    </View>
-                    <LabelHeader label={"Class"} textstyle={{ marginTop: resW(2) }} />
-                    <CustomDropdown
-                        data={classOptions}
-                        selected={classVal}
-                        onSelect={setClassVal}
-                        placeholder="Select Class"
-                        isOpen={openDropdown === 'class'}
-                        toggleOpen={() => toggleDropdown('class')}
-                    />
-                    <LabelHeader label={"Section"} textstyle={{ marginTop: resW(4) }} />
-                    <CustomDropdown
-                        data={sectionOptions}
-                        selected={section}
-                        onSelect={setSection}
-                        placeholder="Select Section"
-                        isOpen={openDropdown === 'section'}
-                        toggleOpen={() => toggleDropdown('section')}
-                    />
-                    <LabelHeader label={"Admission No"} textstyle={{ marginTop: resW(4) }} />
-                    <CustomInputField inputStyle={styles.inputStyle} />
-                    <LabelHeader label={"Class Teacher"} textstyle={{ marginTop: resW(2) }} />
-                    <CustomInputField inputStyle={styles.inputStyle} />
-                    <LabelHeader label={"Contact No"} textstyle={{ marginTop: resW(2) }} />
-                    <CustomInputField inputStyle={styles.inputStyle} />
-                    <LabelHeader label={"Student Name"} textstyle={{ marginTop: resW(2) }} />
-                    <CustomInputField inputStyle={styles.inputStyle} />
-                    <LabelHeader label={"Punctuality And Regularity"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
+        <AcademicSurfaceCard style={styles.sectionCard} theme={theme}>
+          <Text style={[theme.typography.sectionTitle, styles.cardTitle]}>
+            {SPR_TEXT.performanceTitle}
+          </Text>
 
-                        options={[
-                            { label: 'Very Regular and Punctual', value: 'very_regular' },
-                            { label: 'Good', value: 'good' },
-                            { label: 'Average', value: 'average' },
-                            { label: 'Below Average', value: 'below_average' },
-                        ]}
-                        selected={punctuality}
-                        onSelect={setPunctuality}
-                    />
-                    <LabelHeader label={"Uniform"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
+          {PERFORMANCE_GROUPS.map((group) => (
+            <View key={group.key} style={styles.performanceGroup}>
+              <Text style={getPerformanceGroupTitleStyle(theme)}>
+                {group.label}
+              </Text>
+              <AcademicChoiceGrid
+                onSelect={(value) => updateRating(group.key, value)}
+                options={group.options}
+                selected={ratings[group.key]}
+                theme={theme}
+              />
+            </View>
+          ))}
+        </AcademicSurfaceCard>
 
-                        options={[
-                            { label: 'Well Dressed', value: 'Well Dressed' },
-                            { label: 'Good', value: 'good' },
-                            { label: 'Untidy', value: 'Untidy' },
-                            { label: 'Not Wearing Uniform ', value: 'below_average' },
-                        ]}
-                        selected={uniform}
-                        onSelect={setuniform}
-                    />
-                    <LabelHeader label={"Homework"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
-                        options={homeworkOptions}
-                        selected={homework}
-                        onSelect={setHomework}
-                    />
+        <AcademicSurfaceCard style={styles.sectionCard} theme={theme}>
+          <Text style={[theme.typography.sectionTitle, styles.cardTitle]}>
+            {SPR_TEXT.strengthTitle}
+          </Text>
+          <AcademicChoiceGrid
+            onSelect={(value) => updateRating("strength", value)}
+            options={
+              SPR_TEXT.sectionCards.find(
+                (sectionCard) => sectionCard.key === "strength"
+              )?.options || []
+            }
+            selected={ratings.strength}
+            theme={theme}
+          />
+        </AcademicSurfaceCard>
 
-                    <LabelHeader label={"Classwork"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
-                        options={classworkOptions}
-                        selected={classwork}
-                        onSelect={setClasswork}
-                    />
+        <AcademicSurfaceCard style={styles.subjectsCard} theme={theme}>
+          <View style={getSubjectsTitleStripStyle(theme)}>
+            <Text style={getSubjectsTitleStyle(theme)}>
+              {SPR_TEXT.subjectsTitle}
+            </Text>
+          </View>
 
-                    <LabelHeader label={"Class Interaction"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
-                        options={classInteractionOptions}
-                        selected={classInteraction}
-                        onSelect={setClassInteraction}
-                    />
+          {loadingSubjects ? (
+            <View style={styles.subjectsLoaderRow}>
+              <ActivityIndicator color={theme.colors.accent} size="small" />
+              <Text style={[theme.typography.body, styles.subjectsLoaderText]}>
+                Loading subjects…
+              </Text>
+            </View>
+          ) : subjects.length === 0 ? (
+            <View style={styles.subjectsEmptyRow}>
+              <Text style={[theme.typography.body, styles.subjectsEmptyText]}>
+                {classValue ? "No Subjects Available" : "Select a class to load subjects"}
+              </Text>
+            </View>
+          ) : (
+            <>
+              <View style={getSubjectTableHeaderStyle(theme)}>
+                {SPR_TEXT.subjectColumns.map((column, index) => (
+                  <Text
+                    key={column}
+                    style={[
+                      getSubjectHeaderCellStyle(theme, index),
+                      index === 0
+                        ? styles.serialColumn
+                        : index === 1
+                        ? styles.subjectColumn
+                        : styles.inputColumn,
+                    ]}
+                  >
+                    {column}
+                  </Text>
+                ))}
+              </View>
 
-                    <LabelHeader label={"Discipline"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
-                        options={disciplineOptions}
-                        selected={discipline}
-                        onSelect={setDiscipline}
-                    />
-
-                    <LabelHeader label={"Performance"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <LabelHeader label={"Academics"} textstyle={{ marginTop: resW(2), color: constant.grayColor }} />
-                    <CommonRadioGroup
-                        options={performanceOptions}
-                        selected={performance}
-                        onSelect={setPerformance}
-                    />
-                    <LabelHeader label={"Sports"} textstyle={{ marginTop: resW(2), color: constant.grayColor }} />
-                    <CommonRadioGroup
-                        options={performanceOptions}
-                        selected={sports}
-                        onSelect={setSports}
-                    />
-                    <LabelHeader label={"Cultural"} textstyle={{ marginTop: resW(2), color: constant.grayColor }} />
-
-                    <CommonRadioGroup
-                        options={performanceOptions}
-                        selected={cultural}
-                        onSelect={setCultural}
-                    />
-
-                    {/* <LabelHeader label={"Overall Performance"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
-                        options={performanceOverallOptions}
-                        selected={performanceOverall}
-                        onSelect={setPerformanceOverall}
-                    /> */}
-
-                    <LabelHeader label={"Strength"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <CommonRadioGroup
-                        options={strengthOptions}
-                        selected={strength}
-                        onSelect={setStrength}
-                    />
-
-                    <LabelHeader label={"Subjects"} textstyle={{ marginTop: resW(2), fontSize: constant.font18 }} />
-                    <View style={{ marginTop: resW(2), backgroundColor: whiteColor, borderRadius: 7, borderWidth: 1, borderColor: SilverColor }}>
-                        {/* Table Header */}
-                        <View style={{ flexDirection: 'row', backgroundColor: Blue, paddingVertical: resH(1), }}>
-                            <Text style={[styles.tableHeader, { flex: 1, color: whiteColor, textAlign: 'center' }]}>Sr. No</Text>
-                            <Text style={[styles.tableHeader, { flex: 2, color: whiteColor, textAlign: 'center' }]}>Subject</Text>
-                            <Text style={[styles.tableHeader, { flex: 2, color: whiteColor, textAlign: 'center' }]}>Status</Text>
-                            <Text style={[styles.tableHeader, { flex: 2, color: whiteColor, textAlign: 'center' }]}>Remarks</Text>
-                        </View>
-                        {/* Table Rows */}
-                        {subjects.map((row, i) => (
-                            <View key={i} style={{
-                                flexDirection: 'row',
-                                //   borderBottomWidth: 1,
-                                //   borderColor: SilverColor,
-                                minHeight: resH(5),
-                                alignItems: 'center',
-                                backgroundColor: i % 2 === 0 ? whiteColor : '#F8F8F8',
-                            }}>
-                                {/* Serial Number */}
-                                <Text style={{ flex: 1, color: blackColor, fontSize: font14, textAlign: 'center', paddingVertical: resH(1) }}>{i + 1}</Text>
-                                {/* Subject Name */}
-                                <Text style={{ flex: 2, color: blackColor, fontSize: font14, textAlign: 'center', paddingVertical: resH(1) }}>{row.subject}</Text>
-                                {/* Status Input */}
-                                <View style={{ flex: 2, paddingHorizontal: resW(1) }}>
-                                    <CustomInputField
-                                        inputStyle={[styles.tableInput, {}]}
-                                        value={row.status}
-                                        onChangeText={text => handleSubjectChange(i, 'status', text)}
-                                        placeholder="Enter text"
-                                    />
-                                </View>
-                                {/* Remarks Input */}
-                                <View style={{ flex: 2, paddingHorizontal: resW(1) }}>
-                                    <CustomInputField
-                                        inputStyle={[styles.tableInput, {}]}
-                                        value={row.remarks}
-                                        onChangeText={text => handleSubjectChange(i, 'remarks', text)}
-                                        placeholder="Enter remarks"
-                                    />
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-
-                    <View style={{ flexDirection: 'row', marginTop: resH(2), marginBottom: resH(2) }}>
-                        <View style={{ flex: 1, marginRight: resW(2) }}>
-                            <LabelHeader label={"Areas of Concern"} />
-                            <CustomInputField
-                                inputStyle={[styles.inputStyle, { height: resH(12), textAlignVertical: 'top', }]}
-                                multiline
-                                placeholder="Enter areas of concern"
-                            // value, onChangeText as needed
-                            />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <LabelHeader label={"Wardens Comment"} />
-                            <CustomInputField
-                                inputStyle={[styles.inputStyle, { height: resH(12), textAlignVertical: 'top' }]}
-                                multiline
-                                placeholder="Enter comment"
-                            // value, onChangeText as needed
-                            />
-                        </View>
-
-                    </View>
-                    <View style={{ flexDirection: "row", gap: resW(3) }}>
-                        <Pressable onPress={() => console.log("hii")} style={styles.button}>
-                            <Text style={[styles.buttonText]}>
-                                Save
-                            </Text>
-                        </Pressable>
-                        <Pressable onPress={() => console.log("hii")} style={[styles.button, { backgroundColor: Blue }]}>
-                            <Text style={styles.buttonText}>
-                                Reset
-                            </Text>
-                        </Pressable>
-                    </View>
+              {subjects.map((item, index) => (
+                <View
+                  key={item.subject}
+                  style={[
+                    getSubjectRowStyle(theme),
+                    index === subjects.length - 1 ? styles.subjectLastRow : null,
+                  ]}
+                >
+                  <Text style={[theme.typography.body, styles.serialColumn]}>
+                    {index + 1}
+                  </Text>
+                  <Text
+                    numberOfLines={2}
+                    style={[
+                      theme.typography.body,
+                      styles.subjectColumn,
+                      styles.subjectText,
+                    ]}
+                  >
+                    {item.subject}
+                  </Text>
+                  <TextInput
+                    onChangeText={(value) =>
+                      updateSubjectField(index, "status", value)
+                    }
+                    placeholder={SPR_TEXT.subjectStatusPlaceholder}
+                    placeholderTextColor={theme.colors.fieldPlaceholder}
+                    style={[getSubjectInputStyle(theme), styles.inputColumn]}
+                    value={item.status}
+                  />
+                  <TextInput
+                    onChangeText={(value) =>
+                      updateSubjectField(index, "remarks", value)
+                    }
+                    placeholder={SPR_TEXT.subjectRemarksPlaceholder}
+                    placeholderTextColor={theme.colors.fieldPlaceholder}
+                    style={[getSubjectInputStyle(theme), styles.inputColumn]}
+                    value={item.remarks}
+                  />
                 </View>
-            </KeyboardAwareScrollView>
+              ))}
+            </>
+          )}
+        </AcademicSurfaceCard>
+
+        <AcademicSurfaceCard style={styles.sectionCard} theme={theme}>
+          <Text style={[theme.typography.sectionTitle, styles.cardTitle]}>
+            {SPR_TEXT.fields.areasOfConcern}
+          </Text>
+          <StaffAcademicTextField
+            multiline
+            onChangeText={(value) => updateBasicInfo("areasOfConcern", value)}
+            placeholder={SPR_TEXT.placeholders.areasOfConcern}
+            theme={theme}
+            value={basicInfo.areasOfConcern}
+          />
+        </AcademicSurfaceCard>
+
+        <AcademicSurfaceCard style={styles.sectionCard} theme={theme}>
+          <Text style={[theme.typography.sectionTitle, styles.cardTitle]}>
+            {SPR_TEXT.fields.wardensComment}
+          </Text>
+          <StaffAcademicTextField
+            multiline
+            onChangeText={(value) => updateBasicInfo("wardensComment", value)}
+            placeholder={SPR_TEXT.placeholders.wardensComment}
+            theme={theme}
+            value={basicInfo.wardensComment}
+          />
+        </AcademicSurfaceCard>
+
+        <View style={styles.footerRow}>
+          <AcademicActionButton
+            onPress={saveSpr}
+            style={styles.footerAction}
+            theme={theme}
+            title={COMMON_TEXT.save}
+            tone="save"
+          />
+          <AcademicActionButton
+            onPress={resetForm}
+            style={styles.footerAction}
+            theme={theme}
+            title={COMMON_TEXT.reset}
+            tone="reset"
+          />
         </View>
-    )
-}
+      </ScrollView>
+    </StaffAcademicScaffold>
+  );
+};
 
-export default StaffModuleAddSPR
+const createStyles = (theme) =>
+  StyleSheet.create({
+    cardTitle: {
+      marginBottom: theme.spacing.cardGap,
+    },
+    contentContainer: {
+      paddingBottom: theme.spacing.footerBottom * 2,
+    },
+    fieldGap: {
+      height: theme.spacing.fieldGap,
+    },
+    footerAction: {
+      flex: 1,
+    },
+    footerRow: {
+      columnGap: theme.spacing.columnGap,
+      flexDirection: "row",
+      marginTop: theme.spacing.buttonTop,
+    },
+    inputColumn: {
+      flex: 1.38,
+    },
+    performanceGroup: {
+      marginBottom: theme.spacing.cardGap,
+    },
+    sectionCard: {
+      marginTop: theme.spacing.cardGap,
+    },
+    serialColumn: {
+      flex: 0.55,
+      textAlign: "center",
+    },
+    subjectColumn: {
+      flex: 1.7,
+      paddingHorizontal: theme.spacing.tableCellPadding * 0.4,
+    },
+    subjectText: {
+      lineHeight: theme.typography.body.lineHeight * 0.95,
+      textAlignVertical: "center",
+    },
+    subjectLastRow: {
+      borderBottomWidth: 0,
+    },
+    subjectsCard: {
+      marginTop: theme.spacing.cardGap,
+      overflow: "hidden",
+      paddingHorizontal: 0,
+      paddingTop: 0,
+    },
+    studentLoaderRow: {
+      alignItems: "center",
+      flexDirection: "row",
+      gap: theme.spacing.labelGap,
+      paddingVertical: theme.spacing.labelGap,
+    },
+    studentLoaderText: {
+      color: theme.colors.secondaryText,
+    },
+    subjectsLoaderRow: {
+      alignItems: "center",
+      flexDirection: "row",
+      gap: theme.spacing.labelGap,
+      justifyContent: "center",
+      paddingVertical: theme.spacing.cardGap * 1.5,
+    },
+    subjectsLoaderText: {
+      color: theme.colors.secondaryText,
+    },
+    subjectsEmptyRow: {
+      alignItems: "center",
+      paddingVertical: theme.spacing.cardGap * 1.5,
+    },
+    subjectsEmptyText: {
+      color: theme.colors.secondaryText,
+    },
+  });
 
-const styles = StyleSheet.create({
-    Container: {
-        marginHorizontal: resW(5),
-        marginTop: resH(1)
-    },
-    //     tableHeader: {
-    //   color: Blue,
-    //   fontWeight: 'bold',
-    //   fontSize: font14,
-    //   textAlign: 'left',
-    // },
-    tableInput: {
-        height: resH(5.5),
-        fontSize: constant.font12,
-        // paddingHorizontal: resW(1),
-    },
-    tableHeader: {
-        color: Blue,
-        fontWeight: 'bold',
-        fontSize: font14,
-        textAlign: 'left',
-    },
-    button: {
-        width: resW(35),
-        height: resH(6),
-        backgroundColor: "#FFC30B",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: resW(2)
-    },
-    buttonText: {
-        fontSize: font14,
-        color: whiteColor,
-        fontFamily: constant.typeExtraBold
-    },
-    dateInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 0.1,
-        borderColor: blackColor,
-        borderRadius: resH(0.3),
-        overflow: 'hidden',
-        height: resH(5.5),
-    },
-    inputStyle: {
-        height: resH(5.5),
-        color: blackColor,
-    },
-    dateText: {
-        flex: 1,
-        paddingHorizontal: resW(2),
-        color: blackColor,
-        fontSize: constant.font15
-    },
-    dateButton: {
-        paddingHorizontal: resW(3),
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: resH(5.5),
-    },
-    dateButtonText: {
-        color: blackColor,
-        fontSize: constant.font15,
-    },
-    radioLabel: {
-        fontSize: font15_5,
-        color: blackColor,
-        fontWeight: '600',
-        marginBottom: resH(0.8),
-    },
-    radioGroupContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
-    radioOption: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '42%',
-        marginBottom: resH(1),
-    },
-    radioOuter: {
-        width: resW(5),
-        height: resW(5),
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: blackColor,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: resW(2),
-    },
-    radioInner: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: Blue,
-    },
-    radioText: {
-        color: blackColor,
-        fontSize: font14,
-    },
-
-})
+export default StaffModuleAddSPR;

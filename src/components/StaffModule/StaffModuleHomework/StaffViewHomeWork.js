@@ -1,115 +1,63 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import CommonHeader from '../../CommonHeader';
+import {ScrollView, useWindowDimensions} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+
+import StaffContentScaffold from '../StaffContentShared/StaffContentScaffold';
 import {
-  blackColor,
-  whiteColor,
-  SilverColor,
-  font16,
-  font14,
-  resH,
-  resW,
-  Blue
-} from '../../../Utils/Constant';
-import CommonButton from '../../Button/CommonButton';
+  StaffContentDetailCard,
+  StaffContentPrimaryButton,
+} from '../StaffContentShared/StaffContentPrimitives';
+import {
+  getClassValue,
+  getPublishDateValue,
+  getSectionValue,
+  getSubjectValue,
+  getTopicValue,
+} from '../StaffContentShared/staffContentHelpers';
+import {STAFF_CONTENT_TEXT} from '../StaffContentShared/staffContentConfig';
+import createStaffContentTheme from '../StaffContentShared/staffContentTheme';
+
+const MODULE_TEXT = STAFF_CONTENT_TEXT.homework;
 
 const StaffViewHomeWork = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { homeWork } = route.params; // ✅ Received from previous screen
+  const {height, width} = useWindowDimensions();
+  const theme = createStaffContentTheme({height, width, variant: 'homework'});
+  const {homeWork} = route.params;
+
+  const rows = [
+    {label: `${MODULE_TEXT.labels.dateOfPublish}:`, value: getPublishDateValue(homeWork)},
+    {label: `${MODULE_TEXT.labels.subject}:`, value: getSubjectValue(homeWork)},
+    {label: `${MODULE_TEXT.labels.topic}:`, value: getTopicValue(homeWork)},
+    {label: `${MODULE_TEXT.labels.class}:`, value: getClassValue(homeWork)},
+    {label: `${MODULE_TEXT.labels.section}:`, value: getSectionValue(homeWork)},
+  ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: whiteColor }}>
-      <CommonHeader
-                     backgroundColor={Blue}
-                textColor={whiteColor}
-                IconColor={whiteColor}
-        title={'View Homework'}
-        onLeftClick={() => navigation.goBack()}
-      />
-
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* --- Homework Info Table --- */}
-        <View style={styles.tableContainer}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Date of Publish:</Text>
-            <Text style={styles.value}>{homeWork.Date}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Subject:</Text>
-            <Text style={styles.value}>{homeWork.subject}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Topic:</Text>
-            <Text style={styles.value}>{homeWork.Topic}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Class:</Text>
-            <Text style={styles.value}>{homeWork.class}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Section:</Text>
-            <Text style={styles.value}>{homeWork.section}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>From Date:</Text>
-            <Text style={styles.value}>{homeWork.fromDate}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>To Date:</Text>
-            <Text style={styles.value}>{homeWork.toDate}</Text>
-          </View>
-        </View>
-
-        {/* --- Button --- */}
-        <CommonButton
-          title="Edit"
-          buttonClick={() => navigation.navigate('StaffEditHomeWork')}
+    <StaffContentScaffold
+      onBackPress={() => navigation.goBack()}
+      theme={theme}
+      title={MODULE_TEXT.viewTitle}>
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={{
+          paddingBottom: theme.spacing.footerSafeBottom,
+          paddingTop: theme.spacing.screenTop,
+        }}
+        showsVerticalScrollIndicator={false}>
+        <StaffContentDetailCard rows={rows} theme={theme} />
+        <StaffContentPrimaryButton
+          onPress={() => navigation.navigate('StaffEditHomeWork', {homeWork})}
+          style={{
+            marginTop: theme.spacing.buttonTop,
+          }}
+          theme={theme}
+          title={STAFF_CONTENT_TEXT.common.edit}
         />
       </ScrollView>
-    </View>
+    </StaffContentScaffold>
   );
 };
 
 export default StaffViewHomeWork;
-
-const styles = StyleSheet.create({
-  container: {
-    padding: resW(4),
-    paddingBottom: resH(6),
-  },
-  tableContainer: {
-    borderWidth: 1,
-    borderColor: SilverColor,
-    borderRadius: resW(3),
-    backgroundColor: SilverColor,
-    padding: resW(4),
-    marginVertical: resH(2),
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    // borderBottomWidth: 0.5,
-    // borderBottomColor: '#ccc',
-    paddingVertical: resH(1),
-  },
-  label: {
-    fontSize: font16,
-    fontWeight: '700',
-    color: blackColor,
-    width: '45%',
-  },
-  value: {
-    fontSize: font14,
-    color: blackColor,
-    textAlign: 'right',
-    width: '50%',
-  },
-});

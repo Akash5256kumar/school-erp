@@ -13,6 +13,7 @@ import {
 import styles from './style';
 import Header from '../../Header/Header';
 import AsyncStorage from '@react-native-community/async-storage';
+import { getPersistedStudentToken } from '../../../auth/studentSessionController';
 import * as myConst from '../../Baseurl';
 import Snackbar from 'react-native-snackbar';
 import moment from 'moment';
@@ -69,8 +70,9 @@ class FeeSummary extends Component {
     });
   }
 
-  FeeSummaryApi() {
+  async FeeSummaryApi() {
     console.log('called', 'hitt')
+    const token = await getPersistedStudentToken();
     let formData = new FormData();
     formData.append('std_roll', this.state.std_roll);
     formData.append('class', this.state.classes);
@@ -78,6 +80,7 @@ class FeeSummary extends Component {
       method: 'POST',
       headers: {
         Accept: 'application/json',
+        ...(token ? { Authorization: token } : {}),
         'Content-Type': 'multipart/form-data',
       },
       body: formData,

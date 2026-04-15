@@ -72,3 +72,4 @@ coverage/
 android/app/release/
 android/app/build/
 ios/build/
+.claude/

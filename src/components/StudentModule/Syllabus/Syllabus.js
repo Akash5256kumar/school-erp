@@ -3,36 +3,31 @@ import {
   Text,
   View,
   Image,
-  FlatList,
   Modal,
   TouchableOpacity,
   Pressable,
   Platform,
   BackHandler,
+  StyleSheet
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import * as myConst from '../../Baseurl';
-import Snackbar from 'react-native-snackbar';
-import styles from './style';
-import Searchbar from '../../SearchBar';
-import CommonHeader from '../../CommonHeader';
-import LinearGradient from 'react-native-linear-gradient';
-import * as constant from '../../../Utils/Constant';
-import CommonSearch from '../../Search/CommonSearch';
 import BlobUtil from 'react-native-blob-util';
 import Pdf from 'react-native-pdf';
 import { useFocusEffect } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { FileDown, X } from 'lucide-react-native';
+
+import * as myConst from '../../Baseurl';
+import styles from './style';
+import * as constant from '../../../Utils/Constant';
+import useStudentAuth from '../../../store/hooks/useStudentAuth';
+import StudentDocumentList from '../Shared/StudentDocumentList';
 
 const Syllabus = ({ navigation, route }) => {
-  const userData = useSelector(state=>state.userSlice.userData)
-    const usertoken = useSelector(state=>state.userSlice.token)
+  const { token: usertoken } = useStudentAuth();
   const [loading, setLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const [classes, setClasses] = useState('');
   const [dataSource, setDataSource] = useState([]);
-  const [originalDataSource, setOriginalDataSource] = useState([]);
-  const [title, setTitle] = useState('');
+  
   const [ext, setExt] = useState('');
   const [pdf, setPdf] = useState(null);
   const [pdfName, setPdfName] = useState(null);
@@ -40,25 +35,18 @@ const Syllabus = ({ navigation, route }) => {
 
   const { otherParam } = route.params || {};
 
-  // Back button handling
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
         navigation.navigate('Dashboard');
         return true;
       };
-
-      const subscription = BackHandler.addEventListener(
-        'hardwareBackPress',
-        onBackPress
-      );
-
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
       return () => subscription.remove();
     }, [navigation])
   );
 
   useEffect(() => {
-    setTitle(otherParam);
     const fetchData = async () => {
       const value = await AsyncStorage.getItem('@class');
       setClasses(value);
@@ -71,11 +59,92 @@ const Syllabus = ({ navigation, route }) => {
     fetchData();
   }, [otherParam]);
 
+  const syllabusApi = stdClass => {
+    setLoading(true);
+    let formData = new FormData();
+    formData.append('std_class', stdClass);
+    fetch(myConst.BASEURL + 'viewsyllabus', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data', Authorization: usertoken },
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        setDataSource(responseJson.data || []);
+      })
+      .catch(error => console.log(error))
+      .finally(() => setLoading(false));
+  };
+
+  const examApi = stdClass => {
+    setLoading(true);
+    let formData = new FormData();
+    formData.append('std_class', stdClass);
+    fetch(myConst.BASEURL + 'viewexam', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data', Authorization: usertoken },
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        let response = (responseJson.data || []).map(item => ({
+          ...item,
+          subject: item.Subject,
+          u_date: item.exam_date,
+          u_file: item.exam_file,
+        }));
+        setDataSource(response);
+      })
+      .catch(error => console.log(error))
+      .finally(() => setLoading(false));
+  };
+
+  const notesApi = stdClass => {
+    setLoading(true);
+    let formData = new FormData();
+    formData.append('std_class', stdClass);
+    fetch(myConst.BASEURL + 'viewnotes', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data', Authorization: usertoken },
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        let response = (responseJson.data || []).map(item => ({
+          ...item,
+          subject: item.subject,
+          u_date: item.as_date,
+          u_file: item.as_file,
+        }));
+        setDataSource(response);
+      })
+      .catch(error => console.log(error))
+      .finally(() => setLoading(false));
+  };
+
+  const handleExamPress = useCallback(
+    item => {
+      navigation.navigate('ExamDetail', { examItem: item });
+    },
+    [navigation]
+  );
+
+  const handleSyllabusPress = useCallback(
+    item => {
+      navigation.navigate('SyllabusDetail', { syllabusItem: item });
+    },
+    [navigation]
+  );
+
   const openFile = item => {
-    const extension = item.u_file.split('.').pop();
+    if (!item.u_file) {
+       constant.showAlert('No document attached.');
+       return;
+    }
+    const extension = item.u_file.split('.').pop().toLowerCase();
     setExt(extension);
     setPdf(item.u_file);
-    setPdfName(item.subject);
+    setPdfName(item.subject || item.topic || 'Document');
     setIsModalVisible(true);
   };
 
@@ -86,201 +155,178 @@ const Syllabus = ({ navigation, route }) => {
         ? fs.dirs.DocumentDir + '/' + id
         : fs.dirs.PictureDir + '/' + id;
 
-    let options = {
-      fileCache: true,
-      path: downloadPath,
-    };
+    let options = { fileCache: true, path: downloadPath };
 
     if (Platform.OS === 'android') {
       options.addAndroidDownloads = {
         useDownloadManager: true,
         notification: true,
         path: downloadPath,
-        description: 'Report Download',
-        mime: 'application/pdf',
+        description: 'File Download',
+        mime: 'application/pdf', // Best effort
         mediaScannable: true,
       };
     }
 
     BlobUtil.config(options)
-      .fetch('GET', `https://myskool.sdvonline.in/images/${id}`)
+      .fetch('GET', `http://139.59.90.236/images/${id}`)
       .then(res => {
-        constant.showAlert('Download Successfully');
-        console.log('Downloaded to -> ', res.path());
+        constant.showAlert('File Downloaded Successfully!');
       })
-      .catch(err => {
-        console.log('Download error: ' + JSON.stringify(err));
-      });
+      .catch(err => console.log(err));
   };
 
-  const syllabusApi = stdClass => {
-    let formData = new FormData();
-    formData.append('std_class', stdClass);
-    fetch(myConst.BASEURL + 'viewsyllabus', {
-      method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data','Authorization' : usertoken },
-      body: formData,
-    })
-      .then(response => response.json())
-      
-      .then(responseJson => {
-        console.log("res",responseJson)
-        setDataSource(responseJson.data);
-        setOriginalDataSource(responseJson.data);
-      })
-      .catch(error => console.log("adsfs"+error))
-      .finally(() => setLoading(false));
-  };
+  // ─── Rendering the Document Items ───
+  const getFileInfo = useCallback(item => {
+    if (!item?.u_file) return null;
+    const rawUrl = item.u_file;
+    const viewUrl = rawUrl.startsWith('http')
+      ? rawUrl
+      : `http://139.59.90.236/images/${rawUrl}`;
+    const fileExt = rawUrl.split('.').pop().toLowerCase();
 
-  const examApi = stdClass => {
-    let formData = new FormData();
-    formData.append('std_class', stdClass);
+    return {
+      fileExt,
+      name: item.subject || item.topic || 'Document',
+      viewUrl,
+      downloadUrl: viewUrl,
+    };
+  }, []);
 
-    fetch(myConst.BASEURL + 'viewexam', {
-      method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data','Authorization' : usertoken },
-      body: formData,
-    })
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log("res",responseJson)
-        let response = responseJson.data.map(item => ({
-          ...item,
-          subject: item.Subject,
-          u_date: item.exam_date,
-          u_file: item.exam_file,
-        }));
-        setDataSource(response);
-        setOriginalDataSource(response);
-      })
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false));
-  };
-
-  const notesApi = stdClass => {
-    let formData = new FormData();
-    formData.append('std_class', stdClass);
-
-    fetch(myConst.BASEURL + 'viewnotes', {
-      method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data','Authorization' : usertoken },
-      body: formData,
-    })
-      .then(response => response.json())
-      .then(responseJson => {
-        let response = responseJson.data.map(item => ({
-          ...item,
-          subject: item.subject,
-          u_date: item.as_date,
-          u_file: item.as_file,
-        }));
-        setDataSource(response);
-        setOriginalDataSource(response);
-      })
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false));
-  };
-
-  const onSearch = text => {
-    let filteredArr = originalDataSource.filter(object =>
-      object.subject.toLowerCase().includes(text.toLowerCase())
-    );
-    setDataSource(text ? filteredArr : originalDataSource);
-  };
+  const renderCard = useCallback((item) => {
+    const titleText = otherParam === 'Exam Schedule' ? item.Subject : (item.topic || item.subject || 'Document');
+    return {
+      title: titleText,
+      date: item.u_date || item.created_at || '',
+      emoji: otherParam === 'Exam Schedule' ? '📝' : otherParam === 'Notes' ? '📔' : '📚',
+    };
+  }, [otherParam]);
 
   return (
-    <LinearGradient colors={['#DFE6FF', '#ffffff']} style={{ flex: 1 }}>
-      <View style={styles.MainContainer}>
-        <CommonHeader title={title} onLeftClick={() => navigation.goBack()} />
+    <View style={{ flex: 1 }}>
+      <StudentDocumentList
+        title={otherParam || 'Documents'}
+        items={dataSource}
+        renderCard={renderCard}
+        getFileInfo={getFileInfo}
+        onBack={() => navigation.goBack()}
+        onCardPress={otherParam === 'Exam Schedule' ? handleExamPress : otherParam === 'Syllabus' ? handleSyllabusPress : openFile}
+        searchFields={['topic', 'subject', 'Subject']}
+        emptyMessage={`No ${otherParam || 'items'} available at the moment.`}
+        headerEmoji={otherParam === 'Exam Schedule' ? '📅' : otherParam === 'Notes' ? '📓' : '📖'}
+      />
 
-        <CommonSearch searchText={d => onSearch(d)} />
+      {/* Embedded File Viewer Modal */}
+      <Modal
+        transparent={false}
+        animationType="slide"
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}>
+        <View style={s.modalHeaderBg}>
+          <View style={s.modalHeader}>
+            <Pressable style={s.closeBtn} onPress={() => setIsModalVisible(false)}>
+              <X color="#FFFFFF" size={24} strokeWidth={2.5} />
+            </Pressable>
+            <Text style={s.modalTitle} numberOfLines={1}>{pdfName}</Text>
+            <Pressable style={s.downloadBtn} onPress={() => downloadHistory(pdf)}>
+              <FileDown color="#FFFFFF" size={22} strokeWidth={2} />
+            </Pressable>
+          </View>
+        </View>
 
-        <FlatList
-          data={dataSource}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.FlatListView}>
-              <View style={styles.CardView}>
-                <View style={styles.CardViewStyle}>
-                  <View style={styles.DocImageAndTextStyle}>
-                    <Image style={styles.AssignmentImage} source={constant.Icons.notes} />
-                    <View style={styles.TextViewStyle}>
-                      <Text style={styles.DashboardTextStyle}>
-                        {otherParam === 'Exam Schedule' ? item?.Subject : item?.topic}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <TouchableOpacity onPress={() => openFile(item)}>
-                    <Image
-                      style={styles.AssignmentDownloadImage}
-                      resizeMode="contain"
-                      source={constant.Icons.downloadIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
+        <View style={s.modalContainer}>
+          {ext === 'pdf' ? (
+            <Pdf
+              source={{ uri: 'http://139.59.90.236/images/' + pdf, cache: true }}
+              style={s.pdfStyle}
+              onError={(error) => console.log(error)}
+            />
+          ) : ext === 'jpeg' || ext === 'jpg' || ext === 'png' ? (
+            <Image
+              source={{ uri: 'http://139.59.90.236/images/' + pdf }}
+              style={s.imageStyle}
+              resizeMode="contain"
+            />
+          ) : (
+            <View style={s.oopsWrap}>
+              <Text style={s.oopsText}>Unable to preview this file specifically.</Text>
+              <Text style={s.oopsSub}>Please download it to view locally.</Text>
             </View>
           )}
-        />
-
-        {/* File Viewer Modal */}
-        <Modal
-          transparent={false}
-          animationType="slide"
-          visible={isModalVisible}
-          onRequestClose={() => setIsModalVisible(false)}>
-          <View style={styles.PdfHeaderBackground}>
-            <View style={styles.PdfHeaderStyle}>
-              <Pressable
-                style={{
-                  flex: 1,
-                  paddingLeft: '10%',
-                  justifyContent: 'center',
-                }}
-                onPress={() => setIsModalVisible(false)}>
-                <Image
-                  source={constant.Icons.backArrowIcon}
-                  tintColor="#fff"
-                  resizeMode="contain"
-                  style={{
-                    height: constant.resW(8),
-                    width: constant.resW(8),
-                  }}
-                />
-              </Pressable>
-              <Text style={styles.PdfHeaderText}>{pdfName}</Text>
-              <TouchableOpacity onPress={() => downloadHistory(pdf)}>
-                <Image
-                  style={styles.PdfHeaderArrowImage}
-                  source={constant.Icons.downloadIcon}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.container}>
-            {ext === 'pdf' ? (
-              <Pdf
-                source={{ uri: 'http://139.59.90.236/images/' + pdf, cache: true }}
-                style={styles.pdf}
-              />
-            ) : ext === 'jpeg' || ext === 'jpg' || ext === 'png' ? (
-              <Image
-                source={{ uri: 'http://139.59.90.236/images/' + pdf }}
-                style={{ height: '100%', width: '100%' }}
-                resizeMode="contain"
-              />
-            ) : (
-              <Text style={styles.oopsText}>
-                Unable to view this file. Please download it.
-              </Text>
-            )}
-          </View>
-        </Modal>
-      </View>
-    </LinearGradient>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 export default Syllabus;
+
+const s = StyleSheet.create({
+  modalHeaderBg: {
+    backgroundColor: '#5B39F6', // Unified Purple theme
+    paddingTop: Platform.OS === 'ios' ? 44 : 10,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width:0, height:3 },
+    shadowOpacity: 0.15,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: 10,
+  },
+  closeBtn: {
+    width: 40,
+    aspectRatio: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    flex: 1,
+    fontFamily: constant.typeBold,
+    fontSize: constant.font18,
+    color: '#FFF',
+    textAlign: 'center',
+  },
+  downloadBtn: {
+    width: 40,
+    aspectRatio: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  pdfStyle: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000',
+  },
+  imageStyle: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000',
+  },
+  oopsWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+  },
+  oopsText: {
+    fontFamily: constant.typeSemiBold,
+    fontSize: constant.font16,
+    color: '#FFF',
+    textAlign: 'center',
+  },
+  oopsSub: {
+    fontFamily: constant.typeMedium,
+    fontSize: constant.font14,
+    color: '#9CA3AF',
+    marginTop: 8,
+    textAlign: 'center',
+  }
+});

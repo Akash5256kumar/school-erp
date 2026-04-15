@@ -1,320 +1,285 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Modal, ScrollView, Image, TouchableWithoutFeedback, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useCallback, useState} from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import Snackbar from 'react-native-snackbar';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import CommonHeader from '../../CommonHeader';
 import LinearGradient from 'react-native-linear-gradient';
-import { BattleshipGrey, blackColor, font12, font14, font15_5, font16, resH, resW, SilverColor, } from '../../../Utils/Constant';
-import CommonButton from '../../Button/CommonButton';
-import * as constant from '../../../Utils/Constant'
-const complaintsData = [
-  {
-    id: '1',
-    student: 'Preeti',
-    class: 'MCA',
-    Section: "A",
-    createdAt: '02 Oct 2025',
-    complaintType: 'Library facilities issue',
-    complaintText:
-      'The study area is often crowded and needs more seating arrangements. There are not enough tables for students during exam periods and many have to stand. Some chairs are broken and should be replaced with comfortable seating. The air conditioning system needs maintenance as the area gets quite hot in the afternoon. There is also a need for more power outlets for students’ devices. The lighting should be improved for evening study hours. Library staff are helpful but sometimes there is a delay in getting reserved books. Cleanliness needs attention especially in corners where dust accumulates. It would be great to extend the library hours before exams. Group study rooms are frequently unavailable, so more should be added. Wi-Fi connection is sometimes unstable. A water dispenser would be helpful for students. The notice board should be kept updated with new arrivals of books. More computer terminals are needed so students don’t have to wait. Overall, the library can become a better study environment with these improvements.',
+import {Plus} from 'lucide-react-native';
 
-    status: 'Pending',
-  },
-  {
-    id: '2',
-    student: 'Preeti',
-    class: 'MCA',
-    Section: "A",
-    createdAt: '01 Oct 2025',
-    complaintType: 'Hostel food issue',
-    complaintText: 'The food served in hostel is repetitive and needs better variety.',
-    status: 'Approved',
-  },
-  {
-    id: '3',
-    student: 'Preeti',
-    class: 'MCA',
-    Section: "A",
-    createdAt: '30 Sep 2025',
-    complaintType: 'Transport delay',
-    complaintText: 'Buses often arrive late, causing delay in reaching classes.',
-    status: 'Approved',
-  },
-  //   {
-  //   id: '1',
-  //   student: 'Preeti',
-  //   class: 'MCA',
-  //   Section: "A",
-  //   createdAt: '02 Oct 2025',
-  //   complaintType: 'Library facilities issue',
-  //   complaintText:
-  //     'The study area is often crowded and needs more seating arrangements. There are not enough tables for students during exam periods and many have to stand. Some chairs are broken and should be replaced with comfortable seating. The air conditioning system needs maintenance as the area gets quite hot in the afternoon. There is also a need for more power outlets for students’ devices. The lighting should be improved for evening study hours. Library staff are helpful but sometimes there is a delay in getting reserved books. Cleanliness needs attention especially in corners where dust accumulates. It would be great to extend the library hours before exams. Group study rooms are frequently unavailable, so more should be added. Wi-Fi connection is sometimes unstable. A water dispenser would be helpful for students. The notice board should be kept updated with new arrivals of books. More computer terminals are needed so students don’t have to wait. Overall, the library can become a better study environment with these improvements.',
+import {STRINGS} from '../../../constants';
+import * as constant from '../../../Utils/Constant';
+import staffApiClient from '../../../api/staffClient';
+import ComplaintCard from './ComplaintCard';
+import ComplaintDetailModal from './ComplaintDetailModal';
+import {createComplaintTheme} from './complaintTheme';
 
-  //   status: 'Pending',
-  // },
-  // {
-  //   id: '2',
-  //   student: 'Preeti',
-  //   class: 'MCA',
-  //   Section: "A",
-  //   createdAt: '01 Oct 2025',
-  //   complaintType: 'Hostel food issue',
-  //   complaintText: 'The food served in hostel is repetitive and needs better variety.',
-  //   status: 'Approved',
-  // },
-  // {
-  //   id: '3',
-  //   student: 'Preeti',
-  //   class: 'MCA',
-  //   Section: "A",
-  //   createdAt: '30 Sep 2025',
-  //   complaintType: 'Transport delay',
-  //   complaintText: 'Buses often arrive late, causing delay in reaching classes.',
-  //   status: 'Approved',
-  // },
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-];
+const formatComplaintDate = value => {
+  if (!value) {
+    return '';
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return String(value);
+  }
+
+  const day = String(parsedDate.getDate()).padStart(2, '0');
+  const month = MONTH_NAMES[parsedDate.getMonth()];
+  const year = parsedDate.getFullYear();
+
+  return `${day} ${month} ${year}`;
+};
+
+const getComplaintStatusLabel = status => {
+  if (String(status) === '1' || String(status).toLowerCase() === 'approved') {
+    return 'Approved';
+  }
+
+  return 'Pending';
+};
+
+const normalizeComplaintItem = (item, index) => ({
+  Section: item?.section || item?.Section || '-',
+  admissionNumber:
+    item?.admission_no ||
+    item?.[' admission_no'] ||
+    item?.admissionNo ||
+    item?.std_roll ||
+    '-',
+  class: item?.class || '-',
+  complaintText: item?.reason || item?.complaint || item?.complaintText || '-',
+  complaintType: item?.type || item?.complaintType || '-',
+  createdAt: formatComplaintDate(item?.created_at || item?.createdAt),
+  id: String(item?.id ?? item?.request_id ?? index),
+  rawStatus: item?.status,
+  status: getComplaintStatusLabel(item?.status),
+  student: item?.name || item?.student || '-',
+});
 
 const StudentComplaint = () => {
   const navigation = useNavigation();
+  const {height, width} = useWindowDimensions();
+  const theme = createComplaintTheme({height, width});
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-
-  const getStatusStyle = (status) => ({
-    backgroundColor: BattleshipGrey,
-    color: blackColor,
-  });
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleCardPress = (item) => {
     setSelectedComplaint(item);
     setModalVisible(true);
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleCardPress(item)} activeOpacity={0.9}>
-      <View style={styles.card}>
-        <View style={styles.headerRow}>
-          <Text style={styles.studentInfo}>
-            Name: {item.student}  Class: {item.class}  Section: {item.Section}
-          </Text>
-          <View style={styles.rightHeader}>
-            <Text style={styles.dateText}>{item.createdAt}</Text>
-            <View style={styles.statusWrapper}>
-              <Text style={[styles.status, getStatusStyle(item.status)]}>
-                {item.status}
-              </Text>
-            </View>
-          </View>
-        </View>
-        <Text style={styles.complaintLabel}>Complaint Type</Text>
-        <Text style={styles.complaintText}>{item.complaintType}</Text>
-        <Text style={styles.complaintLabel}>Description</Text>
-        <Text
-          style={styles.complaintText}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {item.complaintText}
-        </Text>
-      </View>
-    </TouchableOpacity>
+  const showMessage = useCallback(message => {
+    Snackbar.show({
+      backgroundColor: '#f15270',
+      duration: Snackbar.LENGTH_SHORT,
+      text: message,
+    });
+  }, []);
+
+  const loadComplaints = useCallback(
+    async ({isRefresh = false} = {}) => {
+      try {
+        if (isRefresh) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+
+        const userId = await AsyncStorage.getItem('@id');
+
+        if (!userId) {
+          setComplaints([]);
+          showMessage('Your session details are missing. Please log in again.');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('user_id', userId);
+
+        const responseJson = await staffApiClient.upload('issuedraisebyuser', formData);
+
+        if (responseJson.status) {
+          const normalizedComplaints = (responseJson.data || []).map((item, index) =>
+            normalizeComplaintItem(item, index),
+          );
+          setComplaints(normalizedComplaints);
+          return;
+        }
+
+        setComplaints([]);
+        showMessage(responseJson.message || 'Unable to load complaints right now.');
+      } catch (error) {
+        console.log(error);
+        setComplaints([]);
+        showMessage('Unable to load complaints right now.');
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [showMessage],
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      loadComplaints();
+    }, [loadComplaints]),
+  );
+
+  const renderEmptyState = () => (
+    <View
+      style={[
+        styles.emptyState,
+        {
+          backgroundColor: theme.colors.cardBackground,
+          borderRadius: theme.radii.card,
+          marginTop: theme.spacing.screenTop,
+          paddingHorizontal: theme.spacing.cardBodyHorizontal,
+          paddingVertical: theme.spacing.cardBodyVertical,
+        },
+        theme.shadows.card,
+      ]}>
+      {loading ? (
+        <ActivityIndicator color={theme.colors.accentHeaderEnd} size="small" />
+      ) : null}
+      <Text
+        style={[
+          theme.typography.sectionTitle,
+          styles.emptyTitle,
+          loading ? styles.emptyTitleWithSpinner : null,
+        ]}>
+        {loading ? 'Loading complaints...' : 'No complaints found'}
+      </Text>
+      <Text style={[theme.typography.body, styles.emptyDescription]}>
+        {loading
+          ? 'Please wait while we fetch your complaint history.'
+          : 'Complaints you raise will appear here once available.'}
+      </Text>
+    </View>
+  );
 
   return (
-    <LinearGradient colors={['white', 'white']} style={{ flex: 1 }}>
+    <LinearGradient
+      colors={[
+        theme.colors.backgroundGradientStart,
+        theme.colors.backgroundGradientMiddle,
+        theme.colors.backgroundGradientEnd,
+      ]}
+      style={styles.screen}>
       <CommonHeader
-        title={'Student Complaint'}
-        backgroundColor={constant.Blue}
+        compact
+        title={STRINGS.staffComplaints.listTitle}
         textColor={constant.whiteColor}
         IconColor={constant.whiteColor}
+        iconStyle={{
+          height: theme.sizing.headerIcon,
+          width: theme.sizing.headerIcon,
+        }}
+        gradientColors={[
+          theme.colors.accentHeaderStart,
+          theme.colors.accentHeaderEnd,
+        ]}
+        extStyle={[
+          {
+            height: theme.sizing.headerHeight,
+          },
+          theme.shadows.header,
+        ]}
+        titleStyle={theme.typography.headerTitle}
         onLeftClick={() => {
           navigation.goBack();
         }}
       />
       <FlatList
-        data={complaintsData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: resH(2), marginTop: resH(1) }}
+        data={complaints}
+        keyExtractor={item => item.id}
+        ListEmptyComponent={renderEmptyState}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => loadComplaints({isRefresh: true})} />
+        }
+        renderItem={({item}) => (
+          <ComplaintCard item={item} onPress={handleCardPress} theme={theme} />
+        )}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: theme.spacing.contentBottom,
+          paddingHorizontal: theme.spacing.screenHorizontal,
+          paddingTop: theme.spacing.screenTop,
+        }}
+        showsVerticalScrollIndicator={false}
       />
       <TouchableOpacity
-        style={styles.fabButton}
-        activeOpacity={0.7}
-        onPress={() => navigation.navigate("AddComplaint")}
-      >
-        <Image source={constant.Icons.AddIcon} style={styles.fabIcon} />
+        accessibilityRole="button"
+        activeOpacity={0.88}
+        onPress={() => navigation.navigate('AddComplaint')}
+        style={[
+          styles.fabButton,
+          {
+            backgroundColor: theme.colors.fabBackground,
+            borderColor: theme.colors.fabRing,
+            borderRadius: theme.radii.fab,
+            borderWidth: theme.sizing.fabBorderWidth,
+            bottom: theme.spacing.screenHorizontal + theme.spacing.cardGap,
+            height: theme.sizing.fabSize,
+            right: theme.spacing.screenHorizontal,
+            width: theme.sizing.fabSize,
+          },
+          theme.shadows.fab,
+        ]}>
+        <Plus
+          color={constant.whiteColor}
+          size={theme.sizing.fabIcon}
+          strokeWidth={2.4}
+        />
       </TouchableOpacity>
-      <Modal
+      <ComplaintDetailModal
+        complaint={selectedComplaint}
+        onClose={() => setModalVisible(false)}
+        theme={theme}
         visible={modalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)} // for Android back press
-      >
-        <Pressable
-          style={styles.modalBackground}
-          onPress={() => setModalVisible(false)} // tap outside closes modal
-        >
-          <View style={styles.modalContainer} pointerEvents="box-none">
-            <Pressable style={styles.modalBox}>
-              <ScrollView
-                showsVerticalScrollIndicator={true}
-                nestedScrollEnabled={true}
-                contentContainerStyle={{ paddingBottom: resH(3) }}
-              >
-                {selectedComplaint && (
-                  <>
-                    <View style={styles.headerRow}>
-                      <Text style={[styles.studentInfo, { width: resW(50) }]}>
-                        Name: {selectedComplaint.student}
-                        {" "}Class: {selectedComplaint.class}{" "}
-                        Section: {selectedComplaint.Section}
-                      </Text>
-                      <View style={styles.rightHeader}>
-                        <Text style={styles.dateText}>{selectedComplaint.createdAt}</Text>
-                        <View style={styles.statusWrapper}>
-                          <Text style={[styles.status, getStatusStyle(selectedComplaint.status)]}>
-                            {selectedComplaint.status}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-
-                    <Text style={styles.complaintLabel}>Complaint Type</Text>
-                    <Text style={styles.complaintText}>{selectedComplaint.complaintType}</Text>
-
-                    <Text style={styles.complaintLabel}>Description</Text>
-                    <Text style={styles.complaintText}>{selectedComplaint.complaintText}</Text>
-                  </>
-                )}
-              </ScrollView>
-
-
-            </Pressable>
-          </View>
-        </Pressable>
-      </Modal>
-
-
-
-
-
+      />
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: resW(4),
-    marginVertical: resH(0.5),
-    padding: resW(4),
-    borderRadius: resW(2),
-    backgroundColor: SilverColor,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  studentInfo: {
-    fontSize: font15_5,
-    fontWeight: 'bold',
-    color: blackColor,
-    width: resW(55),
-  },
-  dateText: {
-    fontSize: font12,
-    color: '#777',
-  },
-  complaintLabel: {
-    fontSize: font16,
-    marginTop: resH(1),
-    color: blackColor,
-    fontWeight: '700',
-  },
-  complaintText: {
-    fontSize: constant.font13,
-    color: blackColor,
-    marginTop: resH(0.5),
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  rightHeader: {
-    alignItems: 'flex-end',
-  },
-  statusWrapper: {
-    marginTop: resH(0.8),
-    padding: resW(1),
-  },
-  status: {
-    fontSize: font14,
-    fontWeight: 'bold',
-    paddingVertical: resH(0.8),
-    paddingHorizontal: resW(3.5),
-    borderRadius: resW(2),
-    overflow: 'hidden',
+  emptyDescription: {
     textAlign: 'center',
   },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+  emptyState: {
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
   },
-
-  modalContainer: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  emptyTitle: {
+    textAlign: 'center',
   },
-
-  modalBox: {
-    width: '90%',
-    height: '60%',
-    backgroundColor: 'white',
-    borderRadius: resW(2),
-    padding: resW(4),
-    elevation: 5,
-    justifyContent: 'flex-start',
-    overflow: 'hidden',
-  },
-
-  closeButton: {
-    marginTop: resH(2),
-    backgroundColor: BattleshipGrey,
-    paddingVertical: resH(1),
-    alignItems: 'center',
-    borderRadius: resW(2),
+  emptyTitleWithSpinner: {
+    marginTop: 12,
   },
   fabButton: {
-    position: 'absolute',
-    bottom: resH(8),   // distance from bottom
-    right: resW(4),    // distance from right
-    backgroundColor: SilverColor,
-    width: resW(15),
-    height: resW(15),
-    borderRadius: resW(7.5), // make it circular
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: constant.Blue,
-    // elevation: 5, // shadow for Android
-    // shadowColor: '#000', // shadow for iOS
-    // shadowOpacity: 0.3,
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowRadius: 3,
-    // borderColor:blackColor,
-    // borderWidth:2
+    justifyContent: 'center',
+    position: 'absolute',
   },
-  fabIcon: {
-    width: resW(7),
-    height: resW(7),
-    tintColor: constant.whiteColor,
-    resizeMode: 'contain',
+  screen: {
+    flex: 1,
   },
-
 });
 
 export default StudentComplaint;
